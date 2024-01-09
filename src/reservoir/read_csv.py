@@ -45,9 +45,7 @@ def ReadReservoirData(
         volume setpoints
     """
 
-    res_df = pd.read_csv(
-        reservoirs_csv_path, sep=None, index_col=0, engine="python"
-    )
+    res_df = pd.read_csv(reservoirs_csv_path, sep=None, index_col=0, engine="python")
     vh_data_df = pd.read_csv(
         volume_level_csv_path, sep=None, index_col=0, engine="python"
     )
@@ -75,10 +73,9 @@ def ReadReservoirData(
                 spillwaydischarge_df.loc[index],
             )
         else:
-            reservoirs[index] = Reservoir(index,
-                                          vh_data_df.loc[index],
-                                          va_data_df.loc[index],
-                                          res_df.loc[index])
+            reservoirs[index] = Reservoir(
+                index, vh_data_df.loc[index], va_data_df.loc[index], res_df.loc[index]
+            )
         # compute setpoints as volumes, using the vh_data_df if user gives
         # setpoints in res_df.
         for key in ["surcharge", "fullsupply", "crestheight"]:
@@ -115,12 +112,9 @@ class Reservoir:
     --------
     """
 
-    def __init__(self,
-                 name,
-                 vh_data,
-                 va_data,
-                 reservoir_properties,
-                 spillwaydischargedata=None):
+    def __init__(
+        self, name, vh_data, va_data, reservoir_properties, spillwaydischargedata=None
+    ):
         self.name = name
         self.__vh_lookup = vh_data
         self.__va_lookup = va_data
@@ -144,8 +138,7 @@ class Reservoir:
              Reservoir  volume(s)
         """
         volumes = np.interp(
-            levels, self.__vh_lookup["Elevation_m"],
-            self.__vh_lookup["Storage_m3"]
+            levels, self.__vh_lookup["Elevation_m"], self.__vh_lookup["Storage_m3"]
         )
         return volumes
 
@@ -165,8 +158,7 @@ class Reservoir:
             Water level(s)
         """
         levels = np.interp(
-            volumes, self.__vh_lookup["Storage_m3"],
-            self.__vh_lookup["Elevation_m"]
+            volumes, self.__vh_lookup["Storage_m3"], self.__vh_lookup["Elevation_m"]
         )
         return levels
 
@@ -208,12 +200,10 @@ class Reservoir:
             Reservoir area(s)
         """
         volume_interp = np.interp(
-            levels, self.__vh_lookup["Elevation_m"],
-            self.__vh_lookup["Storage_m3"]
+            levels, self.__vh_lookup["Elevation_m"], self.__vh_lookup["Storage_m3"]
         )
         areas = np.interp(
-            volume_interp, self.__va_lookup["Storage_m3"],
-            self.__va_lookup["Area_m2"]
+            volume_interp, self.__va_lookup["Storage_m3"], self.__va_lookup["Area_m2"]
         )
         return areas
 
