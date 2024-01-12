@@ -1,0 +1,29 @@
+# Run by default on lowest supported Python version
+image: python:3.8
+
+stages:
+  - style
+  - test
+
+# style
+style:
+  stage: style
+  before_script:
+    - apt update && apt install -y --no-install-recommends git
+    - pip install pre-commit
+  script:
+    - pre-commit run --all-files --show-diff-on-failure
+  tags:
+    - docker
+
+# test
+test38:
+  stage: test
+  before_script:
+    - pip install -e .
+    - pip install pytest
+  script:
+    - pytest tests 
+  tags:
+    - docker
+    - linux

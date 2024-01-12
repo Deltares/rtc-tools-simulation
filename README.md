@@ -6,4 +6,8 @@ This is rtc-tools-simulation-modelling-extension, a toolbox for simulation model
 
 ```bash
 pip install rtc-tools-simulation-modelling-extension
+```
 
+## Developer guidelines
+
+Developer guidelines can be found [here](Contributing.md)

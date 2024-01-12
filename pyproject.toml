@@ -1,0 +1,27 @@
+# See https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# for info on toml setup files.
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "rtc-tools-simulation-modelling-extension"
+authors = [{name = "Deltares"}]
+description = "Extension for building models used for simulation in rtc-tools."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "pandas",
+]
+dynamic = ["version"]
+
+[tool.ruff]
+line-length = 100
+select = [
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "E", # default / pycodestyle
+    "F", # default / pyflakes
+    "I", # isort
+    "W", # pycodestyle
+]
