@@ -1,7 +1,6 @@
 from typing import Union
 
 import numpy as np
-
 import pandas as pd
 
 
@@ -46,12 +45,8 @@ def ReadReservoirData(
     """
 
     res_df = pd.read_csv(reservoirs_csv_path, sep=None, index_col=0, engine="python")
-    vh_data_df = pd.read_csv(
-        volume_level_csv_path, sep=None, index_col=0, engine="python"
-    )
-    va_data_df = pd.read_csv(
-        volume_area_csv_path, sep=None, index_col=0, engine="python"
-    )
+    vh_data_df = pd.read_csv(volume_level_csv_path, sep=None, index_col=0, engine="python")
+    va_data_df = pd.read_csv(volume_area_csv_path, sep=None, index_col=0, engine="python")
     # read spill spillway-discharge table if provided
     try:
         spillwaydischarge_df = pd.read_csv(
@@ -112,9 +107,7 @@ class Reservoir:
     --------
     """
 
-    def __init__(
-        self, name, vh_data, va_data, reservoir_properties, spillwaydischargedata=None
-    ):
+    def __init__(self, name, vh_data, va_data, reservoir_properties, spillwaydischargedata=None):
         self.name = name
         self.__vh_lookup = vh_data
         self.__va_lookup = va_data
@@ -137,9 +130,7 @@ class Reservoir:
         volumes :
              Reservoir  volume(s)
         """
-        volumes = np.interp(
-            levels, self.__vh_lookup["Elevation_m"], self.__vh_lookup["Storage_m3"]
-        )
+        volumes = np.interp(levels, self.__vh_lookup["Elevation_m"], self.__vh_lookup["Storage_m3"])
         return volumes
 
     def volume_to_level(self, volumes: Union[float, np.ndarray]):
@@ -157,9 +148,7 @@ class Reservoir:
         levels :
             Water level(s)
         """
-        levels = np.interp(
-            volumes, self.__vh_lookup["Storage_m3"], self.__vh_lookup["Elevation_m"]
-        )
+        levels = np.interp(volumes, self.__vh_lookup["Storage_m3"], self.__vh_lookup["Elevation_m"])
         return levels
 
     def volume_to_area(self, volumes: Union[float, np.ndarray]):
@@ -177,9 +166,7 @@ class Reservoir:
         areas :
             Reservoir area(s)
         """
-        areas = np.interp(
-            volumes, self.__va_lookup["Storage_m3"], self.__va_lookup["Area_m2"]
-        )
+        areas = np.interp(volumes, self.__va_lookup["Storage_m3"], self.__va_lookup["Area_m2"])
         return areas
 
     def level_to_area(self, levels: Union[float, np.ndarray]):
