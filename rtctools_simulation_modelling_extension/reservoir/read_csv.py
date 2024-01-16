@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def ReadReservoirData(
+def read_reservoir_data(
     reservoirs_csv_path,
     volume_level_csv_path,
     volume_area_csv_path,
@@ -76,7 +76,7 @@ def ReadReservoirData(
         for key in ["surcharge", "fullsupply", "crestheight"]:
             if key in res_df.keys():
                 print(key)
-                reservoirs[index].set_Vsetpoints(key)
+                reservoirs[index].set_v_setpoints(key)
     return reservoirs
 
 
@@ -91,7 +91,7 @@ class Reservoir:
     properties : Series
         properties of the reservoirs, such as Name, surcharge, fullsupply,
         crestheight, volume_min, volume_max, q_turbine_max, q_spill_max
-    Vsetpoints : dict
+    v_setpoints : dict
         Optionally: dictionary with keys 'surcharge', 'fullsupply',
         'crestheight'
 
@@ -113,7 +113,7 @@ class Reservoir:
         self.__va_lookup = va_data
         self.properties = reservoir_properties
         self.__spillwaydischargelookup = spillwaydischargedata
-        self.Vsetpoints = {}
+        self.v_setpoints = {}
 
     def level_to_volume(self, levels: Union[float, np.ndarray]):
         r"""
@@ -219,14 +219,14 @@ class Reservoir:
         )
         return spillwaydischarge
 
-    def set_Vsetpoints(self, level: str):
+    def set_v_setpoints(self, level: str):
         r"""
         Add interpolated volume setpoints for defined setpoint levels to
-        Vsetpoints dictionary.
+        v_setpoints dictionary.
 
         Parameters
         ----------
         level:
             Setpoint level
         """
-        self.Vsetpoints[level] = self.level_to_volume(self.properties[level])
+        self.v_setpoints[level] = self.level_to_volume(self.properties[level])
