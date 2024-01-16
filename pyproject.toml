@@ -18,10 +18,15 @@ dynamic = ["version"]
 [tool.ruff]
 line-length = 100
 select = [
+    # For an overview of options; see https://docs.astral.sh/ruff/rules
     "B", # flake8-bugbear
     "C4", # flake8-comprehensions
     "E", # default / pycodestyle
     "F", # default / pyflakes
     "I", # isort
+    "PL", # pylint 
     "W", # pycodestyle
 ]
+
+[tool.ruff.lint.pylint]
+max-args = 10
