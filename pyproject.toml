@@ -12,6 +12,7 @@ requires-python = ">=3.8"
 dependencies = [
     "numpy",
     "pandas",
+    "rtc-tools-interface==0.7.*"
 ]
 dynamic = ["version"]
 
