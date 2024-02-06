@@ -13,9 +13,10 @@ description = "Extension for building models used for simulation in rtc-tools."
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "casadi >= 3.6.3, == 3.6.*",
+    "casadi",
     "numpy",
     "pandas",
+    "rtc-tools >= 2.6",
 ]
 dynamic = ["version"]
 
