@@ -3,6 +3,9 @@
 [build-system]
 requires = ["setuptools"]
 
+[tool.setuptools]
+packages = ["rtctools_simulation_modelling_extension"]
+
 [project]
 name = "rtc-tools-simulation-modelling-extension"
 authors = [{name = "Deltares"}]
