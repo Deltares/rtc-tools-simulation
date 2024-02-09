@@ -1,0 +1,3 @@
+lookup_table,var_in,var_out
+h_from_v,V,H
+qspill_from_h,H,QSpill
