@@ -20,7 +20,7 @@ class ModelConfig:
         self._files = files if files is not None else {}
         self.resolve_files()
 
-    def get_dir(self, dir_name: str) -> Path:
+    def get_dir(self, dir_name: str, default: Path = None) -> Path:
         """Get a directory."""
         if dir_name in self._dirs:
             dir = self._dirs[dir_name]
@@ -32,6 +32,8 @@ class ModelConfig:
                 dir = self.base_dir
                 dir = Path(dir).resolve()
         if not dir.is_dir():
+            if default is not None:
+                return default
             raise ValueError(f"Directory {dir_name} not found.")
         return dir
 
@@ -46,7 +48,9 @@ class ModelConfig:
         if not file.is_file() and dirs is not None:
             # Search in given list of directories.
             for dir_name in dirs:
-                dir = self.get_dir(dir_name)
+                dir = self.get_dir(dir_name, default=None)
+                if dir is None:
+                    continue
                 file = dir / file_name
                 file = Path(file).resolve()
                 if file.is_file():
