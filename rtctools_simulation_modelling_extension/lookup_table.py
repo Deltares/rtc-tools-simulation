@@ -5,6 +5,8 @@ from typing import Dict, List
 import casadi as ca
 import pandas as pd
 
+from rtctools_simulation_modelling_extension.model import Model
+
 
 def get_lookup_table_from_csv(
     name: str,
@@ -94,5 +96,15 @@ def get_lookup_table_equations_from_csv(
     return equations
 
 
-if __name__ == "__main__":
-    print("hi")
+def get_lookup_table_equations_from_model(model: Model) -> List[ca.MX]:
+    """Get a list of lookup-table equations from a given model."""
+    variables = model.get_variables()
+    lookup_tables_dir = model.config.get_dir("lookup_tables")
+    lookup_tables_csv = model.config.get_file("lookup_tables.csv", dirs=["lookup_tables"])
+    lookup_tables = get_lookup_tables_from_csv(lookup_tables_csv, data_dir=lookup_tables_dir)
+    equations = get_lookup_table_equations_from_csv(
+        file=model.config.get_file("lookup_table_equations.csv", dirs=["model"]),
+        lookup_tables=lookup_tables,
+        variables=variables,
+    )
+    return equations
