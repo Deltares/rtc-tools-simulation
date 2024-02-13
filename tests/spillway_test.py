@@ -4,35 +4,25 @@ from pathlib import Path
 import numpy as np
 import numpy.testing
 import pandas as pd
-from rtctools.simulation.csv_mixin import CSVMixin
-from rtctools.simulation.simulation_problem import SimulationProblem
 
 import rtctools_simulation_modelling_extension.lookup_table as lut
+from rtctools_simulation_modelling_extension.model import Model
+from rtctools_simulation_modelling_extension.model_config import ModelConfig
 
 SPILLWAY_DIR = Path(__file__).parent.resolve() / "spillway_model"
 
 
-class SpillwayModel(CSVMixin, SimulationProblem):
+class SpillwayModel(Model):
     """Class for simulating a spillway model."""
 
-    def __init__(self):
-        super().__init__(
-            input_folder=SPILLWAY_DIR / "input",
-            output_folder=SPILLWAY_DIR / "output",
-            model_folder=SPILLWAY_DIR / "model",
-            model_name="Spillway",
-        )
+    config = ModelConfig(
+        model="Spillway",
+        base_dir=SPILLWAY_DIR,
+    )
 
     def extra_equations(self):
         """Add equations that involve lookuptables."""
-        variables = self.get_variables()
-        lookup_tables_csv = SPILLWAY_DIR / "lookup_tables" / "lookup_tables.csv"
-        lookup_tables = lut.get_lookup_tables_from_csv(lookup_tables_csv)
-        equations = lut.get_lookup_table_equations_from_csv(
-            file=SPILLWAY_DIR / "model" / "lookup_table_equations.csv",
-            lookup_tables=lookup_tables,
-            variables=variables,
-        )
+        equations = lut.get_lookup_table_equations_from_model(self)
         return equations
 
     def output_df(self):
