@@ -16,7 +16,7 @@ dependencies = [
     "casadi",
     "numpy",
     "pandas",
-    "rtc-tools >= 2.6",
+    "rtc-tools >= 2.5",
 ]
 dynamic = ["version"]
 
