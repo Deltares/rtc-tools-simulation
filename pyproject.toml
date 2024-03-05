@@ -11,7 +11,7 @@ name = "rtc-tools-simulation-modelling-extension"
 authors = [{name = "Deltares"}]
 description = "Extension for building models used for simulation in rtc-tools."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "pandas",

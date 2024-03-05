@@ -1,5 +1,5 @@
 # Run by default on lowest supported Python version
-image: python:3.8
+image: python:3.9
 
 stages:
   - style
