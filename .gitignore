@@ -5,5 +5,8 @@ __pycache__
 # Editors
 .vscode
 
+# Virtual environments
+.venv*
+
 # Distribution and packaging
 *.egg-info
