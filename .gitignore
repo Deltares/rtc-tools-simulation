@@ -1,8 +1,12 @@
 # Cache files
 __pycache__
+*.pymoca_cache
 
 # Editors
 .vscode
+
+# Virtual environments
+.venv*
 
 # Distribution and packaging
 *.egg-info

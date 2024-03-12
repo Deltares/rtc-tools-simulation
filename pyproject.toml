@@ -3,15 +3,21 @@
 [build-system]
 requires = ["setuptools"]
 
+[tool.setuptools]
+packages = ["rtctools_simulation_modelling_extension"]
+
 [project]
 name = "rtc-tools-simulation-modelling-extension"
 authors = [{name = "Deltares"}]
 description = "Extension for building models used for simulation in rtc-tools."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
+    "casadi >= 3.6.3, == 3.6.*",
     "numpy",
     "pandas",
+    "rtc-tools >= 2.6",
+    "rtc-tools-interface == 0.7.*",
 ]
 dynamic = ["version"]
 
