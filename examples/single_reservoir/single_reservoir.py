@@ -6,8 +6,8 @@ from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig,
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 
 
-class FrenchMeadow(ReservoirModel):
-    """French meadow model."""
+class SingleReservoir(ReservoirModel):
+    """Example single reservoir model."""
 
     def apply_schemes(self):
         """Apply schemes for setting inputs."""
@@ -30,5 +30,5 @@ class FrenchMeadow(ReservoirModel):
 
 
 # Create and run the model.
-model = FrenchMeadow(CONFIG)
+model = SingleReservoir(CONFIG)
 model.simulate()
