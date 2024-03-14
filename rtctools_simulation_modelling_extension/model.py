@@ -1,5 +1,6 @@
 """Module for a basic model."""
 import logging
+from pathlib import Path
 from typing import Dict, List
 
 import casadi as ca
@@ -89,6 +90,7 @@ class Model(PlotMixin, CSVMixin, _SimulationProblem):
     def __init__(self, config: ModelConfig, **kwargs):
         self._config = config
         self._lookup_tables = self._get_lookup_tables()
+        self.plot_table_file = self._get_plot_table_file()
         super().__init__(
             input_folder=self._config.get_dir("input"),
             output_folder=self._config.get_dir("output"),
@@ -96,6 +98,13 @@ class Model(PlotMixin, CSVMixin, _SimulationProblem):
             model_name=self._config.model(),
             **kwargs,
         )
+
+    def _get_plot_table_file(self):
+        """Get the file that describes the plots."""
+        plot_table_file = self._config.get_file("plot_table.csv", dirs=["input"])
+        if plot_table_file is None:
+            plot_table_file = Path(__file__).parent / "empty_plot_table.csv"
+        return plot_table_file
 
     def _get_lookup_tables(self) -> Dict[str, ca.Function]:
         """Get a dict of lookup tables."""
