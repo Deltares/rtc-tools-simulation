@@ -1,9 +1,14 @@
 # Documentation
 
-This file contains some guidelines on writing/building documentation.
+This file contains guidelines on writing/building documentation.
 
 ## Building HTML Documentation
 
-Go to the `docs` folder and run `make html`.
+In order to build the documentation, one needs to insall sphinx:
+`pip install sphinx`
+and sphinx-rtd-theme:
+`pip install sphinx-rtd-theme`.
+
+To build the documentation locally, go to the `docs` folder and run `make html`.
 The start html page is `docs\build\html\index.html`.
 Open the path to this file in your browser to view the documentation.
