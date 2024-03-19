@@ -39,6 +39,10 @@ class ReservoirModel(Model):
         """Enable water to spill from the reservoir."""
         self.set_var("do_spill", do_spill)
 
+    def apply_passflow(self, do_pass=True):
+        """Let the outflow be the same as the inflow."""
+        self.set_var("do_pass", do_pass)
+
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values."""
@@ -46,6 +50,7 @@ class ReservoirModel(Model):
         q_turbine = self.timeseries_at("Q_turbine", time)
         self.set_var("Q_turbine", q_turbine)
         self.set_var("do_spill", False)
+        self.set_var("do_pass", False)
 
     def apply_schemes(self):
         """

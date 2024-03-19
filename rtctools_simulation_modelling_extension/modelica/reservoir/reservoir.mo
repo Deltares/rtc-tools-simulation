@@ -6,6 +6,7 @@ model Reservoir
   input SI.VolumeFlowRate Q_in();
   input SI.VolumeFlowRate Q_turbine();
   input Boolean do_spill;
+  input Boolean do_pass;
 
   output SI.Volume V();
   output SI.VolumeFlowRate Q_out();
@@ -22,6 +23,6 @@ equation
 
   der(V) = Q_in - Q_out;
   Q_spill = do_spill * Q_spill_from_lookup_table;
-  Q_out = Q_turbine + Q_spill;
+  Q_out = do_pass * Q_in + (1 - do_pass) * (Q_turbine + Q_spill);
     
 end Reservoir;
