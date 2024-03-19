@@ -8,6 +8,10 @@ This is rtc-tools-simulation-modelling-extension, a toolbox for simulation model
 pip install rtc-tools-simulation-modelling-extension
 ```
 
+## Documentation
+
+Documentation and examples can be found on [readthedocs](https://rtc-tools-simulation-modelling-extension.readthedocs.io).
+
 ## Developer guidelines
 
 Developer guidelines can be found [here](Contributing.md)
