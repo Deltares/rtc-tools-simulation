@@ -41,7 +41,15 @@ class ReservoirModel(Model):
 
     def apply_passflow(self, do_pass=True):
         """Let the outflow be the same as the inflow."""
+        if do_pass:
+            self.set_var("do_poolq", False)
         self.set_var("do_pass", do_pass)
+
+    def apply_poolq(self, do_poolq=True):
+        """Let the outflow be determined by a lookup table."""
+        if do_poolq:
+            self.set_var("do_pass", False)
+        self.set_var("do_poolq", do_poolq)
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):
@@ -51,6 +59,7 @@ class ReservoirModel(Model):
         self.set_var("Q_turbine", q_turbine)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
+        self.set_var("do_poolq", False)
 
     def apply_schemes(self):
         """
