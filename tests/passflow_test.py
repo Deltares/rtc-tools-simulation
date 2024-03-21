@@ -12,10 +12,10 @@ OUTPUT_DIR = SPILLWAY_DIR / "output_passflow"
 
 
 class PassFlowModel(ReservoirModel):
-    """Class for simulating a spillway model."""
+    """Class for simulating a pass flow model."""
 
     def apply_schemes(self):
-        """Always apply spillway."""
+        """Always apply pass flow."""
         self.apply_passflow()
 
     def output_df(self):
@@ -25,7 +25,7 @@ class PassFlowModel(ReservoirModel):
         return output_df
 
 
-def test_passflowy():
+def test_passflow():
     """Test the passflow model."""
     config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
     model = PassFlowModel(config)
