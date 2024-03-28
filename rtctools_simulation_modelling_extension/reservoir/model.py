@@ -21,14 +21,6 @@ class ReservoirModel(Model):
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
 
-    def get_next_time(self) -> float:
-        """Get the next time value (in seconds)."""
-        return self.get_current_time() + self.get_time_step()
-
-    def get_next_datetime(self) -> datetime:
-        """Get the next time value (in datetime)."""
-        return self.sec_to_datetime(self.get_next_time())
-
     # Schemes
     def set_q(self, value):
         """Set Q_turbine."""
