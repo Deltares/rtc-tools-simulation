@@ -6,6 +6,18 @@ from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
+#: Reservoir model variables.
+VARIABLES = [
+    "Area",
+    "H",
+    "H_crest",
+    "Q_in",
+    "Q_out",
+    "Q_spill",
+    "Q_turbine",
+    "V",
+]
+
 
 class ReservoirModel(Model):
     """Class for a reservoir model."""
@@ -16,7 +28,22 @@ class ReservoirModel(Model):
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
 
-    # Helper functions for getting the time/date.
+    # Helper functions for getting the time/date/variables.
+    def get_var(self, var: str):
+        """
+        Get the value of a given variable.
+
+        :param var: name of the variable.
+            Should be one of :py:const:`VARIABLES`.
+        :returns: value of the given variable.
+        """
+        try:
+            value = super().get_var(var)
+        except KeyError:
+            message = f"Variable {var} not found." f" Expected var to be one of {VARIABLES}."
+            return KeyError(message)
+        return value
+
     def get_current_datetime(self) -> datetime:
         """Get the current datetime."""
         current_time = self.get_current_time()
