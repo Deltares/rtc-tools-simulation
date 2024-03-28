@@ -1,4 +1,5 @@
 name,data,var_in,var_out
-h_from_v,h_from_v.csv,v,h
-area_from_v,area_from_v.csv,v,area
-qspill_from_h,qspill_from_h.csv,h,qspill
+h_from_v,data.csv,v,h
+area_from_v,data.csv,v,area
+qout_from_v,data.csv,v,qout
+qspill_from_h,data.csv,h,qspill

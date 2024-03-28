@@ -1,4 +1,4 @@
-"""Module for testing the passflow scheme."""
+"""Module for testing the poolq scheme."""
 from pathlib import Path
 
 import numpy as np
@@ -8,15 +8,15 @@ import pandas as pd
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
 SPILLWAY_DIR = Path(__file__).parent.resolve() / "spillway_model"
-OUTPUT_DIR = SPILLWAY_DIR / "output_passflow"
+OUTPUT_DIR = SPILLWAY_DIR / "output_poolq"
 
 
-class PassFlowModel(ReservoirModel):
-    """Class for simulating a pass flow model."""
+class PoolQModel(ReservoirModel):
+    """Class for simulating a poolq model."""
 
     def apply_schemes(self):
-        """Always apply pass flow."""
-        self.apply_passflow()
+        """Always apply poolq."""
+        self.apply_poolq()
 
     def output_df(self):
         """Return the output in the form of a dataframe."""
@@ -25,15 +25,15 @@ class PassFlowModel(ReservoirModel):
         return output_df
 
 
-def test_passflow():
-    """Test the passflow model."""
+def test_poolq():
+    """Test the poolq model."""
     config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
-    model = PassFlowModel(config)
+    model = PoolQModel(config)
     model.simulate()
     output = model.output_df()
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
-    q_ref = np.array([0.0, 0.0, 1.0])
-    v_ref = np.array([1.3, 1.3, 1.3])
+    q_ref = np.array([0.0, 0.15, 0.575])
+    v_ref = np.array([1.3, 1.15, 1.575])
     numpy.testing.assert_array_almost_equal(q_out, q_ref, decimal=3)
     numpy.testing.assert_array_almost_equal(v_out, v_ref, decimal=3)
