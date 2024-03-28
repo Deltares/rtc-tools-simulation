@@ -44,8 +44,20 @@ class ReservoirModel(Model):
             return KeyError(message)
         return value
 
+    def get_current_time(self):
+        """
+        Get the current time (in seconds).
+
+        :returns: the current time (in seconds).
+        """
+        return super().get_current_time()
+
     def get_current_datetime(self) -> datetime:
-        """Get the current datetime."""
+        """
+        Get the current datetime.
+
+        :returns: the current time in datetime format.
+        """
         current_time = self.get_current_time()
         return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
 
@@ -87,7 +99,8 @@ class ReservoirModel(Model):
         """
         Apply schemes.
 
-        This method should be overwritten by the user.
+        This method is called at each timestep
+        and should be implemented by the user.
         """
         pass
 
