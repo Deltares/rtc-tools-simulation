@@ -17,6 +17,11 @@ class ReservoirModel(Model):
         super().__init__(config, **kwargs)
 
     # Helper functions for getting the time/date.
+    def get_current_datetime(self) -> datetime:
+        """Get the current datetime."""
+        current_time = self.get_current_time()
+        return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
+
     def sec_to_datetime(self, time_in_seconds) -> datetime:
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
