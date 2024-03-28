@@ -32,21 +32,19 @@ class ReservoirModel(Model):
         # TODO: this should be updated.
         self.set_var("Q_turbine", value)
 
-    def apply_spillway(self, do_spill=True):
+    def apply_spillway(self):
         """Enable water to spill from the reservoir."""
-        self.set_var("do_spill", do_spill)
+        self.set_var("do_spill", True)
 
-    def apply_passflow(self, do_pass=True):
+    def apply_passflow(self):
         """Let the outflow be the same as the inflow."""
-        if do_pass:
-            self.set_var("do_poolq", False)
-        self.set_var("do_pass", do_pass)
+        self.set_var("do_poolq", False)
+        self.set_var("do_pass", True)
 
-    def apply_poolq(self, do_poolq=True):
+    def apply_poolq(self):
         """Let the outflow be determined by a lookup table."""
-        if do_poolq:
-            self.set_var("do_pass", False)
-        self.set_var("do_poolq", do_poolq)
+        self.set_var("do_pass", False)
+        self.set_var("do_poolq", True)
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):
