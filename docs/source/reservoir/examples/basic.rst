@@ -151,7 +151,7 @@ A data file, such as `v_h.csv`, looks as follows.
 .. csv-table:: <base_dir>/lookup_tables/v_h.csv
   :header-rows: 1
 
-  Storage_m3,Elevation_m
+  volume_m3,height_m
   0,1542.306754
   13439700,1562.118995
   16152300,1563.643014
