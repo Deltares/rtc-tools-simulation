@@ -44,6 +44,17 @@ It consists of the following files and folders.
 
 Each of these files will be described in more detail in the following sections.
 
+Creating Template Files
+-----------------------
+
+Using the command ``rtc-tools-reservoir-template -d <base_dir> -n <reservoir_name>``
+from the command line will create a directory `<base_dir>` with template files
+for a reservoir model called `<reservoir_name>`.
+The directory `<base_dir>` will be created in the current working directory
+and will contain a file structure as described above.
+The generated source file and data files are all template files
+that need to be completed by the user.
+
 Main Model File
 ---------------
 
@@ -53,8 +64,8 @@ An example of the main model file `<model_file>.py` is given below.
   :language: python
   :lineno-match:
 
-To create your own model, one can simply copy this file and replace :py:class:`ReservoirModel`
-with your own model name and replace the contents of :py:meth:`apply_schemes` with your own logic.
+The template file mentioned in the previous section will look very similar to this file,
+except that the :py:meth:`apply_schemes` method still needs to be filled out.
 
 The line
 

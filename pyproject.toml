@@ -14,12 +14,16 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "casadi >= 3.6.3, == 3.6.*",
+    "Jinja2",
     "numpy",
     "pandas",
     "rtc-tools >= 2.6",
     "rtc-tools-interface == 0.7.*",
 ]
 dynamic = ["version"]
+
+[project.scripts]
+rtc-tools-reservoir-template = "rtctools_simulation_modelling_extension.cli.reservoir:create_reservoir_template"
 
 [tool.ruff]
 line-length = 100
