@@ -10,10 +10,9 @@ class SingleReservoir(ReservoirModel):
     """Example single reservoir model."""
 
     def apply_schemes(self):
-        """Apply schemes for setting inputs."""
+        """Apply schemes for controlling the reservoir."""
         # Get current time.
-        time = self.get_current_time()
-        datetime = self.sec_to_datetime(time)
+        datetime = self.get_current_datetime()
 
         # Apply schemes.
         h = self.get_var("H")
@@ -30,5 +29,6 @@ class SingleReservoir(ReservoirModel):
 
 
 # Create and run the model.
-model = SingleReservoir(CONFIG)
-model.simulate()
+if __name__ == "__main__":
+    model = SingleReservoir(CONFIG)
+    model.simulate()

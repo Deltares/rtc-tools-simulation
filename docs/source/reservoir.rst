@@ -4,6 +4,7 @@ Reservoir
 Contents:
 
 .. toctree::
-    :maxdepth: 2
+  :maxdepth: 2
 
-    reservoir/dummy
+  reservoir/api
+  reservoir/examples

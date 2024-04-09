@@ -6,6 +6,18 @@ from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
+#: Reservoir model variables.
+VARIABLES = [
+    "Area",
+    "H",
+    "H_crest",
+    "Q_in",
+    "Q_out",
+    "Q_spill",
+    "Q_turbine",
+    "V",
+]
+
 
 class ReservoirModel(Model):
     """Class for a reservoir model."""
@@ -16,18 +28,42 @@ class ReservoirModel(Model):
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
 
-    # Helper functions for getting the time/date.
+    # Helper functions for getting the time/date/variables.
+    def get_var(self, var: str):
+        """
+        Get the value of a given variable.
+
+        :param var: name of the variable.
+            Should be one of :py:const:`VARIABLES`.
+        :returns: value of the given variable.
+        """
+        try:
+            value = super().get_var(var)
+        except KeyError:
+            message = f"Variable {var} not found." f" Expected var to be one of {VARIABLES}."
+            return KeyError(message)
+        return value
+
+    def get_current_time(self):
+        """
+        Get the current time (in seconds).
+
+        :returns: the current time (in seconds).
+        """
+        return super().get_current_time()
+
+    def get_current_datetime(self) -> datetime:
+        """
+        Get the current datetime.
+
+        :returns: the current time in datetime format.
+        """
+        current_time = self.get_current_time()
+        return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
+
     def sec_to_datetime(self, time_in_seconds) -> datetime:
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
-
-    def get_next_time(self) -> float:
-        """Get the next time value (in seconds)."""
-        return self.get_current_time() + self.get_time_step()
-
-    def get_next_datetime(self) -> datetime:
-        """Get the next time value (in datetime)."""
-        return self.sec_to_datetime(self.get_next_time())
 
     # Schemes
     def set_q(self, value):
@@ -35,21 +71,19 @@ class ReservoirModel(Model):
         # TODO: this should be updated.
         self.set_var("Q_turbine", value)
 
-    def apply_spillway(self, do_spill=True):
+    def apply_spillway(self):
         """Enable water to spill from the reservoir."""
-        self.set_var("do_spill", do_spill)
+        self.set_var("do_spill", True)
 
-    def apply_passflow(self, do_pass=True):
+    def apply_passflow(self):
         """Let the outflow be the same as the inflow."""
-        if do_pass:
-            self.set_var("do_poolq", False)
-        self.set_var("do_pass", do_pass)
+        self.set_var("do_poolq", False)
+        self.set_var("do_pass", True)
 
-    def apply_poolq(self, do_poolq=True):
+    def apply_poolq(self):
         """Let the outflow be determined by a lookup table."""
-        if do_poolq:
-            self.set_var("do_pass", False)
-        self.set_var("do_poolq", do_poolq)
+        self.set_var("do_pass", False)
+        self.set_var("do_poolq", True)
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):
@@ -65,7 +99,8 @@ class ReservoirModel(Model):
         """
         Apply schemes.
 
-        This method should be overwritten by the user.
+        This method is called at each timestep
+        and should be implemented by the user.
         """
         pass
 

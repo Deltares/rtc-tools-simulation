@@ -9,9 +9,9 @@ Welcome to rtc-tools-simulation-modelling-extension's documentation!
 Contents:
 
 .. toctree::
-    :maxdepth: 2
+  :maxdepth: 2
 
-    reservoir
+  reservoir
 
 
 Indices and tables
