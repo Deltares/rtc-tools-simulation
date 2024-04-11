@@ -1,0 +1,27 @@
+"""Module for {{reservoir_name}}."""
+from pathlib import Path
+
+from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
+
+CONFIG = ModelConfig(base_dir=Path(__file__).parent)
+
+
+class {{reservoir_name}}(ReservoirModel):
+    """
+    FILL IN SINGLE LINE DESCRIPTION OF {{reservoir_name}}.
+    
+    FILL IN DETAILED DESCRIPTION OF {{reservoir_name}}.
+    DETAILS.
+    DETAILS.
+    """
+
+    def apply_schemes(self):
+        """Apply schemes for controlling the reservoir."""
+        # FILL IN.
+        pass
+
+
+# Create and run the model.
+if __name__ == "__main__":
+    model = {{reservoir_name}}(CONFIG)
+    model.simulate()
