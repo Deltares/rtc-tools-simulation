@@ -4,7 +4,10 @@
 requires = ["setuptools"]
 
 [tool.setuptools]
-packages = ["rtctools_simulation_modelling_extension"]
+packages = [
+    "rtctools_simulation_modelling_extension",
+    "rtctools_simulation_modelling_extension.reservoir"
+]
 
 [project]
 name = "rtc-tools-simulation-modelling-extension"
