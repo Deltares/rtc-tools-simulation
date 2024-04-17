@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import numpy.testing
-import pandas as pd
 
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
@@ -17,11 +16,8 @@ class SpillwayModel(ReservoirModel):
         """Always apply spillway."""
         self.apply_spillway()
 
-    def output_df(self):
-        """Return the output in the form of a dataframe."""
-        output_file = SPILLWAY_DIR / "output" / "timeseries_export.csv"
-        output_df = pd.read_csv(output_file, sep=",")
-        return output_df
+    def output_list(self):
+        return self.extract_results()
 
 
 def test_spillway():
@@ -29,7 +25,7 @@ def test_spillway():
     config = ModelConfig(base_dir=SPILLWAY_DIR)
     model = SpillwayModel(config)
     model.simulate()
-    output = model.output_df()
+    output = model.output_list()
     v = np.array(output["V"])
     v_ref = np.array([1.3, 0.8, 1.2])
     numpy.testing.assert_array_almost_equal(v, v_ref, decimal=3)

@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import numpy.testing
-import pandas as pd
 
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
@@ -18,11 +17,8 @@ class PassFlowModel(ReservoirModel):
         """Always apply pass flow."""
         self.apply_passflow()
 
-    def output_df(self):
-        """Return the output in the form of a dataframe."""
-        output_file = OUTPUT_DIR / "timeseries_export.csv"
-        output_df = pd.read_csv(output_file, sep=",")
-        return output_df
+    def output_list(self):
+        return self.extract_results()
 
 
 def test_passflow():
@@ -30,7 +26,7 @@ def test_passflow():
     config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
     model = PassFlowModel(config)
     model.simulate()
-    output = model.output_df()
+    output = model.output_list()
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
     q_ref = np.array([0.0, 0.0, 1.0])
