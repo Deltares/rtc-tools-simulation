@@ -29,7 +29,7 @@
         <forecastDate date="2022-06-07" time="06:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
-        <units>m/s</units>
+        <units>m3</units>
     </header>
       <event date="2022-06-07" time="06:00:00" value="136500000" flag="8"/>
     </series>
