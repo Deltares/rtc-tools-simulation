@@ -16,16 +16,13 @@ class SpillwayModel(ReservoirModel):
         """Always apply spillway."""
         self.apply_spillway()
 
-    def output_list(self):
-        return self.extract_results()
-
 
 def test_spillway():
     """Test the spillway model."""
     config = ModelConfig(base_dir=SPILLWAY_DIR)
     model = SpillwayModel(config)
     model.simulate()
-    output = model.output_list()
+    output = model.extract_results()
     v = np.array(output["V"])
     v_ref = np.array([1.3, 0.8, 1.2])
     numpy.testing.assert_array_almost_equal(v, v_ref, decimal=3)

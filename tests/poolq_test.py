@@ -17,16 +17,13 @@ class PoolQModel(ReservoirModel):
         """Always apply poolq."""
         self.apply_poolq()
 
-    def output_list(self):
-        return self.extract_results()
-
 
 def test_poolq():
     """Test the poolq model."""
     config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
     model = PoolQModel(config)
     model.simulate()
-    output = model.output_list()
+    output = model.extract_results()
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
     q_ref = np.array([0.0, 0.15, 0.575])

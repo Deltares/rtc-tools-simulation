@@ -17,16 +17,13 @@ class PassFlowModel(ReservoirModel):
         """Always apply pass flow."""
         self.apply_passflow()
 
-    def output_list(self):
-        return self.extract_results()
-
 
 def test_passflow():
     """Test the passflow model."""
     config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
     model = PassFlowModel(config)
     model.simulate()
-    output = model.output_list()
+    output = model.extract_results()
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
     q_ref = np.array([0.0, 0.0, 1.0])
