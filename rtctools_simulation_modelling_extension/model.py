@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, List
 
 import casadi as ca
-from rtctools.simulation.csv_mixin import CSVMixin
+from rtctools.simulation.pi_mixin import PIMixin
 from rtctools.simulation.simulation_problem import SimulationProblem
 from rtctools_interface.simulation.plot_mixin import PlotMixin
 
@@ -84,7 +84,7 @@ class _SimulationProblem(SimulationProblem):
         self.__state_vector[: self.__n_states] = next_state.toarray().ravel()
 
 
-class Model(PlotMixin, CSVMixin, _SimulationProblem):
+class Model(PlotMixin, PIMixin, _SimulationProblem):
     """Basic model class."""
 
     def __init__(self, config: ModelConfig, **kwargs):
