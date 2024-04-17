@@ -19,7 +19,7 @@
 	<timeSeries id="Q_in">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
-			<parameterId>Q.inflow.obs</parameterId>
+			<parameterId>Q.in</parameterId>
 		</PITimeSeries>
 	</timeSeries>
 	<!--Targets and goals-->
