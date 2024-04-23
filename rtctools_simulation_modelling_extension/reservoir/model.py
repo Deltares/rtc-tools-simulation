@@ -1,10 +1,15 @@
 """Module for a reservoir model."""
+import logging
 from datetime import datetime
 from pathlib import Path
+
+import numpy as np
 
 from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
+
+logger = logging.getLogger("rtctools")
 
 #: Reservoir model variables.
 VARIABLES = [
@@ -61,6 +66,24 @@ class ReservoirModel(Model):
         current_time = self.get_current_time()
         return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
 
+    def pre(self, *args, **kwargs):
+        super().pre(*args, **kwargs)
+
+        # Set default inputs for rain and evaporation
+        ref_series = self.io.get_timeseries("Q_in")
+        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
+        if "mm_evaporation_per_hour" not in list(self.io.get_timeseries_names()):
+            self.io.set_timeseries(
+                "mm_evaporation_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
+            )
+            logger.info("mm_evaporation_per_hour not found in the input file. Setting it to 0.0.")
+        if "mm_rain_per_hour" not in list(self.io.get_timeseries_names()):
+            self.io.set_timeseries(
+                "mm_rain_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
+            )
+            logger.info("mm_rain_per_hour not found in the input file. Setting it to 0.0.")
+
+    # Helper functions for getting the time/date.
     def sec_to_datetime(self, time_in_seconds) -> datetime:
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
@@ -85,6 +108,22 @@ class ReservoirModel(Model):
         self.set_var("do_pass", False)
         self.set_var("do_poolq", True)
 
+    def include_rain(self):
+        """Include the effect of rainfall on the reservoir volume."""
+        assert (
+            self.max_reservoir_area > 0
+        ), "To include rainfall, make sure to set the max_reservoir_area parameter."
+        self.set_var("include_rain", True)
+
+    def include_evaporation(self):
+        """Include the effect of evaporation on the reservoir volume."""
+        self.set_var("include_evaporation", True)
+
+    def include_rainevap(self):
+        """Include the effect of both rainfall and evaporation on the reservoir volume."""
+        self.include_evaporation()
+        self.include_rain()
+
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values."""
@@ -94,6 +133,8 @@ class ReservoirModel(Model):
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
+        self.set_var("include_rain", False)
+        self.set_var("include_evaporation", False)
 
     def apply_schemes(self):
         """

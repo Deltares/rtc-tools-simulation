@@ -22,6 +22,18 @@
 			<parameterId>Q.inflow.obs</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="mm_evaporation_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>evaporation.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_rain_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rain.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!--Targets and goals-->
 	<!-- Ouputs -->
     <timeSeries id="Q_out">

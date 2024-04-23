@@ -17,6 +17,7 @@ class SingleReservoir(ReservoirModel):
         # Apply schemes.
         h = self.get_var("H")
         h_crest = self.get_var("H_crest")
+        self.include_rainevap()
         if h > h_crest:
             april = 4
             september = 9
