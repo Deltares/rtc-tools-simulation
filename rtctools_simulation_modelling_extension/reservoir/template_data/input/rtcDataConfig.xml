@@ -3,12 +3,6 @@
 	<!--IMPORT-->
 	<!--Inputs-->
 	<!--States of model at t0-->
-	<timeSeries id="Q_turbine">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.turbine</parameterId>
-		</PITimeSeries>
-	</timeSeries>
     <timeSeries id="V">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
@@ -22,7 +16,24 @@
 			<parameterId>Q.in</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<!--Targets and goals-->
+	<timeSeries id="Q_turbine">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.turbine</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_evaporation_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>evaporation</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_rain_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rain</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!-- Ouputs -->
     <timeSeries id="Q_out">
 		<PITimeSeries>
