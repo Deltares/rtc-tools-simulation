@@ -14,6 +14,10 @@ Install pre-commit by running `pip install pre-commit`.
 To setup pre-commit, run `pre-commit install` (only needs to be done once).
 Code quality and formatting will then be automatically checked during a commit.
 
+To run the pre-commit check outside of a commit,
+run `pre-commit run --all-files --show-diff-on-failure`
+from the root directory.
+
 ## Test Suite
 
 Make sure that the test suite succeeds before merging a branch into main.
