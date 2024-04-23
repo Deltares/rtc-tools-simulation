@@ -1,7 +1,11 @@
 """Module for a reservoir model."""
+import math
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
+
+import rtctools_simulation_modelling_extension.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
@@ -65,12 +69,14 @@ class ReservoirModel(Model):
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
 
-    # Schemes
-    def set_q(self, value):
-        """Set Q_turbine."""
-        # TODO: this should be updated.
-        self.set_var("Q_turbine", value)
+    def set_time_step(self, dt):
+        # TODO: remove once set_q allows variable dt.
+        current_dt = self.get_time_step()
+        if current_dt is not None and not math.isclose(dt, current_dt):
+            raise ValueError("Timestep size cannot change during simulation.")
+        super().set_time_step(dt)
 
+    # Schemes
     def apply_spillway(self):
         """Enable water to spill from the reservoir."""
         self.set_var("do_spill", True)
@@ -88,9 +94,8 @@ class ReservoirModel(Model):
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values."""
-        time = self.get_current_time()
-        q_turbine = self.timeseries_at("Q_turbine", time)
-        self.set_var("Q_turbine", q_turbine)
+        if np.isnan(self.get_var("Q_turbine")):
+            self.set_var("Q_turbine", 0)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
@@ -119,3 +124,27 @@ class ReservoirModel(Model):
         variables.extend(["Q_in"])
         variables.extend(["Q_turbine"])
         return variables
+
+    def set_q(
+        self,
+        target_variable: str = "Q_turbine",
+        input_type: str = "timeseries",
+        apply_func: str = "MEAN",
+        input_data: str = None,
+        timestep: int = None,
+        nan_option: str = None,
+    ):
+        """
+        Set a discharge input or output to a given value, or a value to be
+        deduced from a given timeseries.
+        """
+        # TODO: enable set_q to handle variable timestep sizes.
+        setq_functions.setq(
+            self,
+            target_variable,
+            input_type,
+            apply_func,
+            input_data,
+            timestep,
+            nan_option,
+        )

@@ -11,9 +11,9 @@ class SingleReservoir(ReservoirModel):
 
     def apply_schemes(self):
         """Apply schemes for controlling the reservoir."""
+
         # Get current time.
         datetime = self.get_current_datetime()
-
         # Apply schemes.
         h = self.get_var("H")
         h_crest = self.get_var("H_crest")
@@ -21,11 +21,19 @@ class SingleReservoir(ReservoirModel):
             april = 4
             september = 9
             if april <= datetime.month <= september:
-                self.set_q(0.01)
+                self.set_q(
+                    target_variable="Q_turbine",
+                    input_type="parameter",
+                    input_data=0.01,
+                )
             else:
                 self.apply_spillway()
         else:
-            self.set_q(0.01)
+            self.set_q(
+                target_variable="Q_turbine",
+                input_type="parameter",
+                input_data=0.01,
+            )
 
 
 # Create and run the model.
