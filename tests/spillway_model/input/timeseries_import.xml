@@ -13,7 +13,7 @@
         <forecastDate date="2020-01-01" time="00:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
-        <units>m/s</units>
+        <units>m3/s</units>
     </header>
       <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
       <event date="2020-01-01" time="00:00:01" value="0.0" flag="8"/>
@@ -31,7 +31,7 @@
           <forecastDate date="2020-01-01" time="00:00:00"/>
           <missVal>-999.0</missVal>
           <stationName>Reservoir1</stationName>
-          <units>m/s</units>
+          <units>m3/s</units>
       </header>
         <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
         <event date="2020-01-01" time="00:00:01" value="0.5" flag="8"/>

@@ -13,7 +13,7 @@
         <forecastDate date="2022-06-07" time="06:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
-        <units>m/s</units>
+        <units>m3/s</units>
     </header>
       <event date="2022-06-07" time="06:00:00" value="0.05" flag="8"/>
     </series>
@@ -45,7 +45,7 @@
         <forecastDate date="2022-06-07" time="06:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
-        <units>m/s</units>
+        <units>m3/s</units>
     </header>
       <event date="2022-06-07" time="06:00:00" value="4.1549306" flag="8"/>
       <event date="2022-06-07" time="07:00:00" value="3.7766178" flag="8"/>
