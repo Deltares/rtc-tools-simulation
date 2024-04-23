@@ -6,7 +6,6 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-
 import rtctools_simulation_modelling_extension.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
