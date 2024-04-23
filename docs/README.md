@@ -4,7 +4,7 @@ This file contains guidelines on writing/building documentation.
 
 ## Building HTML Documentation
 
-In order to build the documentation, one needs to insall sphinx:
+In order to build the documentation, one needs to install sphinx:
 `pip install sphinx`
 and sphinx-rtd-theme:
 `pip install sphinx-rtd-theme`.
