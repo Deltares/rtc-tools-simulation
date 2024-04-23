@@ -6,7 +6,7 @@ import numpy.testing
 
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
-SPILLWAY_DIR = Path(__file__).parent.resolve() / "spillway_model"
+BASE_DIR = Path(__file__).parent.resolve() / "basic_model"
 
 
 class SpillwayModel(ReservoirModel):
@@ -19,7 +19,7 @@ class SpillwayModel(ReservoirModel):
 
 def test_spillway():
     """Test the spillway model."""
-    config = ModelConfig(base_dir=SPILLWAY_DIR)
+    config = ModelConfig(base_dir=BASE_DIR)
     model = SpillwayModel(config)
     model.simulate()
     output = model.extract_results()

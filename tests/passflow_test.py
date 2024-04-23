@@ -6,8 +6,8 @@ import numpy.testing
 
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
-SPILLWAY_DIR = Path(__file__).parent.resolve() / "spillway_model"
-OUTPUT_DIR = SPILLWAY_DIR / "output_passflow"
+BASE_DIR = Path(__file__).parent.resolve() / "basic_model"
+OUTPUT_DIR = BASE_DIR / "output_passflow"
 
 
 class PassFlowModel(ReservoirModel):
@@ -20,7 +20,7 @@ class PassFlowModel(ReservoirModel):
 
 def test_passflow():
     """Test the passflow model."""
-    config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
+    config = ModelConfig(base_dir=BASE_DIR, dirs={"output": OUTPUT_DIR})
     model = PassFlowModel(config)
     model.simulate()
     output = model.extract_results()

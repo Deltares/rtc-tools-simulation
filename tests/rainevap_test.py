@@ -7,8 +7,8 @@ import pytest
 
 from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
 
-SPILLWAY_DIR = Path(__file__).parent.resolve() / "spillway_model"
-OUTPUT_DIR = SPILLWAY_DIR / "output_rainevap"
+BASE_DIR = Path(__file__).parent.resolve() / "basic_model"
+OUTPUT_DIR = BASE_DIR / "output_rainevap"
 
 
 class RainevapModel(ReservoirModel):
@@ -45,7 +45,7 @@ class RainevapModel(ReservoirModel):
 )
 def test_rainevap(do_include_rainevap, q_ref, v_ref, q_rain_ref, q_evap_ref):
     """Test the rainevap model."""
-    config = ModelConfig(base_dir=SPILLWAY_DIR, dirs={"output": OUTPUT_DIR})
+    config = ModelConfig(base_dir=BASE_DIR, dirs={"output": OUTPUT_DIR})
     model = RainevapModel(config, do_include_rainevap=do_include_rainevap)
     model.simulate()
     output = model.extract_results()
