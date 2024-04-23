@@ -1,10 +1,12 @@
 """Module for a reservoir model."""
 import logging
+import math
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 
+import rtctools_simulation_modelling_extension.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation_modelling_extension.model import Model, ModelConfig
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
@@ -88,12 +90,14 @@ class ReservoirModel(Model):
         """Convert time in seconds to datetime."""
         return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
 
-    # Schemes
-    def set_q(self, value):
-        """Set Q_turbine."""
-        # TODO: this should be updated.
-        self.set_var("Q_turbine", value)
+    def set_time_step(self, dt):
+        # TODO: remove once set_q allows variable dt.
+        current_dt = self.get_time_step()
+        if current_dt is not None and not math.isclose(dt, current_dt):
+            raise ValueError("Timestep size cannot change during simulation.")
+        super().set_time_step(dt)
 
+    # Schemes
     def apply_spillway(self):
         """Enable water to spill from the reservoir."""
         self.set_var("do_spill", True)
@@ -127,9 +131,8 @@ class ReservoirModel(Model):
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values."""
-        time = self.get_current_time()
-        q_turbine = self.timeseries_at("Q_turbine", time)
-        self.set_var("Q_turbine", q_turbine)
+        if np.isnan(self.get_var("Q_turbine")):
+            self.set_var("Q_turbine", 0)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
@@ -160,3 +163,59 @@ class ReservoirModel(Model):
         variables.extend(["Q_in"])
         variables.extend(["Q_turbine"])
         return variables
+
+    def set_q(
+        self,
+        target_variable: str = "Q_turbine",
+        input_type: str = "timeseries",
+        input_data: str = None,
+        apply_func: str = "MEAN",
+        timestep: int = None,
+        nan_option: str = None,
+    ):
+        """
+        Set one of the input or output discharges to a given value,
+        or a value determined from an input list.
+
+        :param target_variable: str (default: 'Q_turbine')
+            The variable that is to be set. Needs to be an internal variable, limited to discharges
+        :param input_type: str (default: 'timeseries')
+            The type of target data. Either 'timeseries' or 'parameter'. If it is a timeseries,
+            the timeseries is assumed to have a regular time interval.
+        :param input_data: str (default: None)
+            the name of the target data. If not provided, it is set to the name of
+            the target_variable. Name of timeseries_ID/parameter_ID in .xml file
+        :param apply_func: str (default: 'MEAN')
+            Function that is used to find the fixed_value if input_type = 'timeseries'.
+            'MEAN' (default): Finds the average value, excluding nan-values.
+            'MIN': Finds the minimum value, excluding nan-values.
+            'MAX': Finds the maximum value, excluding nan-values.
+            'INST': Finds the value marked by the corresponding timestep 't'. If the
+            selected value is NaN, nan_option determines the
+            procedure to find a valid value.
+        :param timestep: int (default: None)
+            The timestep at which the input data should be read at if input_type = 'timeseries',
+            the default is the current timestep of the simulation run.
+        :param nan_option:  str (default: None)
+            the user can indicate the action to be take if missing values are found.
+            Usable in combination with input_type = 'timeseries' and apply_func = 'INST'.
+            'MEAN': It will take the mean of the timeseries excluding nans.
+            'PREV': It attempts to find the closest previous valid data point.
+            'NEXT':  It attempts to find the closest next valid data point.
+            'CLOSEST': It attempts to find the closest valid data point,
+            either backwards or forward. If same distance, take average.
+            'INTERP': Interpolates linearly between the closest forward and backward data points.
+
+        :return: Updated model with adjusted Q_variable
+
+        """
+        # TODO: enable set_q to handle variable timestep sizes.
+        setq_functions.setq(
+            self,
+            target_variable,
+            input_type,
+            apply_func,
+            input_data,
+            timestep,
+            nan_option,
+        )
