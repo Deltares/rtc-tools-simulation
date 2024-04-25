@@ -1,4 +1,5 @@
 """Module for a reservoir model."""
+import logging
 import math
 import logging
 from datetime import datetime
