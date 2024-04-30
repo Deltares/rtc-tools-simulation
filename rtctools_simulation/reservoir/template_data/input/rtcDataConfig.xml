@@ -53,4 +53,10 @@
 			<parameterId>H</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="rule_curve_deviation">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rulecurve.deviation</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 </rtcDataConfig>

@@ -37,8 +37,8 @@
 	<!--Targets and goals-->
 	<timeSeries id="rule_curve">
 		<PITimeSeries>
-			<locationId>rule_curve</locationId>
-			<parameterId>rule_curve</parameterId>
+			<locationId>reservoir</locationId>
+			<parameterId>rulecurve</parameterId>
 		</PITimeSeries>
 	</timeSeries>
 	<!-- Ouputs -->

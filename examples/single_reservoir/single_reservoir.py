@@ -36,6 +36,10 @@ class SingleReservoir(ReservoirModel):
                 input_data=0.4,
             )
 
+    def calculate_output_variables(self):
+        """Calculate additional output variables."""
+        self.calculate_rule_curve_deviation(periods=3)
+
 
 # Create and run the model.
 if __name__ == "__main__":

@@ -3,12 +3,16 @@ import logging
 import math
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.model import Model, ModelConfig
 from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
+from rtctools_simulation.reservoir.rule_curve_deviation import (
+    rule_curve_deviation,
+)
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
@@ -259,6 +263,45 @@ class ReservoirModel(Model):
             "Rule curve function has set the " + f"{outflow} to {discharge_per_second} m^3/s"
         )
 
+    def calculate_rule_curve_deviation(
+        self,
+        periods: int,
+        inflows: Optional[np.ndarray] = None,
+        q_max: float = np.inf,
+        maximum_difference: float = np.inf,
+    ):
+        """Calculate the moving average between the rule curve and the simulated elevations.
+
+        This method calculates the moving average between the rule curve and the simulated
+        elevations over a specified number of periods. It takes the following parameters:
+
+        :param periods: The number of periods over which to calculate the moving average.
+        :param inflows: Optional. The inflows to the reservoir. If provided, the moving average
+                        will be calculated only for the periods with non-zero inflows.
+        :param q_max: Optional. The maximum discharge allowed while calculating the moving average.
+                      Default is infinity, required if q_max is set.
+        :param maximum_difference: Optional. The maximum allowable difference between the rule curve
+                                   and the simulated elevations.
+
+        .. note:: The rule curve timeseries must be present in the timeseries import. The results
+        are stored in the timeseries "rule_curve_deviation".
+        """
+        observed_elevations = self.extract_results().get("H")
+        try:
+            rule_curve = self.io.get_timeseries("rule_curve")[1]
+        except KeyError as exc:
+            raise KeyError("The rule curve timeseries is not found in the input file.") from exc
+        deviations = rule_curve_deviation(
+            observed_elevations,
+            rule_curve,
+            periods,
+            inflows=inflows,
+            q_max=q_max,
+            maximimum_difference=maximum_difference,
+        )
+        self.set_timeseries("rule_curve_deviation", deviations)
+        self.extract_results().update({"rule_curve_deviation": deviations})
+
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values.
@@ -283,6 +326,15 @@ class ReservoirModel(Model):
 
         This method is called at each timestep and should be implemented by the user.
         This method should contain the logic for which scheme is applied under which conditions.
+        """
+        pass
+
+    def calculate_output_variables(self):
+        """
+        Calculate output variables.
+
+        This method is called after the simulation has finished.
+        The user can implement this method to calculate additional output variables.
         """
         pass
 
