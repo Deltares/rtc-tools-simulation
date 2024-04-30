@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.model import Model, ModelConfig
 from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
