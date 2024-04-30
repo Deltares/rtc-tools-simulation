@@ -43,23 +43,13 @@ class ReservoirModel(Model):
         times = ref_series[0]
         zeros = np.full(len(times), 0.0)
         timeseries = self.io.get_timeseries_names()
-        optional_timeseries = ["V_observed"]
+        optional_timeseries = ["V_observed", "mm_evaporation_per_hour", "mm_rain_per_hour"]
         for var in optional_timeseries:
             if var not in timeseries:
                 self.io.set_timeseries(var, times, zeros)
                 logger.info(f"{var} not found in the input file. Setting it to 0.0.")
-
+        # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
-        if "mm_evaporation_per_hour" not in list(self.io.get_timeseries_names()):
-            self.io.set_timeseries(
-                "mm_evaporation_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
-            )
-            logger.info("mm_evaporation_per_hour not found in the input file. Setting it to 0.0.")
-        if "mm_rain_per_hour" not in list(self.io.get_timeseries_names()):
-            self.io.set_timeseries(
-                "mm_rain_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
-            )
-            logger.info("mm_rain_per_hour not found in the input file. Setting it to 0.0.")
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str):
