@@ -34,6 +34,7 @@ class ReservoirModel(Model):
             config.set_dir("model", MODEL_DIR)
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
+        self.max_reservoir_area = 0  # Set during pre().
 
     # Methods for preprocsesing.
     def pre(self, *args, **kwargs):
