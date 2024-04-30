@@ -66,7 +66,7 @@ def get_lookup_table_from_csv(
     """
     Get a lookup table from a csv file.
 
-    :name: name of the lookup table
+    :param name: name of the lookup table
     :param file: CSV file containing data points for different variables.
     :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
         In case of multiple input variables, different variables should be separated
