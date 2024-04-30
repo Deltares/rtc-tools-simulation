@@ -4,8 +4,7 @@ from pathlib import Path
 import casadi as ca
 import numpy.testing
 import pytest
-
-import rtctools_simulation_modelling_extension.lookup_table as lut
+import rtctools_simulation.lookup_table as lut
 
 DATA_DIR = Path(__file__).parent.resolve() / "lookup_tables"
 

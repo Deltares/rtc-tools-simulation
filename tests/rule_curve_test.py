@@ -4,10 +4,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
-from rtctools_simulation_modelling_extension.model_config import ModelConfig
-from rtctools_simulation_modelling_extension.reservoir.model import ReservoirModel
-from rtctools_simulation_modelling_extension.reservoir.rule_curve import (
+from rtctools_simulation.model_config import ModelConfig
+from rtctools_simulation.reservoir.model import ReservoirModel
+from rtctools_simulation.reservoir.rule_curve import (
     rule_curve_discharge,
 )
 

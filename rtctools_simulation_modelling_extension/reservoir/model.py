@@ -5,10 +5,9 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-
-import rtctools_simulation_modelling_extension.reservoir.setq_help_functions as setq_functions
-from rtctools_simulation_modelling_extension.model import Model, ModelConfig
-from rtctools_simulation_modelling_extension.reservoir.rule_curve import rule_curve_discharge
+import rtctools_simulation.reservoir.setq_help_functions as setq_functions
+from rtctools_simulation.model import Model, ModelConfig
+from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 

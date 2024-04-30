@@ -4,12 +4,11 @@ from pathlib import Path
 from typing import Dict, List
 
 import casadi as ca
+import rtctools_simulation.lookup_table as lut
 from rtctools.simulation.pi_mixin import PIMixin
 from rtctools.simulation.simulation_problem import SimulationProblem
 from rtctools_interface.simulation.plot_mixin import PlotMixin
-
-import rtctools_simulation_modelling_extension.lookup_table as lut
-from rtctools_simulation_modelling_extension.model_config import ModelConfig
+from rtctools_simulation.model_config import ModelConfig
 
 logger = logging.getLogger("rtctools")
 
