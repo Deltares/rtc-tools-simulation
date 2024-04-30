@@ -1,29 +1,31 @@
 # See https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 # for info on toml setup files.
 [build-system]
-requires = ["setuptools"]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
 
-[tool.setuptools]
-packages = ["rtctools_simulation", "rtctools_simulation.reservoir"]
-
-[project]
+[tool.poetry]
 name = "rtc-tools-simulation"
-authors = [{ name = "Deltares" }]
+packages = [{ include = "rtctools_simulation" }]
+version = "0.0.0"
+authors = ["Deltares"]
 description = "Extension for building models used for simulation in rtc-tools."
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-    "casadi >= 3.6.3, == 3.6.*",
-    "Jinja2",
-    "numpy",
-    "pandas",
-    "rtc-tools >= 2.6",
-    "rtc-tools-interface == 0.7.*",
-]
-dynamic = ["version"]
 
-[project.scripts]
+[tool.poetry.dependencies]
+python = ">=3.9"
+casadi = "3.6.*"
+Jinja2 = "*"
+numpy = "*"
+pandas = "*"
+rtc-tools = "^2.6"
+rtc-tools-interface = "0.7.*"
+
+[tool.poetry.scripts]
 rtc-tools-reservoir-template = "rtctools_simulation.cli.reservoir:create_reservoir_template"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
 
 [tool.ruff]
 line-length = 100
@@ -41,3 +43,7 @@ select = [
 
 [tool.ruff.lint.pylint]
 max-args = 10
+
+[tool.poetry-dynamic-versioning]
+enable = true
+style = "semver"

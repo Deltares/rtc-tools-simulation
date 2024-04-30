@@ -14,4 +14,4 @@ Documentation and examples can be found on [readthedocs](https://rtc-tools-simul
 
 ## Developer guidelines
 
-Developer guidelines can be found [here](Contributing.md)
+Developer guidelines can be found [here](https://gitlab.com/rtc-tools-project/rtc-tools-simulation/-/blob/main/CONTRIBUTING.md)
