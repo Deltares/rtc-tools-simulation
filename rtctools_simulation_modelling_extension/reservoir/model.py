@@ -34,6 +34,23 @@ class ReservoirModel(Model):
             config.set_dir("model", MODEL_DIR)
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
+        self.max_reservoir_area = 0  # Set during pre().
+
+    # Methods for preprocsesing.
+    def pre(self, *args, **kwargs):
+        super().pre(*args, **kwargs)
+        # Set default input timeseries.
+        ref_series = self.io.get_timeseries("Q_in")
+        times = ref_series[0]
+        zeros = np.full(len(times), 0.0)
+        timeseries = self.io.get_timeseries_names()
+        optional_timeseries = ["V_observed", "mm_evaporation_per_hour", "mm_rain_per_hour"]
+        for var in optional_timeseries:
+            if var not in timeseries:
+                self.io.set_timeseries(var, times, zeros)
+                logger.info(f"{var} not found in the input file. Setting it to 0.0.")
+        # Set parameters.
+        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str):
@@ -68,23 +85,6 @@ class ReservoirModel(Model):
         current_time = self.get_current_time()
         return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
 
-    def pre(self, *args, **kwargs):
-        super().pre(*args, **kwargs)
-
-        # Set default inputs for rain and evaporation
-        ref_series = self.io.get_timeseries("Q_in")
-        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
-        if "mm_evaporation_per_hour" not in list(self.io.get_timeseries_names()):
-            self.io.set_timeseries(
-                "mm_evaporation_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
-            )
-            logger.info("mm_evaporation_per_hour not found in the input file. Setting it to 0.0.")
-        if "mm_rain_per_hour" not in list(self.io.get_timeseries_names()):
-            self.io.set_timeseries(
-                "mm_rain_per_hour", ref_series[0], np.full(len(ref_series[1]), 0.0)
-            )
-            logger.info("mm_rain_per_hour not found in the input file. Setting it to 0.0.")
-
     # Helper functions for getting the time/date.
     def sec_to_datetime(self, time_in_seconds) -> datetime:
         """Convert time in seconds to datetime."""
@@ -101,6 +101,17 @@ class ReservoirModel(Model):
     def apply_spillway(self):
         """Enable water to spill from the reservoir."""
         self.set_var("do_spill", True)
+
+    def apply_adjust(self):
+        """
+        Activate functionality to adjust water balance based on observed volume
+        The function will close the water balance through the use of Q_error, which
+        will cover the difference between the simulated Q_out and the observed volume change.
+        """
+        t = self.get_current_time()
+        v_observed = self.timeseries_at("V_observed", t)
+        self.set_var("V_observed", v_observed)  ## Load v_observed for this timestep
+        self.set_var("compute_v", False)  ## Disable compute_v so V will equal v_observed
 
     def apply_passflow(self):
         """Let the outflow be the same as the inflow."""
@@ -133,11 +144,14 @@ class ReservoirModel(Model):
         """Set default input values."""
         if np.isnan(self.get_var("Q_turbine")):
             self.set_var("Q_turbine", 0)
+        if np.isnan(self.get_var("V_observed")):
+            self.set_var("V_observed", 0)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
         self.set_var("include_rain", False)
         self.set_var("include_evaporation", False)
+        self.set_var("compute_v", True)
 
     def apply_schemes(self):
         """
