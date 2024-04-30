@@ -35,6 +35,12 @@
 		</PITimeSeries>
 	</timeSeries>
 	<!--Targets and goals-->
+	<timeSeries id="rule_curve">
+		<PITimeSeries>
+			<locationId>rule_curve</locationId>
+			<parameterId>rule_curve</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!-- Ouputs -->
     <timeSeries id="Q_out">
 		<PITimeSeries>

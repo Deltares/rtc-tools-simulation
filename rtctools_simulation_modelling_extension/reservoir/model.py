@@ -8,6 +8,7 @@ import numpy as np
 
 import rtctools_simulation_modelling_extension.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation_modelling_extension.model import Model, ModelConfig
+from rtctools_simulation_modelling_extension.reservoir.rule_curve import rule_curve_discharge
 
 MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
@@ -138,6 +139,50 @@ class ReservoirModel(Model):
         """Include the effect of both rainfall and evaporation on the reservoir volume."""
         self.include_evaporation()
         self.include_rain()
+
+    def apply_rulecurve(self, outflow: str = "Q_turbine"):
+        """Set the outflow of the reservoir to reach the rule curve in `blend` steps,
+        considering the maximum allowed discharge `q_max`. Both should be set as parameters.
+
+        Note that this scheme does not correct for the inflows to the reservoir. As a result,
+        the resulting height may differ from the rule curve target.
+        """
+        current_step = int(self.get_current_time() / self.get_time_step())
+        q_max = self.parameters().get("rule_curve_q_max")
+        if q_max is None:
+            raise ValueError(
+                "The parameter rule_curve_q_max is not set, "
+                + "which is required for the rule curve scheme"
+            )
+        blend = self.parameters().get("rule_curve_blend")
+        if blend is None:
+            raise ValueError(
+                "The parameter rule_curve_blend is not set, "
+                "which is required for the rule curve scheme"
+            )
+        try:
+            rule_curve = self.io.get_timeseries("rule_curve")[1]
+        except KeyError as exc:
+            raise KeyError("The rule curve timeseries is not found in the input file.") from exc
+        v_from_h_lookup_table = self.lookup_tables().get("v_from_h")
+        if v_from_h_lookup_table is None:
+            raise ValueError(
+                "The lookup table v_from_h is not found"
+                " It is required for the rule curve scheme."
+            )
+        volume_target = v_from_h_lookup_table(rule_curve[current_step])
+        current_volume = self.get_var("V")
+        discharge = rule_curve_discharge(
+            volume_target,
+            current_volume,
+            q_max,
+            blend,
+        )
+        discharge_per_second = discharge / self.get_time_step()
+        self.set_var(outflow, discharge_per_second)
+        logger.debug(
+            "Rule curve function has set the " + f"{outflow} to {discharge_per_second} m^3/s"
+        )
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):
