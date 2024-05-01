@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
 from rtctools_simulation.reservoir.setq_help_functions import (
     NoDataException,
