@@ -8,7 +8,8 @@ build-backend = "poetry_dynamic_versioning.backend"
 packages = ["rtctools_simulation", "rtctools_simulation.reservoir"]
 
 [tool.poetry]
-name = "rtctools_simulation"
+name = "rtc-tools-simulation"
+packages = [{include = "rtctools_simulation"}]
 version = "0.0.0"
 authors = ["Deltares"]
 description = "Extension for building models used for simulation in rtc-tools."
@@ -48,3 +49,4 @@ max-args = 10
 
 [tool.poetry-dynamic-versioning]
 enable = true
+style = "semver"
