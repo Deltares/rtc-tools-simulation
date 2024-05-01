@@ -1,9 +1,9 @@
-.. rtc-tools-simulation-modelling-extension documentation master file, created by
+.. rtc-tools-simulation documentation master file, created by
    sphinx-quickstart on Fri Mar  8 16:03:23 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to rtc-tools-simulation-modelling-extension's documentation!
+Welcome to rtc-tools-simulation's documentation!
 ====================================================================
 
 Contents:

@@ -4,6 +4,7 @@ image: python:3.9
 stages:
   - style
   - test
+  - deploy
 
 # style
 style:
@@ -27,3 +28,20 @@ test38:
   tags:
     - docker
     - linux
+
+# deploy
+deploy:
+  stage: deploy
+  script:
+    - pip install poetry
+    - poetry self add "poetry-dynamic-versioning[plugin]"
+    - poetry config pypi-token.pypi $PYPI_TOKEN
+    - poetry publish --build
+  only:
+    # Only deploy refs that are a version tag (v*.*.*)
+    - /^v\d+\.\d+\.\d+.*$/
+  except:
+    # only deploy tags
+    - branches
+  tags:
+    - docker

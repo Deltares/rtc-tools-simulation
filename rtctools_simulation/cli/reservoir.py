@@ -3,7 +3,7 @@ import argparse
 import os
 from pathlib import Path
 
-from rtctools_simulation_modelling_extension.reservoir.template import create_reservoir_dir
+from rtctools_simulation.reservoir.template import create_reservoir_dir
 
 parser = argparse.ArgumentParser(description="Build a reservoir model template.")
 parser.add_argument(

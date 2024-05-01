@@ -1,7 +1,7 @@
 """Example that illustrates how to create a basic model."""
 from pathlib import Path
 
-from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 

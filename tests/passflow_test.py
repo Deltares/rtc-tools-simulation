@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import numpy.testing
 
-from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
 
 BASE_DIR = Path(__file__).parent.resolve() / "basic_model"
 OUTPUT_DIR = BASE_DIR / "output_passflow"

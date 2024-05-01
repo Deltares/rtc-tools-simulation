@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from rtctools_simulation_modelling_extension.reservoir.model import ModelConfig, ReservoirModel
-from rtctools_simulation_modelling_extension.reservoir.setq_help_functions import (
+from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.setq_help_functions import (
     NoDataException,
 )
 
