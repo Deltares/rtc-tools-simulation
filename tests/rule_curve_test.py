@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from rtctools_simulation.model_config import ModelConfig
 from rtctools_simulation.reservoir.model import ReservoirModel
 from rtctools_simulation.reservoir.rule_curve import (

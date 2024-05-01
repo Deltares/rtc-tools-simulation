@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import pytest
+
 from rtctools_simulation.reservoir.template import create_reservoir_dir
 
 RESERVOIR_DIR = pathlib.Path(__file__).parent.resolve() / "reservoir_template"

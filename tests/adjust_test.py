@@ -2,6 +2,7 @@
 from pathlib import Path
 
 import numpy.testing
+
 from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
 
 adjust_dir = Path(__file__).parent.resolve() / "adjust"
