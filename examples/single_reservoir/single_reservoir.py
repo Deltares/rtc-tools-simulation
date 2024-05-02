@@ -1,4 +1,5 @@
 """Example that illustrates how to create a basic model."""
+
 from pathlib import Path
 
 from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
@@ -25,7 +26,7 @@ class SingleReservoir(ReservoirModel):
                 self.set_q(
                     target_variable="Q_out",
                     input_type="parameter",
-                    input_data=0.2,
+                    input_data=0.4,
                 )
             else:
                 self.apply_spillway()
@@ -33,7 +34,7 @@ class SingleReservoir(ReservoirModel):
             self.set_q(
                 target_variable="Q_out",
                 input_type="parameter",
-                input_data=0.4,
+                input_data=0.2,
             )
 
 

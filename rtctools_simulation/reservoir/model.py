@@ -1,4 +1,5 @@
 """Module for a reservoir model."""
+
 import logging
 import math
 from datetime import datetime
@@ -59,11 +60,24 @@ class ReservoirModel(Model):
         times = ref_series[0]
         zeros = np.full(len(times), 0.0)
         timeseries = self.io.get_timeseries_names()
-        optional_timeseries = ["V_observed", "mm_evaporation_per_hour", "mm_rain_per_hour"]
+        optional_timeseries = [
+            "V_observed",
+            "mm_evaporation_per_hour",
+            "mm_rain_per_hour",
+            "Q_turbine",
+            "Q_out_from_input",
+        ]
         for var in optional_timeseries:
             if var not in timeseries:
                 self.io.set_timeseries(var, times, zeros)
                 logger.info(f"{var} not found in the input file. Setting it to 0.0.")
+            if np.any(np.isnan(self.get_timeseries(var))):
+                self.io.set_timeseries(
+                    var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
+                )
+                logger.info(
+                    f"{var} contains NaNs in the input file. Setting these values to to 0.0."
+                )
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
@@ -146,6 +160,7 @@ class ReservoirModel(Model):
         """
         self.set_var("do_poolq", False)
         self.set_var("do_pass", True)
+        self.set_var("do_set_q_out", False)
 
     def apply_poolq(self):
         """Scheme to let the outflow be determined by a lookup table with name "qout_from_v".
@@ -158,6 +173,7 @@ class ReservoirModel(Model):
         """
         self.set_var("do_pass", False)
         self.set_var("do_poolq", True)
+        self.set_var("do_set_q_out", False)
 
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
@@ -270,12 +286,15 @@ class ReservoirModel(Model):
             self.set_var("Q_turbine", 0)
         if np.isnan(self.get_var("V_observed")):
             self.set_var("V_observed", 0)
+        if np.isnan(self.get_var("Q_out_from_input")):
+            self.set_var("Q_out_from_input", 0)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
         self.set_var("include_rain", False)
         self.set_var("include_evaporation", False)
         self.set_var("compute_v", True)
+        self.set_var("do_set_q_out", False)
 
     def apply_schemes(self):
         """
