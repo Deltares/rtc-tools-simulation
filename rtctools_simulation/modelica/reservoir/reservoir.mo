@@ -7,6 +7,7 @@ model Reservoir
   input SI.Volume V_observed();
   input SI.VolumeFlowRate Q_in();
   input SI.VolumeFlowRate Q_turbine();
+  input SI.VolumeFlowRate Q_sluice();
   input SI.VolumeFlowRate Q_out_from_input();
   input Boolean do_spill;
   input Boolean do_pass;
@@ -53,7 +54,7 @@ equation
   Q_out = (
     do_pass * Q_in
     + do_poolq * Q_out_from_lookup_table
-    + (1 - do_pass) * (1 - do_poolq) * (1 - do_set_q_out) * (Q_turbine + Q_spill)
+    + (1 - do_pass) * (1 - do_poolq) * (1 - do_set_q_out) * (Q_turbine + Q_spill + Q_sluice)
     + (1 - do_pass) * (1 - do_poolq) * do_set_q_out * Q_out_from_input
   );
 
