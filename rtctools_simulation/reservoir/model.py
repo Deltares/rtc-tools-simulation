@@ -30,6 +30,7 @@ VARIABLES = [
     "Q_rain",
     "Q_spill",
     "Q_turbine",
+    "Q_sluice",
     "V",
 ]
 
@@ -69,6 +70,7 @@ class ReservoirModel(Model):
             "mm_evaporation_per_hour",
             "mm_rain_per_hour",
             "Q_turbine",
+            "Q_sluice",
             "Q_out_from_input",
         ]
         for var in optional_timeseries:
@@ -325,6 +327,8 @@ class ReservoirModel(Model):
         """
         if np.isnan(self.get_var("Q_turbine")):
             self.set_var("Q_turbine", 0)
+        if np.isnan(self.get_var("Q_sluice")):
+            self.set_var("Q_sluice", 0)
         if np.isnan(self.get_var("V_observed")):
             self.set_var("V_observed", 0)
         if np.isnan(self.get_var("Q_out_from_input")):
@@ -391,6 +395,7 @@ class ReservoirModel(Model):
         variables = super().get_output_variables().copy()
         variables.extend(["Q_in"])
         variables.extend(["Q_turbine"])
+        variables.extend(["Q_sluice"])
         return variables
 
     def set_q(
