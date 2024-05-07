@@ -1,4 +1,7 @@
-"""Rule curve module for reservoir operation."""
+"""
+Rule curve module for reservoir operation.
+------------------------------------------
+"""
 
 import logging
 
