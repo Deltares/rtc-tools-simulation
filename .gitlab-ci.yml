@@ -15,7 +15,7 @@ style:
   script:
     - pre-commit run --all-files --show-diff-on-failure
   tags:
-    - docker
+    - gitlab-org-docker
 
 # test
 test38:
@@ -26,8 +26,7 @@ test38:
   script:
     - pytest tests 
   tags:
-    - docker
-    - linux
+    - gitlab-org-docker
 
 # deploy
 deploy:
@@ -44,4 +43,4 @@ deploy:
     # only deploy tags
     - branches
   tags:
-    - docker
+    - gitlab-org-docker
