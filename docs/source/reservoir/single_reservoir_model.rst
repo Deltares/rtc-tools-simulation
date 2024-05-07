@@ -14,7 +14,8 @@ Here we describe the model assumptions, and include the model itself for the int
 
 The single reservoir is modelled as having a single inflow, and single outflow. This outflow can be made up of components
 flowing through a spillway or turbine if applicable (activated through the use of schemes, see :ref:`reservoir-api`). 
-The reservoir has an associated elevation, and volume. It is also possible to account for the effects of rain or evaporation (see :ref:`reservoir-api`)
+The reservoir has an associated elevation, and volume.
+It is also possible to account for the effects of rain or evaporation (see :ref:`reservoir-api`).
 
 Inputs
 ------

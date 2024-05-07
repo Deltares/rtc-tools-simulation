@@ -68,7 +68,7 @@ class ReservoirModel(Model):
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
     # Helper functions for getting the time/date/variables.
-    def get_var(self, var: str):
+    def get_var(self, var: str) -> float:
         """
         Get the value of a given variable at the current time.
 
@@ -83,7 +83,7 @@ class ReservoirModel(Model):
             return KeyError(message)
         return value
 
-    def get_current_time(self):
+    def get_current_time(self) -> int:
         """
         Get the current time (in seconds).
 
@@ -140,7 +140,7 @@ class ReservoirModel(Model):
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
 
-        .. note:: This scheme cannot be used incombination with
+        .. note:: This scheme cannot be used in combination with
             :py:meth:`.ReservoirModel.apply_poolq`, or :py:meth:`.ReservoirModel.set_q` when the
             target variable is Q_out.
         """
