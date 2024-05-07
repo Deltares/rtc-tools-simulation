@@ -89,10 +89,6 @@ class ReservoirModel(Model):
         return self.io.sec_to_datetime(current_time, self.io.reference_datetime)
 
     # Helper functions for getting the time/date.
-    def sec_to_datetime(self, time_in_seconds) -> datetime:
-        """Convert time in seconds to datetime."""
-        return self.io.sec_to_datetime(time_in_seconds, self.io.reference_datetime)
-
     def set_time_step(self, dt):
         # TODO: remove once set_q allows variable dt.
         current_dt = self.get_time_step()
