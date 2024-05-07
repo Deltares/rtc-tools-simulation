@@ -1,7 +1,9 @@
+.. _examples-single-reservoir-basic:
+
 Basic Reservoir
 ===============
 
-This example shows how to build a simple reservoir model.
+This example shows how to build a simple single reservoir model.
 
 File Structure
 --------------
@@ -11,15 +13,16 @@ The file structure looks as follows::
   <base_dir>
   │   <model_file>.py
   ├───input
-  │   ├───initial_state.csv
-  │   ├───parameters.csv
   │   ├───(plot_table.csv)
-  │   └───timeseries_import.csv
-  └───lookup_tables
-      ├───lookup_tables.csv
-      ├───(data1.csv)
-      ├───(data2.csv)
-      └───(data3.csv)
+  │   └───rtcDataConfig.xml
+  │   └───rtcParameterConfig.xml
+  │   └───timeseries_import.xml
+  ├───lookup_tables
+  │   ├───lookup_tables.csv
+  │   ├───(<data1>.csv)
+  │   ├───(<data2>.csv)
+  │   └───(<data3>.csv)
+  └───output
 
 ..
     File structure was generated with the help of `tree /f <path_to_dir>` in terminal.
@@ -32,10 +35,10 @@ It consists of the following files and folders.
 
 * `input`: directory containing all parameters and external input data.
 
-  * `initial_state.csv`: file that contains the intial values.
-  * `parameters.csv`: file that contains the model parameters.
   * `plot_table.csv` (optional): file that describes how the output should be visualised.
-  * `timeseries_import.csv`: file with all input timeseries.
+  * `rtcParameterConfig.xml`: file that contains the model parameters.
+  * `timeseries_import.xml`: file with all input timeseries and initial conditions.
+  * `rtcDataConfig.xml`: file that contains the mappings for input/output timeseries (from FEWS) and internal model variables.
 
 * `lookup_tables`: directory that contains all data for lookup tables.
 
@@ -89,9 +92,11 @@ The line
 defines a class :py:class:`SingleReservoir`
 that inherits all properties and functionalities
 of the predefined class :py:class:`ReservoirModel`.
+An overview of this class can be found in :ref:`reservoir-api`
+and details of the underlying model it uses can be found in :ref:`single-reservoir-model`.
 
-The method :py:meth:`apply_schemes` is called every timestep and contains the logic for
-which schemes are applied.
+The method :py:meth:`apply_schemes` is called every timestep and contains the logic
+for which schemes are applied.
 The first argument ``self`` is the :py:class:`SingleReservoir` object itself.
 Since :py:class:`SingleReservoir` inherits from :py:class:`ReservoirModel`,
 ``self`` can call any of the :py:class:`ReservoirModel` methods, such as
@@ -102,8 +107,11 @@ Since :py:class:`SingleReservoir` inherits from :py:class:`ReservoirModel`,
 An overview of all available :py:class:`ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
-In this example, the :py:meth:`apply_schemes` method starts by checking
-if the elevation ``H`` is higher than the crest elevation ``H_crest``.
+In this example, the :py:meth:`apply_schemes` method starts
+by including rain and rain evaporation by calling ``self.include_rainevap()``.
+Since :py:meth:`apply_schemes` is applied at each time step,
+this means rain and evaporation is included at each time step.
+The method then checks if the elevation ``H`` is higher than the crest elevation ``H_crest``.
 If this is the case, and the current month is in between April and September,
 the outflow is set by :py:meth:`set_q`.
 Otherwise, the spillway scheme is applied.
@@ -115,7 +123,7 @@ The last lines
   :language: python
   :start-at: # Create and run the model.
 
-create and run a :py:class:`SingleReservor` model.
+create and run a :py:class:`SingleReservoir` model.
 To run the model, we can run ``python <model_file>.py`` from the command line.
 
 
@@ -157,3 +165,77 @@ A data file, such as `v_h.csv`, looks as follows.
   16152300,1563.643014
   21700800,1566.691051
   "...","..."
+
+When setting up the model, the model object will look for the following lookup tables:
+
+* h_from_v
+* area_from_v
+* qout_from_v
+* qspill_from_h
+
+It is therefore important to use these same names in the `lookup_tables.csv` file.
+
+Input Data Files
+----------------
+
+The input folder contains a configuration file `rtcDataConfig.xml`
+a parameter file `rtcParameterConfig.xml`,
+and an input data file `timeseries_import.xml`.
+
+The `rtcDataConfig.xml` file contains a mapping between external data and internal model variables.
+In this example, `rtcParameterConfig.xml` looks as follows.
+
+.. code-block:: xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <rtcDataConfig xmlns="http://www.wldelft.nl/fews" xmlns:rtc="http://www.wldelft.nl/fews" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews ../xsd/rtcDataConfig.xsd">
+    <timeSeries id="V">
+      <PITimeSeries>
+        <locationId>reservoir</locationId>
+        <parameterId>V</parameterId>
+      </PITimeSeries>
+    </timeSeries>
+    ...
+  </rtcDataConfig>
+
+.. .. literalinclude:: ..\\..\\..\\..\\examples\\single_reservoir\\input\\rtcDataConfig.xml
+..     :language: xml
+..     :lines: 12-17
+
+The line ``<timeSeries id=V>`` indicates that the model variable is called ``V``
+and the lines ``<locationId>reservoir</locationId>`` and ``<parameterId>V</parameterId>``
+indicate that ``V`` has locationId ``resrvoir`` and parameterId ``V``.
+The locationId and parameterId are used to label data in data files
+such as the input file `timeseries_import.xml` or the output file `timeseries_export.xml`.
+
+The input file `timeseries_import.xml` is usually not created by the user,
+but generated by a FEWS application.
+In this example, the input file contains the following lines.
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\single_reservoir\\input\\timeseries_import.xml
+    :language: xml
+    :lines: 4-19
+
+The line ``<event date="2022-06-07" time="06:00:00" value="136500000" flag="8"/>``
+sets the value of ``V`` at the initial time (2022-06-07, 06:00:00).
+We only provide the reservoir volume ``V`` with an initial value
+and therefore there is only one ``event`` block.
+If we want to set a variable at each time step, like the inflow ``Q_in``,
+we have an ``event`` block for each time step.
+
+Output Data
+-----------
+
+The results of the simulation will appear in the `output` folder
+in a file called `timeseries_export.xml`.
+The data is linked to model variables via the `rtcDataConfig.xml`
+in the same way as with `timeseries_import.xml`.
+
+Automatic Plotting
+------------------
+
+You can optionally include a `plot_table.csv` in the input folder.
+This is used by the rtc-tools-interfaces module (automatically installed with this package)
+to plot the model output.
+For more details on how to use this file and visualize results,
+see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.

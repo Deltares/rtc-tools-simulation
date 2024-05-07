@@ -1,3 +1,8 @@
+"""
+SetQ module for reservoir operation.
+------------------------------------
+"""
+
 import logging
 
 import numpy as np
@@ -10,16 +15,12 @@ class NoDataException(Exception):  ## noqa N818
 
 
 def _find_prev_value(input_data, timestep, method="PREV"):
-    """
-    Parameters
-    ----------
-    input_data: timeseries (list)
-    timestep: timestep (index) at which to start within input_data (int)
-    method: direction to search for the data point. If 'NEXT', we reverse the operation
+    """Function to find the previous non-nan data point from the given timeseries
+    :param input_data: timeseries (list)
+    :param timestep: timestep (index) at which to start within input_data (int)
+    :param method: direction to search for the data point. If 'NEXT', we reverse the operation
 
-    Returns previous non-NaN data point from the given timeseries
-    -------
-
+    :return: previous non-NaN data point from the given timeseries
     """
     if method == "NEXT":  ## Invert input_data and remap t to the mirrored end of the timeseries
         input_data = input_data[::-1]
@@ -38,16 +39,12 @@ def _find_prev_value(input_data, timestep, method="PREV"):
 
 
 def _find_closest_value(back: dict, fwd: dict):
-    """
+    """Function to find the closest value
 
-    Parameters
-    ----------
-    back
-    fwd
+    :param back
+    :param fwd
 
-    Returns
-    -------
-
+    :return: target_value
     """
     target_value = np.nan
     if back["dist"] < fwd["dist"]:
@@ -61,14 +58,11 @@ def _find_closest_value(back: dict, fwd: dict):
 
 
 def _find_back_and_fwd(input_data: list, timestep: int):
-    """
+    """function to catch unique case of data only available on 1 side of t, without breaking
 
-    Parameters
-    ----------
-    input_data
-    timestep
-    Returns
-    -------
+    :param input_data
+    :param timestep
+    :returns:
 
     """
     ## Needs to catch unique case of data only available on 1 side of t, without breaking.
@@ -90,14 +84,17 @@ def _find_back_and_fwd(input_data: list, timestep: int):
 def _find_nonnan_value(input_data, timestep: int = None, method="CLOSEST"):
     """
     Function that allows the user to find a suitable (non-NaN) value in the supplied timeseries.
-    Options for method are:
-        CLOSEST (default)   : Finds the closest (time-wise) value. If they are the same distance,
-                              returns the interpolated value
 
-        PREV                : Finds the closest value that occurred before the given timestep
-        NEXT                : Finds the closest value that occurred after the given timestep
-        INTERP              : Interpolates between the two closest valid timesteps. If only
-                              data is available to one side of 't', return closest value
+    :param method: str
+        Options for method are:
+            - 'CLOSEST' (default) : Finds the closest (time-wise) value. If they are the same
+              distance, returns the interpolated value
+            - 'PREV': Finds the closest value that occurred before the given timestep
+            - 'NEXT': Finds the closest value that occurred after the given timestep
+            - 'INTERP': Interpolates between the two closest valid timesteps. If only
+              data is available to one side of 't', return closest value
+    :return: target_value
+        This is
     """
     if all(np.isnan(input_data)):
         raise NoDataException("Target_data is completely NaN")
@@ -199,44 +196,37 @@ def setq(
     """
     Set one of the input or output discharges to a given value,
     or a value determined from an input list.
-    Parameters
-    ----------
-    Model : Reservoir Model
 
-    target_variable : str (default: 'Q_turbine')
+    :param Model: object
+        Reservoir Model
+    :param target_variable: str (default: 'Q_turbine')
         The variable that is to be set.
-
-    input_data : str
+    :param input_data: str
         the name of the target data. If not provided, it is set to the name of the target_variable.
         Name of timeseries_ID/parameter_ID in .xml file
-
-    input_type : str (default: 'timeseries')
+    :param input_type: str (default: 'timeseries')
         The type of target data. Either 'timeseries' or 'parameter'. If it is a timeseries,
         the timeseries is assumed to have a regular time interval.
-
-    apply_func : str
+    :param apply_func: str
         Function that is used to find the fixed_value if input_type = 'timeseries'.
-        'MEAN' (default): Finds the average value, excluding nan-values.
-        'MIN': Finds the minimum value, excluding nan-values.
-        'MAX': Finds the maximum value, excluding nan-values.
-        'INST': Finds the value marked by the corresponding timestep 't'. If the
-                selected value is NaN, nan_option determines the procedure to find a valid value.
-
-    timestep:
+            - 'MEAN' (default): Finds the average value, excluding nan-values.
+            - 'MIN': Finds the minimum value, excluding nan-values.
+            - 'MAX': Finds the maximum value, excluding nan-values.
+            - 'INST': Finds the value marked by the corresponding timestep 't'. If the
+              selected value is NaN, nan_option determines the procedure to find a valid value.
+    :param timestep:
         The timestep at which the input data should be read at if input_type = 'timeseries',
         the default is the current timestep of the simulation run.
+    :param nan_option: the user can indicate the action to be take if missing values are found.
+        Can be used in combination with input_type = 'timeseries' and apply_func = 'INST'.
+            - 'MEAN': It will take the mean of the timeseries excluding nans.
+            - 'PREV': It attempts to find the closest previous valid data point.
+            - 'NEXT':  It attempts to find the closest next valid data point.
+            - 'CLOSEST': It attempts to find the closest valid data point, either backwards or
+              forward. If same distance, take average.
+            - 'INTERP': Interpolates linearly between the closest forward and backward data points.
 
-    nan_option: the user can indicate the action to be take if missing values are found.
-                Can be used in combination with input_type = 'timeseries' and apply_func = 'INST'.
-        'MEAN': It will take the mean of the timeseries excluding nans.
-        'PREV': It attempts to find the closest previous valid data point.
-        'NEXT':  It attempts to find the closest next valid data point.
-        'CLOSEST': It attempts to find the closest valid data point, either backwards or forward.
-                   If same distance, take average.
-        'INTERP': Interpolates linearly between the closest forward and backward data points.
-
-    RETURNS:
-    Updated model with adjusted Q_variable
+    :return: Updated model with adjusted Q_variable
     """
     target_value = np.nan  ## Set as default result
     ## Checks to process input_data into a consistent format (list/single value)
@@ -263,6 +253,12 @@ def setq(
 
 
 def _setq_from_parameter(model, target_value, nan_option, input_data_name, target_variable):
+    """
+    Use setq function to fix functionality to a minimum value. This increases user-friendliness.
+    For documentation, see setq
+
+    :return: set discharge to the minimum value from given input list
+    """
     if np.isnan(target_value):
         if nan_option is None:
             logger.error(
@@ -279,12 +275,10 @@ def _setq_from_parameter(model, target_value, nan_option, input_data_name, targe
 
 def setqmin(model, target_variable="Q_release", input_data=None):
     """
-    use setq function to fix functionality to a minimum value. This increases user-friendliness.
+    Use setq function to fix functionality to a minimum value. This increases user-friendliness.
     For documentation, see setq
 
-    Returns
-    -------
-    set discharge to the minimum value from given input list
+    :return: set discharge to the minimum value from given input list
     """
     target_value = setq(
         model, target_variable, "timeseries", apply_func="MIN", input_data=input_data

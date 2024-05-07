@@ -6,11 +6,17 @@
 Welcome to rtc-tools-simulation's documentation!
 ====================================================================
 
-Contents:
+Here you will find details of how to use specialized functionalities of RTC-Tools simulation mode.
+This includes the general use of look-up tables, as well as other functionality such as modelling single reservoirs.
+
+Contents
+--------
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
+  getting_started
+  example_models
   lookup_table
   reservoir
 

@@ -23,17 +23,17 @@ class SingleReservoir(ReservoirModel):
             september = 9
             if april <= datetime.month <= september:
                 self.set_q(
-                    target_variable="Q_turbine",
+                    target_variable="Q_out",
                     input_type="parameter",
-                    input_data=0.01,
+                    input_data=0.2,
                 )
             else:
                 self.apply_spillway()
         else:
             self.set_q(
-                target_variable="Q_turbine",
+                target_variable="Q_out",
                 input_type="parameter",
-                input_data=0.01,
+                input_data=0.4,
             )
 
 
