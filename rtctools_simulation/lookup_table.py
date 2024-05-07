@@ -1,4 +1,4 @@
-"""Module for adding lookup tables to a model."""
+"""Module for creating lookup tables and lookup table equations."""
 from pathlib import Path
 from typing import Dict, List, Union
 
