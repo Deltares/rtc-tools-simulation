@@ -4,7 +4,7 @@ import logging
 import math
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -402,7 +402,7 @@ class ReservoirModel(Model):
         self,
         target_variable: str = "Q_turbine",
         input_type: str = "timeseries",
-        input_data: str = None,
+        input_data: Union[str, float, list[float]] = None,
         apply_func: str = "MEAN",
         timestep: int = None,
         nan_option: str = None,
@@ -418,13 +418,13 @@ class ReservoirModel(Model):
             :py:meth:`.ReservoirModel.apply_passflow` if the target variable is Q_out.
 
         :param target_variable: str (default: 'Q_turbine')
-            The variable that is to be set. Needs to be an internal variable, limited to discharges
+            The variable that is to be set. Needs to be an internal variable, limited to discharges.
         :param input_type: str (default: 'timeseries')
             The type of target data. Either 'timeseries' or 'parameter'. If it is a timeseries,
             the timeseries is assumed to have a regular time interval.
-        :param input_data: str (default: None)
-            the name of the target data. If not provided, it is set to the name of
-            the target_variable. Name of timeseries_ID/parameter_ID in .xml file
+        :param input_data: str | float | list[float] (default: None)
+            Single value or a list of values for each time step to set the target.
+            It can also be a name of a parameter or input variable.
         :param apply_func: str (default: 'MEAN')
             Function that is used to find the fixed_value if input_type = 'timeseries'.
 
