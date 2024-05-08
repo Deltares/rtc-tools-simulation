@@ -239,11 +239,6 @@ def setq(
         model.set_var("do_poolq", False)
         model.set_var("do_pass", False)
         model.set_var("do_spill", False)
-        logger.warning(
-            "When setting variable Q_out directly, other schemes cannot by used at the"
-            + "same timestep, and reservoir outlfow is not divided between multiple"
-            + "components such as Q_turbine and Q_spill"
-        )
     if timestep is None and input_type == "timeseries" and apply_func == "INST":
         ## If no t is given, default to current timestep
         timestep = int(model.get_current_time() // model.get_time_step())
