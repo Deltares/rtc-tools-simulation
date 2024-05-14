@@ -22,6 +22,18 @@
 			<parameterId>Q.turbine</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="Q_sluice">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.sluice</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="Q_out_from_input">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out_from_input</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<timeSeries id="mm_evaporation_per_hour">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
@@ -34,11 +46,23 @@
 			<parameterId>rain</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="rule_curve">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rulecurve</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!-- Ouputs -->
     <timeSeries id="Q_out">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>Q.out</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+    <timeSeries id="Q_out_corrected">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out_corrected</parameterId>
 		</PITimeSeries>
 	</timeSeries>
     <timeSeries id="Q_spill">

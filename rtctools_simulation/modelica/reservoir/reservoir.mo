@@ -3,6 +3,7 @@ model Reservoir
   import SI = Modelica.SIunits;
 
   parameter SI.Length H_crest();
+  parameter SI.Area max_reservoir_area() = 0;
 
   input SI.Volume V_observed();
   input SI.VolumeFlowRate Q_in();
@@ -18,7 +19,7 @@ model Reservoir
   input Boolean do_set_q_out;
   input FlowRatePerArea mm_evaporation_per_hour();
   input FlowRatePerArea mm_rain_per_hour();
-  parameter SI.Area max_reservoir_area() = 0;
+  input SI.Length rule_curve();
 
   output SI.Volume V();
   output SI.VolumeFlowRate Q_out();
