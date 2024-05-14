@@ -14,8 +14,6 @@ style:
     - pip install pre-commit
   script:
     - pre-commit run --all-files --show-diff-on-failure
-  tags:
-    - gitlab-org-docker
 
 # test
 test38:
@@ -24,9 +22,7 @@ test38:
     - pip install -e .
     - pip install pytest
   script:
-    - pytest tests 
-  tags:
-    - gitlab-org-docker
+    - pytest tests
 
 # deploy
 deploy:
@@ -42,5 +38,3 @@ deploy:
   except:
     # only deploy tags
     - branches
-  tags:
-    - gitlab-org-docker
