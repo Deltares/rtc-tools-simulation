@@ -7,12 +7,15 @@ model Reservoir
   input SI.Volume V_observed();
   input SI.VolumeFlowRate Q_in();
   input SI.VolumeFlowRate Q_turbine();
+  input SI.VolumeFlowRate Q_sluice();
+  input SI.VolumeFlowRate Q_out_from_input();
   input Boolean do_spill;
   input Boolean do_pass;
   input Boolean do_poolq;
   input Boolean compute_v;
   input Boolean include_evaporation;
   input Boolean include_rain;
+  input Boolean do_set_q_out;
   input FlowRatePerArea mm_evaporation_per_hour();
   input FlowRatePerArea mm_rain_per_hour();
   parameter SI.Area max_reservoir_area() = 0;
@@ -51,7 +54,8 @@ equation
   Q_out = (
     do_pass * Q_in
     + do_poolq * Q_out_from_lookup_table
-    + (1 - do_pass) * (1 - do_poolq) * (Q_turbine + Q_spill)
+    + (1 - do_pass) * (1 - do_poolq) * (1 - do_set_q_out) * (Q_turbine + Q_spill + Q_sluice)
+    + (1 - do_pass) * (1 - do_poolq) * do_set_q_out * Q_out_from_input
   );
 
   // This equation creates a 'bookkeeping' variable that closes the mass-balance when compute_v = 0

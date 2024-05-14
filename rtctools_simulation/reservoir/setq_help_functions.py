@@ -233,7 +233,12 @@ def setq(
     input_data, input_data_name, target_value = _preprocess_input_setq(
         model, target_value, target_variable, input_type, input_data
     )
-
+    if "Q_out" == target_variable:
+        target_variable = "Q_out_from_input"
+        model.set_var("do_set_q_out", True)
+        model.set_var("do_poolq", False)
+        model.set_var("do_pass", False)
+        model.set_var("do_spill", False)
     if timestep is None and input_type == "timeseries" and apply_func == "INST":
         ## If no t is given, default to current timestep
         timestep = int(model.get_current_time() // model.get_time_step())

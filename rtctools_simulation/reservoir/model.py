@@ -1,9 +1,10 @@
 """Module for a reservoir model."""
+
 import logging
 import math
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -29,6 +30,7 @@ VARIABLES = [
     "Q_rain",
     "Q_spill",
     "Q_turbine",
+    "Q_sluice",
     "V",
 ]
 
@@ -63,11 +65,23 @@ class ReservoirModel(Model):
         times = ref_series[0]
         zeros = np.full(len(times), 0.0)
         timeseries = self.io.get_timeseries_names()
-        optional_timeseries = ["V_observed", "mm_evaporation_per_hour", "mm_rain_per_hour"]
+        optional_timeseries = [
+            "V_observed",
+            "mm_evaporation_per_hour",
+            "mm_rain_per_hour",
+            "Q_turbine",
+            "Q_sluice",
+            "Q_out_from_input",
+        ]
         for var in optional_timeseries:
             if var not in timeseries:
                 self.io.set_timeseries(var, times, zeros)
                 logger.info(f"{var} not found in the input file. Setting it to 0.0.")
+            if np.any(np.isnan(self.get_timeseries(var))):
+                self.io.set_timeseries(
+                    var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
+                )
+                logger.info(f"{var} contains NaNs in the input file. Setting these values to 0.0.")
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
@@ -150,6 +164,7 @@ class ReservoirModel(Model):
         """
         self.set_var("do_poolq", False)
         self.set_var("do_pass", True)
+        self.set_var("do_set_q_out", False)
 
     def apply_poolq(self):
         """Scheme to let the outflow be determined by a lookup table with name "qout_from_v".
@@ -162,6 +177,7 @@ class ReservoirModel(Model):
         """
         self.set_var("do_pass", False)
         self.set_var("do_poolq", True)
+        self.set_var("do_set_q_out", False)
 
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
@@ -311,14 +327,19 @@ class ReservoirModel(Model):
         """
         if np.isnan(self.get_var("Q_turbine")):
             self.set_var("Q_turbine", 0)
+        if np.isnan(self.get_var("Q_sluice")):
+            self.set_var("Q_sluice", 0)
         if np.isnan(self.get_var("V_observed")):
             self.set_var("V_observed", 0)
+        if np.isnan(self.get_var("Q_out_from_input")):
+            self.set_var("Q_out_from_input", 0)
         self.set_var("do_spill", False)
         self.set_var("do_pass", False)
         self.set_var("do_poolq", False)
         self.set_var("include_rain", False)
         self.set_var("include_evaporation", False)
         self.set_var("compute_v", True)
+        self.set_var("do_set_q_out", False)
 
     def apply_schemes(self):
         """
@@ -374,13 +395,14 @@ class ReservoirModel(Model):
         variables = super().get_output_variables().copy()
         variables.extend(["Q_in"])
         variables.extend(["Q_turbine"])
+        variables.extend(["Q_sluice"])
         return variables
 
     def set_q(
         self,
         target_variable: str = "Q_turbine",
         input_type: str = "timeseries",
-        input_data: str = None,
+        input_data: Union[str, float, list[float]] = None,
         apply_func: str = "MEAN",
         timestep: int = None,
         nan_option: str = None,
@@ -396,13 +418,13 @@ class ReservoirModel(Model):
             :py:meth:`.ReservoirModel.apply_passflow` if the target variable is Q_out.
 
         :param target_variable: str (default: 'Q_turbine')
-            The variable that is to be set. Needs to be an internal variable, limited to discharges
+            The variable that is to be set. Needs to be an internal variable, limited to discharges.
         :param input_type: str (default: 'timeseries')
             The type of target data. Either 'timeseries' or 'parameter'. If it is a timeseries,
             the timeseries is assumed to have a regular time interval.
-        :param input_data: str (default: None)
-            the name of the target data. If not provided, it is set to the name of
-            the target_variable. Name of timeseries_ID/parameter_ID in .xml file
+        :param input_data: str | float | list[float] (default: None)
+            Single value or a list of values for each time step to set the target.
+            It can also be a name of a parameter or input variable.
         :param apply_func: str (default: 'MEAN')
             Function that is used to find the fixed_value if input_type = 'timeseries'.
 

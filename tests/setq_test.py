@@ -21,31 +21,38 @@ nan_end = [5, 7, np.nan, np.nan, np.nan, np.nan]
 
 
 @pytest.mark.parametrize(
-    "apply_func, input_data, input_type, timestep, nan_option, expected",
+    "target_variable, apply_func, input_data, input_type, timestep, nan_option, expected",
     [
         ## Test whole timeseries statistics
-        ("MEAN", ts, "timeseries", None, None, 2.5),
-        ("MEAN", nan_ts_1, "timeseries", None, None, 3.6),
-        ("MIN", ts, "timeseries", None, None, 1),
-        ("MIN", nan_ts_1, "timeseries", None, None, 1),
-        ("MAX", ts, "timeseries", None, None, 5),
-        ("MAX", nan_ts_1, "timeseries", None, None, 7),
+        ("Q_turbine", "MEAN", ts, "timeseries", None, None, 2.5),
+        ("Q_turbine", "MEAN", nan_ts_1, "timeseries", None, None, 3.6),
+        ("Q_turbine", "MIN", ts, "timeseries", None, None, 1),
+        ("Q_turbine", "MIN", nan_ts_1, "timeseries", None, None, 1),
+        ("Q_turbine", "MAX", ts, "timeseries", None, None, 5),
+        ("Q_turbine", "MAX", nan_ts_1, "timeseries", None, None, 7),
         ## Test data selection through 't'
-        ("INST", ts, "timeseries", 2, None, 3),
-        ("INST", nan_ts_1, "timeseries", 4, "NEXT", 5),
-        ("INST", nan_ts_5, "timeseries", 5, "NEXT", NoDataException),  ## No data beyond index 5
-        ("INST", nan_ts_1, "timeseries", 4, "MEAN", 3.6),
-        ("INST", nan_ts_1, "timeseries", 4, "PREV", 7),
-        ("INST", nan_ts_1, "timeseries", 4, "CLOSEST", 6),
-        ("INST", nan_ts_1, "timeseries", 4, "INTERP", 6),
-        ("INST", nan_ts_interp, "timeseries", 4, "INTERP", 4),
-        ("INST", nan_ts_interp, "timeseries", 3, "INTERP", 5),
-        ("INST", nan_ts_0, "timeseries", 0, "PREV", NoDataException),  # No previous data
-        ("INST", all_nan, "timeseries", 3, "PREV", NoDataException),  # No previous data
-        ("INST", all_nan, "timeseries", 3, "NEXT", NoDataException),  # No future data
-        ("INST", all_nan, "timeseries", 3, "CLOSEST", NoDataException),  # No data at all
-        ("INST", all_nan, "timeseries", 3, "INTERP", NoDataException),  # No data at all
+        ("Q_turbine", "INST", ts, "timeseries", 2, None, 3),
+        ("Q_turbine", "INST", nan_ts_1, "timeseries", 4, "NEXT", 5),
+        ## No data beyond index 5
+        ("Q_turbine", "INST", nan_ts_5, "timeseries", 5, "NEXT", NoDataException),
+        ("Q_turbine", "INST", nan_ts_1, "timeseries", 4, "MEAN", 3.6),
+        ("Q_turbine", "INST", nan_ts_1, "timeseries", 4, "PREV", 7),
+        ("Q_turbine", "INST", nan_ts_1, "timeseries", 4, "CLOSEST", 6),
+        ("Q_turbine", "INST", nan_ts_1, "timeseries", 4, "INTERP", 6),
+        ("Q_turbine", "INST", nan_ts_interp, "timeseries", 4, "INTERP", 4),
+        ("Q_turbine", "INST", nan_ts_interp, "timeseries", 3, "INTERP", 5),
+        # No previous data
+        ("Q_turbine", "INST", nan_ts_0, "timeseries", 0, "PREV", NoDataException),
+        # No previous data
+        ("Q_turbine", "INST", all_nan, "timeseries", 3, "PREV", NoDataException),
+        # No future data
+        ("Q_turbine", "INST", all_nan, "timeseries", 3, "NEXT", NoDataException),
+        # No data at all
+        ("Q_turbine", "INST", all_nan, "timeseries", 3, "CLOSEST", NoDataException),
+        # No data at all
+        ("Q_turbine", "INST", all_nan, "timeseries", 3, "INTERP", NoDataException),
         (
+            "Q_turbine",
             "INST",
             nan_end,
             "timeseries",
@@ -53,34 +60,41 @@ nan_end = [5, 7, np.nan, np.nan, np.nan, np.nan]
             "INTERP",
             7,
         ),  # Default to closest when only 1 side has data
-        ("INST", nan_end, "timeseries", 3, "CLOSEST", 7),
-        ("INST", 4, "parameter", None, None, 4),  ## Test Parameter option
+        ("Q_turbine", "INST", nan_end, "timeseries", 3, "CLOSEST", 7),
+        ("Q_turbine", "INST", 4, "parameter", None, None, 4),  ## Test Parameter option
         ## Test setq from internal variable 1 step ahead
-        ("INST", "Q_in", "timeseries", 3, None, 3.8080494),
-        ("INST", "Q_in", "timeseries", None, None, 3.7766178),  ## Test setq from internal variable
+        ("Q_turbine", "INST", "Q_in", "timeseries", 3, None, 3.8080494),
+        ## Test setq from internal variable
+        ("Q_turbine", "INST", "Q_in", "timeseries", None, None, 3.7766178),
+        ## Test seting q_out
+        ("Q_out", "INST", "Q_in", "timeseries", None, None, 3.7766178),
     ],
 )
-def test_set_q(apply_func, input_data, input_type, timestep, nan_option, expected):
+def test_set_q(target_variable, apply_func, input_data, input_type, timestep, nan_option, expected):
     setq_dir = Path(__file__).parent.resolve() / "set_q"
+    test_timestep = 2
 
     class SingleReservoir(ReservoirModel):
         def apply_schemes(self):
-            test_time_s = 7200
+            test_time_s = self.times()[test_timestep]
             if self.get_current_time() == test_time_s:
-                try:
-                    self.set_q(
-                        target_variable="Q_turbine",
-                        input_type=input_type,
-                        input_data=input_data,
-                        apply_func=apply_func,
-                        nan_option=nan_option,
-                        timestep=timestep,
-                    )
-                    q_result = self.get_var("Q_turbine")
-                except NoDataException:
-                    q_result = NoDataException
-                assert expected == q_result
+                self.set_q(
+                    target_variable=target_variable,
+                    input_type=input_type,
+                    input_data=input_data,
+                    apply_func=apply_func,
+                    nan_option=nan_option,
+                    timestep=timestep,
+                )
 
     config = ModelConfig(base_dir=setq_dir)
     model = SingleReservoir(config)
-    model.simulate()
+    try:
+        model.simulate()
+        q_result = model.extract_results()[target_variable][test_timestep]
+    except NoDataException:
+        q_result = NoDataException
+    if expected is NoDataException:
+        assert q_result == expected
+        return
+    np.testing.assert_array_almost_equal(q_result, expected, decimal=3)
