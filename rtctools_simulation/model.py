@@ -147,3 +147,17 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
         lookup_table_equations = self._get_lookup_table_equations()
         equations.extend(lookup_table_equations)
         return equations
+
+    def post(self):
+        """Tasks after simulating."""
+        self.calculate_output_variables()
+        super().post()
+
+    def calculate_output_variables(self):
+        """
+        Calculate output variables.
+
+        This method is called after the simulation has finished.
+        The user can implement this method to calculate additional output variables.
+        """
+        pass

@@ -93,8 +93,8 @@
             <header>
               <type>instantaneous</type>
               <moduleInstanceId>rule_curve</moduleInstanceId>
-              <locationId>rule_curve</locationId>
-              <parameterId>rule_curve</parameterId>
+              <locationId>reservoir</locationId>
+              <parameterId>rulecurve</parameterId>
               <timeStep unit="second" multiplier="1"/>
               <startDate date="2020-01-01" time="00:00:00"/>
               <endDate date="2020-01-01" time="00:00:02"/>
