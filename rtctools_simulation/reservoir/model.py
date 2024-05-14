@@ -78,9 +78,7 @@ class ReservoirModel(Model):
                 self.io.set_timeseries(
                     var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
                 )
-                logger.info(
-                    f"{var} contains NaNs in the input file. Setting these values to to 0.0."
-                )
+                logger.info(f"{var} contains NaNs in the input file. Setting these values to 0.0.")
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
