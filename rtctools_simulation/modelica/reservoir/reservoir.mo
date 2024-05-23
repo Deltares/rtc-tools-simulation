@@ -20,6 +20,7 @@ model Reservoir
   input FlowRatePerArea mm_evaporation_per_hour();
   input FlowRatePerArea mm_rain_per_hour();
   input SI.Length rule_curve();
+  input Integer day;
 
   output SI.Volume V();
   output SI.VolumeFlowRate Q_out();
