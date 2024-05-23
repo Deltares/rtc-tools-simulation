@@ -4,7 +4,46 @@ from typing import Dict, List
 
 
 class ModelConfig:
-    """Class that describes a simulation configuration."""
+    """
+    Class that describes a simulation configuration.
+
+    In particular, this class describes the name of the Modelica model
+    and where to find the input and output files for running the model.
+
+    A typical file structure for model input and output looks as follows.
+
+    <base_dir>
+    ├───...
+    ├───input
+    │   ├───rtcDataConfig.xml
+    │   ├───rtcParameterConfig.xml
+    │   ├───timeseries_import.xml
+    │   └───...
+    ├───lookup_tables
+    │   ├───lookup_tables.csv
+    │   └───...
+    ├───model
+    │   ├───lookup_table_equations.csv
+    │   └───...
+    └───output
+        └───...
+
+    The <base_dir> directory can be set by the parameter base_dir.
+    Paths to specific files and folders can be set with the files and dirs parameters.
+    Consider, for example, the following configuration.
+
+    ModelConfig(
+        base_dir="path/to/my/base_dir",
+        dirs={"output": "path/to/my/output_dir"},
+        files={"lookup_tables.csv": "path/to/my/lookup_tables.csv"}
+    )
+
+    This configuration will search for the output folder in "path/to/my/output_dir"
+    and for the lookup_tables.csv file in "path/to/my/lookup_tables.csv".
+    For any other file and folder, it will search according to the above file structure.
+    So for the timeseries_import.xml file it will look for
+    "path/to/my/base_dir/input/timeseries_import.xml".
+    """
 
     def __init__(
         self,
