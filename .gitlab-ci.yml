@@ -45,8 +45,8 @@ winpython-generation:
     - saas-windows-medium-amd64 
   script: 
     - choco install python --version=3.11.9 -y -f
-    - C:\Python311 -m pip install --upgrade pip
-    - C:\Python311 -m pip install poetry
+    - C:\Python311\python.exe -m pip install --upgrade pip
+    - C:\Python311\python.exe -m pip install poetry
     - git clone http://user_1:$WINPYTHON_TOKEN@gitlab.com/rtc-tools-project/generate_portable_winpython.git
     - cd generate_portable_winpython
     - poetry install
