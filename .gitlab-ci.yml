@@ -44,7 +44,7 @@ winpython-generation:
   tags:
     - saas-windows-medium-amd64 
   script: 
-    - choco install python --version=3.11.9 -y -f
+    - choco install python --version=3.9.13 -y -f
     - C:\Python311\python.exe -m pip install --upgrade pip
     - C:\Python311\python.exe -m pip install poetry
     - git clone http://user_1:$WINPYTHON_TOKEN@gitlab.com/rtc-tools-project/generate_portable_winpython.git
@@ -59,3 +59,6 @@ winpython-generation:
       rtc-tools-simulation
       "@ | Out-File -FilePath requirements.txt'
     - C:\Python311\python.exe -m poetry run generate-portable-winpython --name py310-rtc --installer_url "https://github.com/winpython/winpython/releases/download/6.1.20230527/Winpython64-3.10.11.1dot.exe" --requirements_txt "requirements.txt"
+  artifacts:
+    paths:
+      - generate_portable_winpython/winpython_portable_*.zip
