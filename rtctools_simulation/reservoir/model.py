@@ -340,6 +340,8 @@ class ReservoirModel(Model):
         self.set_var("include_evaporation", False)
         self.set_var("compute_v", True)
         self.set_var("do_set_q_out", False)
+        day = self.get_current_datetime().day
+        self.set_var("day", day)
 
     def apply_schemes(self):
         """

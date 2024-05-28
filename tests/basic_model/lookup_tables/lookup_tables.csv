@@ -2,5 +2,5 @@ name,data,var_in,var_out
 h_from_v,data.csv,v,h
 v_from_h,data.csv,h,v
 area_from_v,data.csv,v,area
-qout_from_v,data.csv,v,qout
+qout_from_v,qout_from_v.csv,day v,qout
 qspill_from_h,data.csv,h,qspill
