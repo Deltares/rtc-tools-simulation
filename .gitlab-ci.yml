@@ -49,9 +49,8 @@ winpython-generation:
     - C:\Python311\python.exe -m pip install poetry
     - git clone http://user_1:$WINPYTHON_TOKEN@gitlab.com/rtc-tools-project/generate_portable_winpython.git
     - cd generate_portable_winpython
-    - $poetryPath = Join-Path -Path $env:APPDATA -ChildPath "Python\Scripts"
-    - $env:Path += ";$poetryPath"
-    - poetry install
+
+    - C:\Python311\python.exe -m poetry install
     - Invoke-Expression '@"
       rtc-tools
       rtc-tools-interface
@@ -59,4 +58,4 @@ winpython-generation:
       rtc-tools-hydraulic-structures
       rtc-tools-simulation
       "@ | Out-File -FilePath requirements.txt'
-    - poetry run generate-portable-winpython --name py310-rtc --installer_url "https://github.com/winpython/winpython/releases/download/6.1.20230527/Winpython64-3.10.11.1dot.exe" --requirements_txt "requirements.txt"
+    - C:\Python311\python.exe -m poetry run generate-portable-winpython --name py310-rtc --installer_url "https://github.com/winpython/winpython/releases/download/6.1.20230527/Winpython64-3.10.11.1dot.exe" --requirements_txt "requirements.txt"
