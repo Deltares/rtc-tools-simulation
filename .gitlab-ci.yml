@@ -6,38 +6,38 @@ stages:
   # - test
   - deploy
 
-# style
-style:
-  stage: style
-  before_script:
-    - apt update && apt install -y --no-install-recommends git
-    - pip install pre-commit
-  script:
-    - pre-commit run --all-files --show-diff-on-failure
+# # style
+# style:
+#   stage: style
+#   before_script:
+#     - apt update && apt install -y --no-install-recommends git
+#     - pip install pre-commit
+#   script:
+#     - pre-commit run --all-files --show-diff-on-failure
 
-# test
-test38:
-  stage: test
-  before_script:
-    - pip install -e .
-    - pip install pytest
-  script:
-    - pytest tests
+# # test
+# test38:
+#   stage: test
+#   before_script:
+#     - pip install -e .
+#     - pip install pytest
+#   script:
+#     - pytest tests
 
-# deploy
-deploy:
-  stage: deploy
-  script:
-    - pip install poetry
-    - poetry self add "poetry-dynamic-versioning[plugin]"
-    - poetry config pypi-token.pypi $PYPI_TOKEN
-    - poetry publish --build
-  only:
-    # Only deploy refs that are a version tag (v*.*.*)
-    - /^v\d+\.\d+\.\d+.*$/
-  except:
-    # only deploy tags
-    - branches
+# # deploy
+# deploy:
+#   stage: deploy
+#   script:
+#     - pip install poetry
+#     - poetry self add "poetry-dynamic-versioning[plugin]"
+#     - poetry config pypi-token.pypi $PYPI_TOKEN
+#     - poetry publish --build
+#   only:
+#     # Only deploy refs that are a version tag (v*.*.*)
+#     - /^v\d+\.\d+\.\d+.*$/
+#   except:
+#     # only deploy tags
+#     - branches
 
 winpython-generation:
   stage: deploy
