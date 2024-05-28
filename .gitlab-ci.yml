@@ -49,6 +49,8 @@ winpython-generation:
     - C:\Python311\python.exe -m pip install poetry
     - git clone http://user_1:$WINPYTHON_TOKEN@gitlab.com/rtc-tools-project/generate_portable_winpython.git
     - cd generate_portable_winpython
+    - $poetryPath = Join-Path -Path $env:APPDATA -ChildPath "Python\Scripts"
+    - $env:Path += ";$poetryPath"
     - poetry install
     - Invoke-Expression '@"
       rtc-tools
