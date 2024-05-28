@@ -41,7 +41,8 @@ deploy:
 
 winpython-generation:
   stage: deploy
-  tags: saas-windows-medium-amd64 
+  tags:
+    - saas-windows-medium-amd64 
   script: 
     - choco install python --version=3.10 -y -f
     - python -m pip install --upgrade pip
