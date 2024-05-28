@@ -51,7 +51,7 @@ winpython-generation:
     - cd generate_portable_winpython
     - $env:PYTHON_KEYRING_BACKEND="keyring.backends.null.Keyring"
     - C:\Python39\python.exe -m poetry install
-    - Invoke-Expression "'rtc-tools', 'rtc-tools-interface', 'rtc-tools-diagnostics', 'rtc-tools-hydraulic-structures', 'rtc-tools-simulation' | Out-File -FilePath requirements.txt"
+    - Invoke-Expression "'rtc-tools', 'rtc-tools-interface', 'rtc-tools-diagnostics', 'rtc-tools-hydraulic-structures', 'rtc-tools-simulation' | Out-File -FilePath requirement_files/requirements.txt"
     - C:\Python39\python.exe -m poetry run generate-portable-winpython --name py310-rtc --installer_url "https://github.com/winpython/winpython/releases/download/6.1.20230527/Winpython64-3.10.11.1dot.exe" --requirements_txt "requirements.txt"
   artifacts:
     paths:
