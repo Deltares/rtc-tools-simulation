@@ -1,5 +1,7 @@
 """Module for testing lookup-table functionalities."""
+import re
 from pathlib import Path
+from typing import List
 
 import casadi as ca
 import numpy.testing
@@ -8,6 +10,20 @@ import pytest
 import rtctools_simulation.lookup_table as lut
 
 DATA_DIR = Path(__file__).parent.resolve() / "lookup_tables"
+
+
+def contains_regex(regex: re.Pattern, messages: List[str]):
+    """
+    Check that a list of messages contains a given regex
+
+    :param regex: a regular expression
+    :param messages: a list of strings
+    :returns: True if any of the messages contains the given regex.
+    """
+    for message in messages:
+        if re.search(regex, message):
+            return True
+    return False
 
 
 @pytest.mark.parametrize(
@@ -73,15 +89,20 @@ def test_get_empty_lookup_table(var_in, var_out, values_in, value_out):
     numpy.testing.assert_almost_equal(lookup_table(*values_in), value_out)
 
 
-def test_get_lookup_table_equations_from_csv():
-    """Test getting lookup-table equations described by a csv file."""
-    variables = {
+def get_variables():
+    """Get a dict of variables."""
+    return {
         "Day": ca.MX.sym("Day"),
         "V": ca.MX.sym("V"),
         "H": ca.MX.sym("H"),
         "QSpill": ca.MX.sym("QSpill"),
         "QOut": ca.MX.sym("QOut"),
     }
+
+
+def test_get_lookup_table_equations_from_csv():
+    """Test getting lookup-table equations described by a csv file."""
+    variables = get_variables()
     lookup_tables = lut.get_lookup_tables_from_csv(DATA_DIR / "lookup_tables.csv")
     equations = lut.get_lookup_table_equations_from_csv(
         file=DATA_DIR / "lookup_table_equations.csv",
@@ -104,3 +125,17 @@ def test_get_lookup_table_equations_from_csv():
     numpy.testing.assert_almost_equal(resdiual["ResH"], 0)
     numpy.testing.assert_almost_equal(resdiual["ResQSpill"], 0)
     numpy.testing.assert_almost_equal(resdiual["ResQOut"], 0)
+
+
+def test_get_lookup_table_equations_check():
+    """Test lookup table check when getting lookup table equations."""
+    variables = get_variables()
+    lookup_tables = lut.get_lookup_tables_from_csv(DATA_DIR / "lookup_tables.csv")
+    exception_pattern = "Lookup table qout_from_day_h has wrong number of inputs"
+    with pytest.raises(AssertionError) as e_info:
+        lut.get_lookup_table_equations_from_csv(
+            file=DATA_DIR / "lookup_table_equations_bad.csv",
+            lookup_tables=lookup_tables,
+            variables=variables,
+        )
+    assert contains_regex(exception_pattern, e_info.value.args)

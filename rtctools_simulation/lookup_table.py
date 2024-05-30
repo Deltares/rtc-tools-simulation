@@ -192,11 +192,18 @@ def get_lookup_table_equations_from_csv(
     assert equations_csv.is_file()
     equations_df = pd.read_csv(equations_csv, sep=",")
     for _, equation_df in equations_df.iterrows():
-        lookup_table = lookup_tables[equation_df["lookup_table"]]
+        name = equation_df["lookup_table"]
+        lookup_table = lookup_tables[name]
         var_in: str = equation_df["var_in"]
         var_in = var_in.split(" ")
         var_in = [var for var in var_in if var != ""]
-        var_in = [variables[var] for var in var_in]
-        var_out = variables[equation_df["var_out"]]
-        equations.append(lookup_table(*var_in) - var_out)
+        var_in_mx = [variables[var] for var in var_in]
+        var_out_mx = variables[equation_df["var_out"]]
+        if not lookup_table.n_in() == len(var_in):
+            error = (
+                f"Lookup table {name} has wrong number of inputs: {lookup_table.n_in()}."
+                f" Expected {len(var_in)} inputs: {var_in}."
+            )
+            raise AssertionError(error)
+        equations.append(lookup_table(*var_in_mx) - var_out_mx)
     return equations
