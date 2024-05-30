@@ -56,6 +56,23 @@ def test_get_lookup_tables_from_csv():
     numpy.testing.assert_almost_equal(qout_from_day_h(2, 1.5), 0.375)
 
 
+@pytest.mark.parametrize(
+    "var_in,var_out,values_in,value_out",
+    [
+        ("h", "v", [0.5], 0.0),
+        (["day", "h"], "qout", [1, 0.6], 0.0),
+    ],
+)
+def test_get_empty_lookup_table(var_in, var_out, values_in, value_out):
+    """Test getting an empty lookup table."""
+    lookup_table = lut.get_empty_lookup_table(
+        name="lookup_table",
+        var_in=var_in,
+        var_out=var_out,
+    )
+    numpy.testing.assert_almost_equal(lookup_table(*values_in), value_out)
+
+
 def test_get_lookup_table_equations_from_csv():
     """Test getting lookup-table equations described by a csv file."""
     variables = {

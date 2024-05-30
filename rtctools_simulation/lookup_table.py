@@ -148,6 +148,23 @@ def get_lookup_tables_from_csv(
     return lookup_tables
 
 
+def get_empty_lookup_table(name: str, var_in: Union[str, list[str]], var_out: str) -> ca.Function:
+    """
+    Get a lookup table that always returns zero.
+
+    :param name: name of the lookup table.
+    :param var_in: Input variable(s) of the lookup table.
+    :param var_out: Output variable of the lookup table.
+
+    :return: lookup table in the form of a Casadi function.
+    """
+    vars_in: list[str] = var_in if isinstance(var_in, list) else [var_in]
+    del var_out
+    var_in_symbols: list[ca.MX] = [ca.MX.sym(var) for var in vars_in]
+    lookup_table = ca.Function(name, var_in_symbols, [0])
+    return lookup_table
+
+
 def get_lookup_table_equations_from_csv(
     file: Path, lookup_tables: Dict[str, ca.Function], variables: Dict[str, ca.MX]
 ) -> List[ca.MX]:
