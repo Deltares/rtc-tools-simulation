@@ -72,8 +72,6 @@ def get_lookup_table_from_csv(
     :param name: name of the lookup table
     :param file: CSV file containing data points for different variables.
     :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
-        In case of multiple input variables, different variables should be separated
-        by a whitespace.
     :param var_out: Output variable of the lookup table. Should be one of the CSV file columns.
 
     :return: lookup table in the form of a Casadi function.
@@ -119,6 +117,7 @@ def get_lookup_tables_from_csv(
 
     :param file: CSV File that describes lookup tables.
         The column names correspond to the parameters of :func:`get_lookup_table_from_csv`.
+        In case of multiple input variables, they should be separated by a whitespace.
     :param data_dir: Directory that contains the interpolation data for the lookup tables.
         By default, the directory of the csv file is used.
 
@@ -175,9 +174,14 @@ def get_lookup_table_equations_from_csv(
         CSV File that describes equations involving lookup tables.
         These equations are of the form var_out = lookup_table(var_in).
         The csv file consists of the following columns:
+
         * lookup_table: Name of the lookup table.
-        * var_in: Input variable of the lookup table. Should be defined in the model.
+
+        * var_in: Input variable(s) of the lookup table. Should be defined in the model.
+          In case of multiple input variables, they should be separated by a whitespace.
+
         * var_out: Output variable of the lookup table. Should be defined in the model.
+
     :param lookup_tables: Dict of lookup tables.
     :param variables: Dict of symbolic variables used in the model.
 
