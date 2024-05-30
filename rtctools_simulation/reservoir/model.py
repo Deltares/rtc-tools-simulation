@@ -75,13 +75,27 @@ class ReservoirModel(Model):
         ]
         for var in optional_timeseries:
             if var not in timeseries:
-                self.io.set_timeseries(var, times, zeros)
-                logger.info(f"{var} not found in the input file. Setting it to 0.0.")
+                if var == "V_observed":
+                    self.io.set_timeseries(var, times, [-999.0] * len(times))
+                    logger.info(f"{var} not found in the input file. Setting it to -999.0.")
+                else:
+                    self.io.set_timeseries(var, times, zeros)
+                    logger.info(f"{var} not found in the input file. Setting it to 0.0.")
             if np.any(np.isnan(self.get_timeseries(var))):
-                self.io.set_timeseries(
-                    var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
-                )
-                logger.info(f"{var} contains NaNs in the input file. Setting these values to 0.0.")
+                if var == "V_observed":
+                    self.io.set_timeseries(
+                        var, times, [-999.0 if np.isnan(x) else x for x in self.get_timeseries(var)]
+                    )
+                    logger.info(
+                        f"{var} contains NaNs in the input file. Setting these values to -999.0."
+                    )
+                else:
+                    self.io.set_timeseries(
+                        var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
+                    )
+                    logger.info(
+                        f"{var} contains NaNs in the input file. Setting these values to 0.0."
+                    )
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
@@ -150,8 +164,12 @@ class ReservoirModel(Model):
         """
         t = self.get_current_time()
         v_observed = self.timeseries_at("V_observed", t)
-        self.set_var("V_observed", v_observed)  ## Load v_observed for this timestep
-        self.set_var("compute_v", False)  ## Disable compute_v so V will equal v_observed
+        empty_observation = -999.0
+        if v_observed == empty_observation:
+            logger.debug("there are no observed volumes at time {t}")
+        else:
+            self.set_var("V_observed", v_observed)  ## Load v_observed for this timestep
+            self.set_var("compute_v", False)  ## Disable compute_v so V will equal v_observed
 
     def apply_passflow(self):
         """Scheme to let the outflow be the same as the inflow.
@@ -330,7 +348,7 @@ class ReservoirModel(Model):
         if np.isnan(self.get_var("Q_sluice")):
             self.set_var("Q_sluice", 0)
         if np.isnan(self.get_var("V_observed")):
-            self.set_var("V_observed", 0)
+            self.set_var("V_observed", -999.0)
         if np.isnan(self.get_var("Q_out_from_input")):
             self.set_var("Q_out_from_input", 0)
         self.set_var("do_spill", False)

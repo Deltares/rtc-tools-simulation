@@ -1,4 +1,4 @@
-"""Module for testing the spillway model"""
+"""Module for testing the adjust model"""
 from pathlib import Path
 
 import numpy.testing
