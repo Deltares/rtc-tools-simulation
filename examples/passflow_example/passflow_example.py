@@ -1,4 +1,4 @@
-"""Example that illustrates how to use spillway scheme."""
+"""Example that illustrates use of the passflow scheme."""
 
 from pathlib import Path
 
@@ -13,21 +13,19 @@ class SingleReservoir(ReservoirModel):
     def apply_schemes(self):
         """Apply schemes for controlling the reservoir."""
 
+        # Get current time.
+        datetime = self.get_current_datetime()
         # Apply schemes.
-        h = self.get_var("H")
-        h_crest = self.get_var("H_crest")
-        if h > h_crest:
-            self.apply_spillway()
-            self.set_q(
-                target_variable="Q_turbine",
-                input_type="parameter",
-                input_data=0.6,
-            )
+        day_12 = 12
+        day_19 = 19
+        if day_12 <= datetime.day <= day_19:
+            self.apply_passflow()
         else:
             self.set_q(
-                target_variable="Q_turbine",
-                input_type="parameter",
-                input_data=0.4,
+                target_variable="Q_out",
+                input_type="timeseries",
+                input_data="Q_out_target",
+                apply_func="INST",
             )
 
 
