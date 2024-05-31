@@ -22,7 +22,7 @@ class SingleReservoir(ReservoirModel):
                 target_variable="Q_turbine",
                 input_type="parameter",
                 input_data=0.6,
-                )
+            )
         else:
             self.set_q(
                 target_variable="Q_turbine",

@@ -29,6 +29,7 @@ class SingleReservoir(ReservoirModel):
                 input_data=0.2,
             )
 
+
 # Create and run the model.
 if __name__ == "__main__":
     model = SingleReservoir(CONFIG)
