@@ -1,0 +1,4 @@
+id,y_axis_title,variables_style_1,variables_style_2,variables_with_previous_result,custom_title,specified_in
+1,Discharge (m^3/s),"Q_out, Q_in, Q_turbine, Q_sluice",,,,python
+2,Elevation (m),H,,,,python
+2,Rainfall/evaporation (m^3/s),"Q_rain, Q_evap",,,,python
