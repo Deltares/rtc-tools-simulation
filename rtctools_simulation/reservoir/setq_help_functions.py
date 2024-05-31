@@ -168,8 +168,8 @@ def _preprocess_input_setq(
             input_data_name = input_data
             input_data = model.io.get_timeseries(input_data)[1]  ## Get index 1 for value timeseries
         if input_type == "parameter":  ## Get value from internal process
-            target_value = model.get_parameters()[target_variable]
-            input_data_name = target_variable
+            target_value = model.parameters()[input_data]
+            input_data_name = input_data
     elif any([isinstance(input_data, float), isinstance(input_data, int)]):
         input_data_name = target_variable
         target_value = input_data
