@@ -62,6 +62,7 @@ nan_end = [5, 7, np.nan, np.nan, np.nan, np.nan]
         ),  # Default to closest when only 1 side has data
         ("Q_turbine", "INST", nan_end, "timeseries", 3, "CLOSEST", 7),
         ("Q_turbine", "INST", 4, "parameter", None, None, 4),  ## Test Parameter option
+        ("Q_turbine", None, "target_Q", "parameter", None, None, 4),  ## Test Parameter option
         ## Test setq from internal variable 1 step ahead
         ("Q_turbine", "INST", "Q_in", "timeseries", 3, None, 3.8080494),
         ## Test setq from internal variable
