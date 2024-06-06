@@ -13,7 +13,8 @@ Other examples showcase different schemes for controlling the flow of a reservoi
 Contents:
 
 .. toctree::
-  :maxdepth: 0
+  :maxdepth: 1
 
   single_reservoir/basic
   single_reservoir/set_q_example
+  single_reservoir/apply_spillway_example

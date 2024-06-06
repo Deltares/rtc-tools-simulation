@@ -3,7 +3,7 @@
 ``set_q`` Scheme Example
 ========================
 
-This example shows how to use the ``set_q`` scheme when modelling a single reservoir model.
+This example shows how to use the :py:meth:`.ReservoirModel.set_q` scheme when modelling a single reservoir model.
 
 .. note::
 
@@ -36,7 +36,7 @@ except that the :py:meth:`apply_schemes` method still needs to be filled out.
 
 The line
 
-.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+.. literalinclude:: ../../../../examples/set_q_example/set_q_example.py
   :language: python
   :start-at: CONFIG
   :end-at: CONFIG
@@ -48,7 +48,7 @@ which is the directory of the current file.
 
 The line
 
-.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+.. literalinclude:: ../../../../examples/set_q_example/set_q_example.py
   :language: python
   :start-at: class
   :end-at: class
@@ -64,8 +64,8 @@ for which schemes are applied.
 The first argument ``self`` is the :py:class:`.SingleReservoir` object itself.
 Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
 ``self`` can call any of the :py:class:`.ReservoirModel` methods, such as
-:py:meth:`.ReservoirModel.get_var`,
-:py:meth:`.ReservoirModel.set_q`,
+:py:meth:`.ReservoirModel.get_var` and
+:py:meth:`.ReservoirModel.set_q`.
 An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
@@ -77,12 +77,12 @@ parameter of 0.2 or 0.4.
 
 The last lines
 
-.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+.. literalinclude:: ../../../../examples/set_q_example/set_q_example.py
   :language: python
   :start-at: # Create and run the model.
 
 create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python <model_file>.py`` from the command line.
+To run the model, we can run ``python set_q_example.py`` from the command line.
 
 
 Lookup tables
