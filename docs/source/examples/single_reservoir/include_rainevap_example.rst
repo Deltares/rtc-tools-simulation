@@ -121,6 +121,13 @@ This additional input data is mapped to the internal variables, ``mm_rain_per_ho
     :language: xml
     :lines: 31-42
 
+In this example, the :py:meth:`.ReservoirModel.set_q` has been used to set outflows based on an input parameter
+``Q_sluice_target``. This parameter is also provided to the model via the ``rtcParameterConfig.xml``.
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\rainevap_example\\input\\rtcParameterConfig.xml
+    :language: xml
+    :lines: 12-14
+
 .. note::
 
       For further details about input file structure please see :ref:`examples-single-reservoir-basic`.

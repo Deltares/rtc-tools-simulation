@@ -22,6 +22,12 @@ The reservoir outflow is determined based upon the reservoir elevation, ``H``, a
 
 The :py:meth:`.ReservoirModel.set_q` scheme can be applied to model these operations. 
 
+.. note::
+
+      There are many options which can be chosen when applying the :py:meth:`.ReservoirModel.set_q` scheme. 
+      For other example implementations please see also :ref:`examples-single-reservoir-rainevapexample` and 
+      :ref:`examples-single-reservoir-passflowexample`.
+
 Main Model (python) File
 ------------------------
 
