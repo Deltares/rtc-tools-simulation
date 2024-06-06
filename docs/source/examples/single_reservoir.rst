@@ -22,3 +22,4 @@ Contents:
   single_reservoir/apply_poolq_example
   single_reservoir/apply_rulecurve_example
   single_reservoir/apply_adjust_example
+  single_reservoir/include_rainevap_example

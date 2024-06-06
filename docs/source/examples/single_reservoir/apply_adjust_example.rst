@@ -15,7 +15,7 @@ simulation should be adjusted based upon these values. Hence the outflow from th
 for water balance. 
 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme can be applied to model these operations. 
-An additional output variable ``Q_out_corrected`` describes the corrected outfloe based upon the observed volumes. 
+An additional output variable ``Q_out_corrected`` describes the corrected outflow based upon the observed volumes. 
 
 Main Model (python) File
 ------------------------
