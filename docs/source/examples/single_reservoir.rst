@@ -20,3 +20,4 @@ Contents:
   single_reservoir/apply_spillway_example
   single_reservoir/apply_passflow_example
   single_reservoir/apply_poolq_example
+  single_reservoir/apply_rulecurve_example
