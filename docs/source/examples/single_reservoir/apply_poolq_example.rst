@@ -60,11 +60,8 @@ Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
 An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
-In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
-by collecting the current timestep as this is used to determine operations. 
-The method then checks if the current timestep is between the 12th and 19th of the month.
-The :py:meth:`.ReservoirModel.apply_poolq` scheme is then applied to set the reservoir
-outflow.
+In this example, the :py:meth:`.ReservoirModel.apply_poolq` scheme is then applied inside of
+:py:meth:`.ReservoirModel.apply_schemes` to set the reservoir outflow.
 
 The last lines
 
@@ -87,7 +84,7 @@ lookup table which is constant in time. Hence, the ``day`` column is constant.
 
 The input file, ``qout_v.csv`` looks as follows,
 
-.. csv-table:: <base_dir>/lookup_tables/lookup_tables.csv
+.. csv-table:: <base_dir>/lookup_tables/qout_v.csv
   :file: ../../../../examples/poolq_example/lookup_tables/qout_v.csv
   :header-rows: 1
 

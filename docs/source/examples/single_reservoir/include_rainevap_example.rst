@@ -150,8 +150,8 @@ For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
 
 The results of the simulation run can be seen in the plot below. It can be seen that ``Q_evap``
-varies with time as it is dependent on the surface area of the reservoir. ``Q_out`` is the sum of 
-``Q_turbine`` and ``Q_sluice``.
+varies with time as it is dependent on the surface area of the reservoir, even though the evaporation per unit area is constant.
+``Q_out`` is the sum of ``Q_turbine`` and ``Q_sluice``.
 
 .. raw:: html
     :file: figures\\final_results_rainevap.html

@@ -10,9 +10,9 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_adjust` scheme
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``. 
-Reservoir outflow should be 0.4 m3/s. There are observed volumes for the forst portion of timesteps, at these times, the 
-simulation should be adjusted based upon these values. Hence the outflow from the reservoir will be corrected to account
-for water balance. 
+There are observed volumes for the first portion of timesteps (until 13th of June). At these times, the simulation should
+be adjusted based upon these observed values. Hence the outflow from the reservoir will be corrected to prevent diverging
+water balances between simulation and observation. At times without volume observations, reservoir outflow should be 0.4 m3/s.
 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme can be applied to model these operations. 
 An additional output variable ``Q_out_corrected`` describes the corrected outflow based upon the observed volumes. 

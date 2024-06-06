@@ -105,7 +105,7 @@ is computed from the elevation, ``H``, using a lookuptable ``qspill_from_h``.
 
 This file, ``h_qspill.csv`` looks as follows,
 
-.. csv-table:: <base_dir>/lookup_tables/lookup_tables.csv
+.. csv-table:: <base_dir>/lookup_tables/h_qspill.csv
   :file: ../../../../examples/spillway_example/lookup_tables/h_qspill.csv
   :header-rows: 1
 

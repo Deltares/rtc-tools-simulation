@@ -68,7 +68,8 @@ An example of the main model file `<model_file>.py` is given below.
   :lineno-match:
 
 The template file mentioned in the previous section will look very similar to this file,
-except that the :py:meth:`apply_schemes` method still needs to be filled out.
+except that the :py:meth:`.apply_schemes` method still needs to be filled out, and the optional ``def``, 
+:py:meth:`.calculate_output_variables`, is not added..
 
 The line
 

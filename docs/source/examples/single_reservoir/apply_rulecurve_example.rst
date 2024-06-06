@@ -11,8 +11,8 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_rulecurve` sch
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``. ``Q_out`` is comprised of a single component, 
 a sluice, ``Q_sluice``.
-Reservoir outflow should be determined to achieve the rulecurve (elevation of 1600m)
-Wish to achieve rulecurve elevation in single timestep with a maximum of 10m3/s = 36000 m3/timestep 
+The reservoir outflow should be determined to achieve the rulecurve (elevation of 1600m).
+The rulecurve elevation should be achieved in single timestep with a maximum outflow of 10m3/s = 36000 m3/timestep.
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme can be applied to model these operations. 
 
@@ -95,8 +95,8 @@ Input Data Files
 ----------------
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file.
-``rule_curve_q_max``, tpper limiting discharge while blending pool elevation (m^3/timestep), and
-``rule_curve_blend``, the umber of timesteps over which to bring the pool back to the scheduled elevation.
+``rule_curve_q_max``, upper limiting discharge while blending pool elevation (m^3/timestep), and
+``rule_curve_blend``, the number of timesteps over which to bring the pool back to the scheduled elevation.
 
 
 These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.

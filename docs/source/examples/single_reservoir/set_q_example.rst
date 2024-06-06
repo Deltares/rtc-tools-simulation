@@ -77,9 +77,9 @@ can be found in :ref:`reservoir-api`.
 
 In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
 by collecting the current reservoir elevation as this is used to determine operations. 
-The method then checks if the elevation ``H`` is higher than 1598.54.
-The ``set_q`` scheme is then applied to set the reservoir outflow equal to a constant
-parameter of 0.2 or 0.4.
+The method then checks if the elevation H is higher than threshold value 1598.54.
+The :py:meth:`.set_q` scheme is then applied to set the reservoir outflow equal to a value of 0.2 or 0.4 based
+on whether the defined elevation threshold is exceeded.
 
 The last lines
 
