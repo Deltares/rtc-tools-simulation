@@ -1,0 +1,117 @@
+.. _examples-single-reservoir-setqexample:
+
+``set_q`` Scheme Example
+========================
+
+This example shows how to use the ``set_q`` scheme when modelling a single reservoir model.
+
+.. note::
+
+      For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
+
+We consider a reservoir with a single inflow, ``Q_in``, and a single outflow ``Q_out``.
+The reservoir ouflow is determined based upon the reservoir elevation, ``H``, at each timestep.
+
+.. math::
+
+   Q_{out} =
+    \begin{cases}
+      0.4 & \text{if $H > 1598.54$}\\
+      0.2 & \text{otherwise}\\
+    \end{cases}
+
+The :py:meth:`.ReservoirModel.set_q` scheme can be applied to model these operations. 
+
+Main Model (python) File
+------------------------
+
+An example of the main model file `set_q_example.py` is given below.
+
+.. literalinclude:: ../../../../examples/set_q_example/set_q_example.py
+  :language: python
+  :lineno-match:
+
+The template file mentioned in the :ref:`examples-single-reservoir-basic` will look very similar to this file,
+except that the :py:meth:`apply_schemes` method still needs to be filled out.
+
+The line
+
+.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+  :language: python
+  :start-at: CONFIG
+  :end-at: CONFIG
+
+sets the model configuration.
+This model configuration is defined by the base directory ``base_dir``.
+In most cases, the base directory is ``Path(__file__).parent``,
+which is the directory of the current file.
+
+The line
+
+.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+  :language: python
+  :start-at: class
+  :end-at: class
+
+defines a class :py:class:`.SingleReservoir`
+that inherits all properties and functionalities
+of the predefined class :py:class:`.ReservoirModel`.
+An overview of this class can be found in :ref:`reservoir-api`
+and details of the underlying model it uses can be found in :ref:`single-reservoir-model`.
+
+The method :py:meth:`.ReservoirModel.apply_schemes` is called every timestep and contains the logic
+for which schemes are applied.
+The first argument ``self`` is the :py:class:`.SingleReservoir` object itself.
+Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
+``self`` can call any of the :py:class:`.ReservoirModel` methods, such as
+:py:meth:`.ReservoirModel.get_var`,
+:py:meth:`.ReservoirModel.set_q`,
+An overview of all available :py:class:`.ReservoirModel` methods
+can be found in :ref:`reservoir-api`.
+
+In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
+by collecting the current reservoir elevation as this is used to determine operations. 
+The method then checks if the elevation ``H`` is higher than 1598.54.
+The ``set_q`` scheme is then applied to set the reservoir outflow equal to a constant
+parameter of 0.2 or 0.4.
+
+The last lines
+
+.. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
+  :language: python
+  :start-at: # Create and run the model.
+
+create and run a :py:class:`.SingleReservoir` model.
+To run the model, we can run ``python <model_file>.py`` from the command line.
+
+
+Lookup tables
+-------------
+
+.. note::
+
+      For details about the lookup tables please see :ref:`examples-single-reservoir-basic`.
+
+Input Data Files
+----------------
+
+.. note::
+
+      For details about input file structure please see :ref:`examples-single-reservoir-basic`.
+
+Output Data
+-----------
+
+The results of the simulation will appear in the `output` folder
+in a file called `timeseries_export.xml`.
+The data is linked to model variables via the `rtcDataConfig.xml`
+in the same way as with `timeseries_import.xml`.
+
+Automatic Plotting
+------------------
+
+You can optionally include a `plot_table.csv` in the input folder.
+This is used by the rtc-tools-interfaces module (automatically installed with this package)
+to plot the model output.
+For more details on how to use this file and visualize results,
+see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.

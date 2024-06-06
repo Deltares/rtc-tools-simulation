@@ -1,7 +1,7 @@
 .. _examples-single-reservoir-basic:
 
-Basic Reservoir
-===============
+Basic Single Reservoir
+======================
 
 This example shows how to build a simple single reservoir model.
 
