@@ -10,7 +10,7 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_poolq` scheme 
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``.
-The reservoir outflow should be equal to the reservoir inflow.
+The reservoir outflow should be determined by a lookup table.
 
 The :py:meth:`.ReservoirModel.apply_poolq` scheme can be applied to model these operations. 
 
@@ -63,7 +63,7 @@ can be found in :ref:`reservoir-api`.
 In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
 by collecting the current timestep as this is used to determine operations. 
 The method then checks if the current timestep is between the 12th and 19th of the month.
-The ``apply_poolq`` scheme is then applied to set the reservoir
+The :py:meth:`.ReservoirModel.apply_poolq` scheme is then applied to set the reservoir
 outflow.
 
 The last lines
@@ -79,7 +79,9 @@ To run the model, we can run ``python poolq_example.py`` from the command line.
 Lookup tables
 -------------
 
-The reservoir outflow is determined by a lookup table with name ``qout_from_v``. It is possible to 
+This model uses the standard lookup table ``h_from_v``.
+
+Additionally, the reservoir outflow is determined by a lookup table with name ``qout_from_v``. It is possible to 
 impose a day dependence on this lookup table to create a 2D lookup table. In this example, we consider a 
 lookup table which is constant in time. Hence, the ``day`` column is constant. 
 
@@ -94,6 +96,8 @@ This file is mapped to the internal ``qout_from_v`` table via the ``lookup_table
 .. csv-table:: <base_dir>/lookup_tables/lookup_tables.csv
   :file: ../../../../examples/poolq_example/lookup_tables/lookup_tables.csv
   :header-rows: 1
+
+For other lookup tables, defaults from the generated template files can be used. 
 
 .. note::
 
@@ -122,3 +126,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_poolq.html

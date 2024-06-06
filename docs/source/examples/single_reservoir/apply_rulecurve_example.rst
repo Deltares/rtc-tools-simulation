@@ -84,6 +84,9 @@ data as the ``h_from_v`` lookup table, the data mapping can be achived in the ``
   :file: ../../../../examples/rulecurve_example/lookup_tables/lookup_tables.csv
   :header-rows: 1
 
+This model also uses the standard lookup table ``h_from_v``.
+For other lookup tables, defaults from the generated template files can be used. 
+
 .. note::
 
       For further details about the lookup tables please see :ref:`examples-single-reservoir-basic`.
@@ -101,6 +104,18 @@ These parameters are supplied to the model via the ``rtcParameterConfig.xml`` in
 .. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\rtcParameterConfig.xml
     :language: xml
     :lines: 12-17
+
+The scheme also requires an additional input timeseries, ``rulecurve``. This data is provided in the ``timeseries_import.xml``.
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\timeseries_import.xml
+    :language: xml
+    :lines: 1508-1538
+
+The data is mapped to the variable, ``rulecurve`` via the ``rtcDataConfig.xml``.
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\rtcDataConfig.xml
+    :language: xml
+    :lines: 5-10
 
 .. note::
 
@@ -122,3 +137,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_rulecurve.html

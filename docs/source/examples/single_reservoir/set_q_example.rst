@@ -88,6 +88,9 @@ To run the model, we can run ``python set_q_example.py`` from the command line.
 Lookup tables
 -------------
 
+This model uses only the standard lookup table ``h_from_v``,
+for other lookup tables, defaults from the generated template files can be used. 
+
 .. note::
 
       For details about the lookup tables please see :ref:`examples-single-reservoir-basic`.
@@ -115,3 +118,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_setq.html

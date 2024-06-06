@@ -239,3 +239,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_basic.html

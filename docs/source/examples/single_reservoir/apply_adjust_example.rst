@@ -1,6 +1,6 @@
 .. _examples-single-reservoir-adjustexample:
 
-``apply_adjsut`` Scheme Example
+``apply_adjust`` Scheme Example
 ==================================
 
 This example shows how to use the :py:meth:`.ReservoirModel.apply_adjust` scheme when modelling a single reservoir model.
@@ -80,7 +80,7 @@ To run the model, we can run ``python adjust_example.py`` from the command line.
 Lookup tables
 -------------
 
-This model uses only the standard lookup tables ``h_from_v``, for other lookup tables, defaults from the generated template files can be used. 
+This model uses only the standard lookup table ``h_from_v``, for other lookup tables, defaults from the generated template files can be used. 
 
 .. note::
 
@@ -121,3 +121,12 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below. Observed (constant) volumes are provided for the initial
+time period, note that this leads to a non-zero ``Q_out_corrected``. 
+
+By choosing `Show results from previous run`, results are shown without the :py:meth:`.ReservoirModel.apply_adjust` scheme.
+It can be seen that in this case the simulated volumes differ from observations, and ``Q_out_corrected`` is equal to ``Q_out``.
+
+.. raw:: html
+    :file: figures\\final_results_adjust.html

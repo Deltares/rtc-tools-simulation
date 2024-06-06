@@ -90,12 +90,27 @@ To run the model, we can run ``python passflow_example.py`` from the command lin
 Lookup tables
 -------------
 
+This model uses only the standard lookup table ``h_from_v``,
+for other lookup tables, defaults from the generated template files can be used. 
+
 .. note::
 
       For further details about the lookup tables please see :ref:`examples-single-reservoir-basic`.
 
 Input Data Files
 ----------------
+
+This implementation of the :py:meth:`.ReservoirModel.set_q` scheme requires input data for the ``Q_out_target``, supplied via the ``timeseries_import.xml``
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\passflow_example\\input\\timeseries_import.xml
+    :language: xml
+    :lines: 2004-2034
+
+This additional input data is mapped to the variables, ``Q_out_target`` using the ``rtcDataConfig.xml``.
+
+.. literalinclude:: ..\\..\\..\\..\\examples\\passflow_example\\input\\rtcDataConfig.xml
+    :language: xml
+    :lines: 69-74
 
 .. note::
 
@@ -117,3 +132,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_passflow.html
