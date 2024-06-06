@@ -17,6 +17,10 @@ flowing through a spillway or turbine if applicable (activated through the use o
 The reservoir has an associated elevation, and volume.
 It is also possible to account for the effects of rain or evaporation (see :ref:`reservoir-api`).
 
+.. image:: figures/single_reservoir.png
+  :width: 800
+  :alt: The single reservoir model.
+
 Inputs
 ------
 
