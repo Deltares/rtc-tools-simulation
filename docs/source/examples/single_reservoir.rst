@@ -18,3 +18,4 @@ Contents:
   single_reservoir/basic
   single_reservoir/set_q_example
   single_reservoir/apply_spillway_example
+  single_reservoir/apply_passflow_example
