@@ -1,7 +1,7 @@
 .. _examples-single-reservoir-basic:
 
-Basic Reservoir
-===============
+Basic Single Reservoir
+======================
 
 This example shows how to build a simple single reservoir model.
 
@@ -68,7 +68,8 @@ An example of the main model file `<model_file>.py` is given below.
   :lineno-match:
 
 The template file mentioned in the previous section will look very similar to this file,
-except that the :py:meth:`apply_schemes` method still needs to be filled out.
+except that the :py:meth:`.apply_schemes` method still needs to be filled out, and the optional ``def``, 
+:py:meth:`.calculate_output_variables`, is not added..
 
 The line
 
@@ -239,3 +240,8 @@ This is used by the rtc-tools-interfaces module (automatically installed with th
 to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+
+The results of the simulation run can be seen in the plot below.
+
+.. raw:: html
+    :file: figures\\final_results_basic.html

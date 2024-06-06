@@ -16,6 +16,7 @@ Available schemes include:
 * :py:meth:`.ReservoirModel.include_rain`
 * :py:meth:`.ReservoirModel.include_evaporation`
 * :py:meth:`.ReservoirModel.include_rainevap`
+* :py:meth:`.ReservoirModel.set_q`
 
 An overview of all schemes is given below.
 

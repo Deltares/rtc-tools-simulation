@@ -189,6 +189,10 @@ class ReservoirModel(Model):
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
 
+        It is possible to impose a dependence on days using the “qout_from_v” lookup table
+        If this is not needed then the “day” column should be constant (e.g. = 1)
+        Otherwise a 2D lookup table is created by linear interpolation between days, Q_out and V.
+
         .. note:: This scheme cannot be used in combination with
             :py:meth:`.ReservoirModel.apply_passflow`, or :py:meth:`.ReservoirModel.set_q` when the
             target variable is Q_out.
@@ -306,6 +310,8 @@ class ReservoirModel(Model):
     ):
         """Calculate the moving average between the rule curve and the simulated elevations.
 
+        This method can be applied inside :py:meth:`.ReservoirModel.calculate_output_variables`.
+
         This method calculates the moving average between the rule curve and the simulated
         elevations over a specified number of periods. It takes the following parameters:
 
@@ -318,7 +324,7 @@ class ReservoirModel(Model):
                                    and the simulated elevations.
 
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
-        are stored in the timeseries "rule_curve_deviation".
+            are stored in the timeseries "rule_curve_deviation".
         """
         observed_elevations = self.extract_results().get("H")
         try:
