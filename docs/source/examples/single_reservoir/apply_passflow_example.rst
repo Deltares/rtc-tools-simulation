@@ -10,17 +10,17 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_passflow` sche
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``.
-The reservoir ouflow is determined based upon the day of the month at each timestep.
+The reservoir outflow is determined based upon the day of the month at each timestep.
 
 .. math::
 
     Q_{out} = 
       \begin{cases}
         Q_{in} & \text{from 12th to 19th of each month}\\
-        Q_{out_target} & \text{otherwise}\\
+        Q_{out,target} & \text{otherwise}\\
       \end{cases}\\
 
-    Q_{out_target} = \text{is a timeseries with values all 3$m^3/s$}
+    Q_{out,target} = \text{is a timeseries with values all 3$m^3/s$}
 
 The :py:meth:`.ReservoirModel.apply_passflow` and :py:meth:`.ReservoirModel.set_q` schemes can be applied to model these operations. 
 

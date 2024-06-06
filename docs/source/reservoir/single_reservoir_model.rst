@@ -34,7 +34,7 @@ Inputs
 * ``include_rain``: A boolean which determines whether or not rain is accounted for.
 * ``mm_evaporation_per_hour``: The evaporation from the reservoir (mm per hour).
 * ``mm_rain_per_hour``: The rain falling in the reservoir (mm per hour).
-* ``Q_out_from_input``: The total ouflow of the reservoir if set by the user using the ``set_q`` scheme. 
+* ``Q_out_from_input``: The total outflow of the reservoir if set by the user using the ``set_q`` scheme. 
 * ``do_set_q_out``: A boolean which determines whether or total reservoir outflow is set by applying the ``set_q`` scheme.
 
 For variables such as ``Q_in``, ``Q_turbine``, ``Q_sluice``, ``mm_evaporation_per_hour``, ``Q_out_from_input`` and ``mm_rain_per_hour``,

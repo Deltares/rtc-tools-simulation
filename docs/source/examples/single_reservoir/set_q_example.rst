@@ -10,7 +10,7 @@ This example shows how to use the :py:meth:`.ReservoirModel.set_q` scheme when m
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and a single outflow ``Q_out``.
-The reservoir ouflow is determined based upon the reservoir elevation, ``H``, at each timestep.
+The reservoir outflow is determined based upon the reservoir elevation, ``H``, at each timestep.
 
 .. math::
 
