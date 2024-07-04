@@ -54,7 +54,10 @@ def _reshape_flattened_array(
     and then flattening it again according to a new ordering.
     The ordering parameters can have the same values as the numpy.reshape order parameter.
     """
-    return np.ravel(np.reshape(array, newshape=shape, order=initial_ordering), order=new_ordering)
+    np_array = np.array(array)
+    reshaped_array = np.reshape(np_array, newshape=shape, order=initial_ordering)
+    flat_array = np.ravel(reshaped_array, order=new_ordering)
+    return flat_array
 
 
 def get_lookup_table_from_csv(
