@@ -14,6 +14,12 @@
             <parameterId>V.obs</parameterId>
         </PITimeSeries>
     </timeSeries>
+    <timeSeries id="H_observed">
+        <PITimeSeries>
+            <locationId>reservoir</locationId>
+            <parameterId>H.obs</parameterId>
+        </PITimeSeries>
+    </timeSeries>
 	<!--States of model at t0-->
 	<timeSeries id="Q_turbine">
 		<PITimeSeries>
