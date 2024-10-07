@@ -39,7 +39,7 @@
         <type>instantaneous</type>
         <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
         <locationId>reservoir</locationId>
-        <parameterId>V.obs</parameterId>
+        <parameterId>H.obs</parameterId>
         <timeStep unit="second" multiplier="3600"/>
         <startDate date="2022-06-07" time="06:00:00"/>
         <endDate date="2022-06-07" time="09:00:00"/>
@@ -48,10 +48,10 @@
         <stationName>Reservoir1</stationName>
         <units>m3</units>
       </header>
-      <event date="2022-06-07" time="06:00:00" value="136500000" flag="8"/>
-      <event date="2022-06-07" time="07:00:00" value="136500000" flag="8"/>
-      <event date="2022-06-07" time="08:00:00" value="136500000" flag="8"/>
-      <event date="2022-06-07" time="09:00:00" value="136500000" flag="8"/>
+      <event date="2022-06-07" time="06:00:00" value="1598.31" flag="8"/>
+      <event date="2022-06-07" time="07:00:00" value="1598.31" flag="8"/>
+      <event date="2022-06-07" time="08:00:00" value="1598.31" flag="8"/>
+      <event date="2022-06-07" time="09:00:00" value="1598.31" flag="8"/>
     </series>
     <series>
       <header>

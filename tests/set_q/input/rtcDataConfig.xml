@@ -15,10 +15,10 @@
 			<parameterId>V</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	    <timeSeries id="V_observed">
+	    <timeSeries id="H_observed">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
-			<parameterId>V.obs</parameterId>
+			<parameterId>H.obs</parameterId>
 		</PITimeSeries>
 	</timeSeries>
 	<!--Inflows-->

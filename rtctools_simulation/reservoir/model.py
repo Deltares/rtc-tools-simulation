@@ -73,7 +73,9 @@ class ReservoirModel(Model):
             "Q_sluice",
             "Q_out_from_input",
         ]
-        default_h = -999.0
+        # to prevent infeaibilities this value needs to be within the range of the lookup table
+        # We use the intial volume to ensure this.
+        default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
         for var in optional_timeseries:
             if var not in timeseries:
                 if var == "H_observed":
