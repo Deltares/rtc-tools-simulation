@@ -81,7 +81,7 @@ Lookup tables
 -------------
 
 This model uses only the standard lookup table ``h_from_v``, for other lookup tables, defaults from the generated template files can be used. 
-This lookup table is also used to convert the observed elebations into observed volumes.
+Lookup table ``h_from_v`` is also used to convert the observed elevations (``H_observed``) into observed volumes.
 
 .. note::
 

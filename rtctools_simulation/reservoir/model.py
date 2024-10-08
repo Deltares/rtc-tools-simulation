@@ -73,14 +73,16 @@ class ReservoirModel(Model):
             "Q_sluice",
             "Q_out_from_input",
         ]
-        # to prevent infeaibilities this value needs to be within the range of the lookup table
+        # to prevent infeasibilities this value needs to be within the range of the lookup table
         # We use the intial volume to ensure this.
-        default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+        self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
         for var in optional_timeseries:
             if var not in timeseries:
                 if var == "H_observed":
-                    self.io.set_timeseries(var, times, [default_h] * len(times))
-                    logger.info(f"{var} not found in the input file. Setting it to {default_h}.")
+                    self.io.set_timeseries(var, times, [self.default_h] * len(times))
+                    logger.info(
+                        f"{var} not found in the input file. Setting it to {self.default_h}."
+                    )
                 else:
                     self.io.set_timeseries(var, times, zeros)
                     logger.info(f"{var} not found in the input file. Setting it to 0.0.")
@@ -89,11 +91,11 @@ class ReservoirModel(Model):
                     self.io.set_timeseries(
                         var,
                         times,
-                        [default_h if np.isnan(x) else x for x in self.get_timeseries(var)],
+                        [self.default_h if np.isnan(x) else x for x in self.get_timeseries(var)],
                     )
                     logger.info(
                         f"{var} contains NaNs in the input file. "
-                        f"Setting these values to {default_h}."
+                        f"Setting these values to {self.default_h}."
                     )
                 else:
                     self.io.set_timeseries(
@@ -171,7 +173,7 @@ class ReservoirModel(Model):
         """
         t = self.get_current_time()
         h_observed = self.timeseries_at("H_observed", t)
-        empty_observation = -999.0
+        empty_observation = self.default_h
         if h_observed == empty_observation:
             logger.debug("there are no observed elevations at time {t}")
         else:
@@ -360,7 +362,7 @@ class ReservoirModel(Model):
         if np.isnan(self.get_var("Q_sluice")):
             self.set_var("Q_sluice", 0)
         if np.isnan(self.get_var("H_observed")):
-            self.set_var("H_observed", -999.0)
+            self.set_var("H_observed", self.default_h)
         if np.isnan(self.get_var("Q_out_from_input")):
             self.set_var("Q_out_from_input", 0)
         self.set_var("do_spill", False)

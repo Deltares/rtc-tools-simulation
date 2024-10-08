@@ -8,12 +8,6 @@
 			<parameterId>rulecurve</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-    <timeSeries id="V_observed">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>V.obs</parameterId>
-        </PITimeSeries>
-    </timeSeries>
     <timeSeries id="H_observed">
         <PITimeSeries>
             <locationId>reservoir</locationId>
