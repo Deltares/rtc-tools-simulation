@@ -5,7 +5,8 @@ model Reservoir
   parameter SI.Length H_crest();
   parameter SI.Area max_reservoir_area() = 0;
 
-  input SI.Volume V_observed();
+  SI.Volume V_observed();
+  input SI.Volume H_observed();
   input SI.VolumeFlowRate Q_in();
   input SI.VolumeFlowRate Q_turbine();
   input SI.VolumeFlowRate Q_sluice();

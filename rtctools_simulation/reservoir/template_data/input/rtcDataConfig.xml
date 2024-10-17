@@ -52,6 +52,12 @@
 			<parameterId>rulecurve</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="H_observed">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>H.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!-- Ouputs -->
     <timeSeries id="Q_out">
 		<PITimeSeries>

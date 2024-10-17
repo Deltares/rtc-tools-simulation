@@ -26,7 +26,7 @@ Inputs
 
 ``input`` variables are required for the simulation model to run. 
 
-* ``V_observed``: The observed volume of the reservoir
+* ``H_observed``: The observed elevation of the reservoir
 * ``Q_in``: The inflow into the reservoir.
 * ``Q_turbine``: The outflow from the reservoir which flows through a turbine.
 * ``Q_sluice``: The outflow from the reservoir which flows through a sluice.

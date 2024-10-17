@@ -24,10 +24,10 @@ def test_adjust():
     config = ModelConfig(base_dir=adjust_dir)
     model = AdjustModel(config)
     model.simulate()
-    final_v = model.get_var("V")
+    final_h = model.get_var("H")
     final_qout = model.get_var("Q_out")
     final_qout_corr = model.get_var("Q_out_corrected")
     final_qerror = model.get_var("Q_error")
-    test_outcome = [final_v, final_qout, final_qerror, final_qout_corr]
-    expected = [136500000, 3, -0.808, 3.808]
+    test_outcome = [final_h, final_qout, final_qerror, final_qout_corr]
+    expected = [1598.31, 3.0, -0.808, 3.808]
     numpy.testing.assert_array_almost_equal(test_outcome, expected, decimal=3)

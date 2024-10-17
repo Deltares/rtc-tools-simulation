@@ -81,6 +81,7 @@ Lookup tables
 -------------
 
 This model uses only the standard lookup table ``h_from_v``, for other lookup tables, defaults from the generated template files can be used. 
+Lookup table ``h_from_v`` is also used to convert the observed elevations (``H_observed``) into observed volumes.
 
 .. note::
 
@@ -95,11 +96,11 @@ The :py:meth:`.ReservoirModel.apply_adjust` scheme requires observed volume data
     :language: xml
     :lines: 20-44
 
-This additional input data is mapped to the internal variable, ``V_observed``, using the ``rtcDataConfig.xml``.
+This additional input data is mapped to the internal variable, ``H_observed``, using the ``rtcDataConfig.xml``.
 
 .. literalinclude:: ..\\..\\..\\..\\examples\\adjust_example\\input\\rtcDataConfig.xml
     :language: xml
-    :lines: 11-16
+    :lines: 17-22
 
 .. note::
 
