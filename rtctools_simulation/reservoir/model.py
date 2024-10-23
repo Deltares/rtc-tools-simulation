@@ -74,8 +74,19 @@ class ReservoirModel(Model):
             "Q_out_from_input",
         ]
         # to prevent infeasibilities this value needs to be within the range of the lookup table
-        # We use the intial volume to ensure this.
-        self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+        # We use the intial volume or elevation to ensure this.
+        if "V" in timeseries:
+            self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+        elif "H" in timeseries:
+            self.default_h = float(self.get_timeseries("H")[0])
+        elif "H_observed" in timeseries:
+            self.default_h = float(self.get_timeseries("H_observed")[0])
+        else:
+            raise Exception(
+                'No initial condition is provided for reservoir elevation, "H", '
+                'reservoir volume, "V", or observed elevation "H_observed". '
+                "One of these must be provided."
+            )
         for var in optional_timeseries:
             if var not in timeseries:
                 if var == "H_observed":
