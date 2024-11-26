@@ -122,10 +122,10 @@ class ReservoirModel(Model):
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
         # Set facility parameters from lookup_tables/facilities.json
-        if os.path.exists('lookup_tables/facilities.json'):
-            facilitity_dict = pd.read_json('lookup_tables/facilities.json')
-            self.facilities = {'generators':{}, 'passways':{}} # Create initial dictionary
-            for facility_type in ['generators', 'passways']:
+        if os.path.exists("lookup_tables/facilities.json"):
+            facilitity_dict = pd.read_json("lookup_tables/facilities.json")
+            self.facilities = {"generators": {}, "passways": {}}  # Create initial dictionary
+            for facility_type in ["generators", "passways"]:
                 for obj_name in facilitity_dict[facility_type].keys():
                     obj = facilitity_dict[facility_type][obj_name]
                     if not is_dict_like(obj):
@@ -134,23 +134,24 @@ class ReservoirModel(Model):
                             f"so none are added to the model"
                         )
                         continue
-                    if facilitity_dict.templates[facility_type]['required'] == list(obj.keys()):
-                        self.facilities[facility_type].update({obj_name:obj})
+                    if facilitity_dict.templates[facility_type]["required"] == list(obj.keys()):
+                        self.facilities[facility_type].update({obj_name: obj})
                         logger.info(
                             f"Added facility '{obj_name}' of type '{facility_type}' to the model"
                         )
                     else:
-                        logger.info(f"Not all required fields "
-                                    f"{facilitity_dict.templates[facility_type]['required']} "
-                                    f"are provided for '{obj_name}'")
-                        raise Exception(f"Not all required fields "
-                                        f"{facilitity_dict.templates[facility_type]['required']} "
-                                        f"are provided for '{obj_name}'")
+                        logger.info(
+                            f"Not all required fields "
+                            f"{facilitity_dict.templates[facility_type]['required']} "
+                            f"are provided for '{obj_name}'"
+                        )
+                        raise Exception(
+                            f"Not all required fields "
+                            f"{facilitity_dict.templates[facility_type]['required']} "
+                            f"are provided for '{obj_name}'"
+                        )
         else:
-            logger.info(f"No facilities configured")
-
-
-
+            logger.info("No facilities configured")
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str) -> float:
