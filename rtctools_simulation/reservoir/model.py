@@ -130,7 +130,8 @@ class ReservoirModel(Model):
                     obj = facilitity_dict[facility_type][obj_name]
                     if not is_dict_like(obj):
                         logger.info(
-                            f"No facilities of type '{facility_type}' configured, so none are added to the model"
+                            f"No facilities of type '{facility_type}' configured, "
+                            f"so none are added to the model"
                         )
                         continue
                     if facilitity_dict.templates[facility_type]['required'] == list(obj.keys()):
@@ -139,9 +140,11 @@ class ReservoirModel(Model):
                             f"Added facility '{obj_name}' of type '{facility_type}' to the model"
                         )
                     else:
-                        logger.info(f"Not all required fields {facilitity_dict.templates[facility_type]['required']} "
-                                        f"are provided for '{obj_name}'")
-                        raise Exception(f"Not all required fields {facilitity_dict.templates[facility_type]['required']} "
+                        logger.info(f"Not all required fields "
+                                    f"{facilitity_dict.templates[facility_type]['required']} "
+                                    f"are provided for '{obj_name}'")
+                        raise Exception(f"Not all required fields "
+                                        f"{facilitity_dict.templates[facility_type]['required']} "
                                         f"are provided for '{obj_name}'")
         else:
             logger.info(f"No facilities configured")
