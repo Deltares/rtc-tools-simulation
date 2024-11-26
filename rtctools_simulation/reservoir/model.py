@@ -2,11 +2,14 @@
 
 import logging
 import math
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 
 import numpy as np
+import pandas as pd
+from pandas.core.dtypes.inference import is_dict_like
 
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.model import Model, ModelConfig
@@ -60,6 +63,7 @@ class ReservoirModel(Model):
             carefully chosen to select the correct default schemes.
         """
         super().pre(*args, **kwargs)
+
         # Set default input timeseries.
         ref_series = self.io.get_timeseries("Q_in")
         times = ref_series[0]
@@ -117,6 +121,33 @@ class ReservoirModel(Model):
                     )
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
+        # Set facility parameters from lookup_tables/facilities.json
+        if os.path.exists('lookup_tables/facilities.json'):
+            facilitity_dict = pd.read_json('lookup_tables/facilities.json')
+            self.facilities = {'generators':{}, 'passways':{}} # Create initial dictionary
+            for facility_type in ['generators', 'passways']:
+                for obj_name in facilitity_dict[facility_type].keys():
+                    obj = facilitity_dict[facility_type][obj_name]
+                    if not is_dict_like(obj):
+                        logger.info(
+                            f"No facilities of type '{facility_type}' configured, so none are added to the model"
+                        )
+                        continue
+                    if facilitity_dict.templates[facility_type]['required'] == list(obj.keys()):
+                        self.facilities[facility_type].update({obj_name:obj})
+                        logger.info(
+                            f"Added facility '{obj_name}' of type '{facility_type}' to the model"
+                        )
+                    else:
+                        logger.info(f"Not all required fields {facilitity_dict.templates[facility_type]['required']} "
+                                        f"are provided for '{obj_name}'")
+                        raise Exception(f"Not all required fields {facilitity_dict.templates[facility_type]['required']} "
+                                        f"are provided for '{obj_name}'")
+        else:
+            logger.info(f"No facilities configured")
+
+
+
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str) -> float:

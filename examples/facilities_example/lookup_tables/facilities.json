@@ -1,0 +1,26 @@
+{
+  "generators": {
+    "test_generator": {
+      "min_flow": 10,
+      "max_flow": 50,
+      "inflow_elevation": 1100
+    }
+    },
+  "passways": {
+
+   },
+  "templates": {
+    "generators": {
+      "name": "example_name",
+      "required": ["min_flow", "max_flow", "inflow_elevation"],
+      "optional": ["diameter", "top_elevation"],
+      "dynamic": ["status_open"]
+     },
+    "passways": {
+      "name": "example_name",
+      "required": ["min_flow", "max_flow", "inflow_elevation"],
+      "optional": ["diameter", "top_elevation"],
+      "dynamic": ["status_open"]
+     }
+   }
+}
