@@ -53,8 +53,9 @@ class ReservoirModel(Model):
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
         self.max_reservoir_area = 0  # Set during pre().
+        self._init_facilities()
 
-    # Methods for preprocsesing.
+    # Methods for preprocessing.
     def pre(self, *args, **kwargs):
         """
         This method can be overwritten to perform any pre-processing before the simulation begins.
@@ -122,36 +123,7 @@ class ReservoirModel(Model):
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
         # Set facility parameters from lookup_tables/facilities.json
-        if os.path.exists("lookup_tables/facilities.json"):
-            facilitity_dict = pd.read_json("lookup_tables/facilities.json")
-            self.facilities = {"generators": {}, "passways": {}}  # Create initial dictionary
-            for facility_type in ["generators", "passways"]:
-                for obj_name in facilitity_dict[facility_type].keys():
-                    obj = facilitity_dict[facility_type][obj_name]
-                    if not is_dict_like(obj):
-                        logger.info(
-                            f"No facilities of type '{facility_type}' configured, "
-                            f"so none are added to the model"
-                        )
-                        continue
-                    if facilitity_dict.templates[facility_type]["required"] == list(obj.keys()):
-                        self.facilities[facility_type].update({obj_name: obj})
-                        logger.info(
-                            f"Added facility '{obj_name}' of type '{facility_type}' to the model"
-                        )
-                    else:
-                        logger.info(
-                            f"Not all required fields "
-                            f"{facilitity_dict.templates[facility_type]['required']} "
-                            f"are provided for '{obj_name}'"
-                        )
-                        raise Exception(
-                            f"Not all required fields "
-                            f"{facilitity_dict.templates[facility_type]['required']} "
-                            f"are provided for '{obj_name}'"
-                        )
-        else:
-            logger.info("No facilities configured")
+
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str) -> float:
@@ -540,3 +512,45 @@ class ReservoirModel(Model):
             timestep,
             nan_option,
         )
+
+    def _init_facilities(self, fp: str = "lookup_tables/facilities.json"):
+        """Method to get and initialize facilities that are preconfigured.
+           Faciltiies are functional parts of the physical reservoir that impact activation
+           or capacity of certain schemes.
+                """
+        if os.path.exists(fp):
+            facilitity_dict = pd.read_json(fp)
+            self.facilities = {"generators": {}, "passways": {}}  # Create initial dictionary
+            for facility_type in ["generators", "passways"]:
+                for obj_name in facilitity_dict[facility_type].keys():
+                    obj = facilitity_dict[facility_type][obj_name]
+                    req_fields = facilitity_dict.templates[facility_type]["required"]
+                    if not is_dict_like(obj):
+                        logger.info(
+                            f"No facilities of type '{facility_type}' configured, "
+                            f"so none are added to the model"
+                        )
+                        continue
+                    obj_keys = list(obj.keys())
+                    # Check if all given required fields are present
+                    if all( [x in obj_keys for x in req_fields]):
+                        self.facilities[facility_type].update({obj_name: obj})
+                        logger.info(
+                            f"Added facility '{obj_name}' of type '{facility_type}' to the model "
+                            f"with parameters {obj_keys}"
+                        )
+                        add_fields = [i for i in obj_keys if i not in req_fields]
+                        logger.info(f"Besides the required fields only optional fields "
+                                    f"{facilitity_dict.templates[facility_type]} will have effect."
+                                    f"{add_fields} will not influence the model"
+                        )
+                    else:
+                        logger.info(
+                            f"Not all required fields {req_fields} "
+                            f"are configured for '{obj_name}, either not available or wrong order'"
+                        )
+                        raise Exception(
+                            f"Not all required fields {req_fields} are provided for '{obj_name}'"
+                        )
+        else:
+            logger.info("lookup_tables/facilities.json does not exist, so no facilities are added")

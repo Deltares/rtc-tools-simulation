@@ -3,7 +3,9 @@
     "test_generator": {
       "min_flow": 10,
       "max_flow": 50,
-      "inflow_elevation": 1100
+      "inflow_elevation": 1100,
+      "top_elevation": 1120,
+      "color": "red"
     }
     },
   "passways": {
@@ -13,13 +15,13 @@
     "generators": {
       "name": "example_name",
       "required": ["min_flow", "max_flow", "inflow_elevation"],
-      "optional": ["diameter", "top_elevation"],
+      "optional": ["diameter", "top_elevation", "maintenance"],
       "dynamic": ["status_open"]
      },
     "passways": {
       "name": "example_name",
-      "required": ["min_flow", "max_flow", "inflow_elevation"],
-      "optional": ["diameter", "top_elevation"],
+      "required": ["max_flow", "inflow_elevation", "type"],
+      "optional": ["width", "top_elevation", "maintenance"],
       "dynamic": ["status_open"]
      }
    }
