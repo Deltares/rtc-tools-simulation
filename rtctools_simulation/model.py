@@ -54,11 +54,16 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
         self._config = config
         self._lookup_tables = self._get_lookup_tables()
         self.plot_table_file = self._get_plot_table_file()
+        kwargs = {
+            key: val
+            for key, val in kwargs.items()
+            if key not in ["input_folder", "output_folder", "model_folder", "model_name"]
+        }
         super().__init__(
-            input_folder=self._config.get_dir("input"),
-            output_folder=self._config.get_dir("output"),
-            model_folder=self._config.get_dir("model"),
-            model_name=self._config.model(),
+            input_folder=str(self._config.get_dir("input")),
+            output_folder=str(self._config.get_dir("output")),
+            model_folder=str(self._config.get_dir("model")),
+            model_name=str(self._config.model()),
             **kwargs,
         )
 
