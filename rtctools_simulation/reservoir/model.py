@@ -4,10 +4,13 @@ import logging
 import math
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
+import casadi as ca
 import numpy as np
+import pandas as pd
 
+import rtctools_simulation.lookup_table as lut
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.model import Model, ModelConfig
 from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
@@ -50,6 +53,24 @@ class ReservoirModel(Model):
             config.set_model("Reservoir")
         super().__init__(config, **kwargs)
         self.max_reservoir_area = 0  # Set during pre().
+
+    def _get_lookup_tables(self) -> Dict[str, ca.Function]:
+        lookup_tables = super()._get_lookup_tables()
+        equations_csv = self._config.get_file("lookup_table_equations.csv", dirs=["model"])
+        assert equations_csv.is_file()
+        equations_df = pd.read_csv(equations_csv, sep=",")
+        for _, equation_df in equations_df.iterrows():
+            name = equation_df["lookup_table"]
+            var_in: str = equation_df["var_in"]
+            var_in = var_in.split(" ")
+            var_in = [var for var in var_in if var != ""]
+            if name not in lookup_tables:
+                warning = f"Lookup table {name} not found. Using an empty lookup table instead."
+                logger.warning(warning)
+                var_out = equation_df["var_out"]
+                lookup_table = lut.get_empty_lookup_table(name, var_in, var_out)
+                lookup_tables[name] = lookup_table
+        return lookup_tables
 
     # Methods for preprocsesing.
     def pre(self, *args, **kwargs):
