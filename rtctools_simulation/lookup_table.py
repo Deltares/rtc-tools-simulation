@@ -72,8 +72,6 @@ def get_lookup_table_from_csv(
     :param name: name of the lookup table
     :param file: CSV file containing data points for different variables.
     :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
-        In case of multiple input variables, different variables should be separated
-        by a whitespace.
     :param var_out: Output variable of the lookup table. Should be one of the CSV file columns.
 
     :return: lookup table in the form of a Casadi function.
@@ -119,6 +117,7 @@ def get_lookup_tables_from_csv(
 
     :param file: CSV File that describes lookup tables.
         The column names correspond to the parameters of :func:`get_lookup_table_from_csv`.
+        In case of multiple input variables, they should be separated by a whitespace.
     :param data_dir: Directory that contains the interpolation data for the lookup tables.
         By default, the directory of the csv file is used.
 
@@ -148,6 +147,23 @@ def get_lookup_tables_from_csv(
     return lookup_tables
 
 
+def get_empty_lookup_table(name: str, var_in: Union[str, list[str]], var_out: str) -> ca.Function:
+    """
+    Get a lookup table that always returns zero.
+
+    :param name: name of the lookup table.
+    :param var_in: Input variable(s) of the lookup table.
+    :param var_out: Output variable of the lookup table.
+
+    :return: lookup table in the form of a Casadi function.
+    """
+    vars_in: list[str] = var_in if isinstance(var_in, list) else [var_in]
+    del var_out
+    var_in_symbols: list[ca.MX] = [ca.MX.sym(var) for var in vars_in]
+    lookup_table = ca.Function(name, var_in_symbols, [0])
+    return lookup_table
+
+
 def get_lookup_table_equations_from_csv(
     file: Path, lookup_tables: Dict[str, ca.Function], variables: Dict[str, ca.MX]
 ) -> List[ca.MX]:
@@ -158,9 +174,14 @@ def get_lookup_table_equations_from_csv(
         CSV File that describes equations involving lookup tables.
         These equations are of the form var_out = lookup_table(var_in).
         The csv file consists of the following columns:
+
         * lookup_table: Name of the lookup table.
-        * var_in: Input variable of the lookup table. Should be defined in the model.
+
+        * var_in: Input variable(s) of the lookup table. Should be defined in the model.
+          In case of multiple input variables, they should be separated by a whitespace.
+
         * var_out: Output variable of the lookup table. Should be defined in the model.
+
     :param lookup_tables: Dict of lookup tables.
     :param variables: Dict of symbolic variables used in the model.
 
@@ -171,11 +192,18 @@ def get_lookup_table_equations_from_csv(
     assert equations_csv.is_file()
     equations_df = pd.read_csv(equations_csv, sep=",")
     for _, equation_df in equations_df.iterrows():
-        lookup_table = lookup_tables[equation_df["lookup_table"]]
+        name = equation_df["lookup_table"]
+        lookup_table = lookup_tables[name]
         var_in: str = equation_df["var_in"]
         var_in = var_in.split(" ")
         var_in = [var for var in var_in if var != ""]
-        var_in = [variables[var] for var in var_in]
-        var_out = variables[equation_df["var_out"]]
-        equations.append(lookup_table(*var_in) - var_out)
+        var_in_mx = [variables[var] for var in var_in]
+        var_out_mx = variables[equation_df["var_out"]]
+        if not lookup_table.n_in() == len(var_in):
+            error = (
+                f"Lookup table {name} has wrong number of inputs: {lookup_table.n_in()}."
+                f" Expected {len(var_in)} inputs: {var_in}."
+            )
+            raise AssertionError(error)
+        equations.append(lookup_table(*var_in_mx) - var_out_mx)
     return equations
