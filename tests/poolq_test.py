@@ -26,7 +26,7 @@ def test_poolq():
     output = model.extract_results()
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
-    q_ref = np.array([0.0, 0.15, 0.575])
+    q_ref = np.array([0.3, 0.15, 0.575])
     v_ref = np.array([1.3, 1.15, 1.575])
     numpy.testing.assert_array_almost_equal(q_out, q_ref, decimal=3)
     numpy.testing.assert_array_almost_equal(v_out, v_ref, decimal=3)

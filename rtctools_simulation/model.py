@@ -19,16 +19,12 @@ class _SimulationProblem(SimulationProblem):
     Class to enable setting input after reading files.
     """
 
-    def initialize_input_variables(self):
-        """Initialize input variables."""
-        pass
-
     def set_input_variables(self):
         """Set input variables."""
         pass
 
     def initialize(self, config_file=None):
-        self.initialize_input_variables()
+        self.set_input_variables()
         super().initialize(config_file)
 
     def update(self, dt):

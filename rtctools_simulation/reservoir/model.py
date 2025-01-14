@@ -442,18 +442,6 @@ class ReservoirModel(Model):
         """
         pass
 
-    def initialize_input_variables(self):
-        """Initialize input variables.
-
-        This method calls :py:meth:`.ReservoirModel.set_default_input`.
-        This method can be overwritten to initialise input variables.
-        It is only called at the start of the simulation.
-
-        .. note:: Be careful if you choose to overwrite this method as default values have been
-            carefully chosen to select the correct default schemes.
-        """
-        self.set_default_input()
-
     def set_input_variables(self):
         """Set input variables.
 
