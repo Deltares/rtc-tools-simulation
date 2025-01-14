@@ -1,7 +1,8 @@
 """Module for a reservoir model."""
-
+import filecmp
 import logging
 import math
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Union
@@ -18,7 +19,7 @@ from rtctools_simulation.reservoir.rule_curve_deviation import (
     rule_curve_deviation,
 )
 
-MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
+DEFAULT_MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
 logger = logging.getLogger("rtctools")
 
@@ -49,8 +50,7 @@ class ReservoirModel(Model):
             If true, the default single reservoir model will be used.
         """
         if use_default_model:
-            config.set_dir("model", MODEL_DIR)
-            config.set_model("Reservoir")
+            self._create_model(config)
         super().__init__(config, **kwargs)
         self.max_reservoir_area = 0  # Set during pre().
 
@@ -71,6 +71,23 @@ class ReservoirModel(Model):
                 lookup_table = lut.get_empty_lookup_table(name, var_in, var_out)
                 lookup_tables[name] = lookup_table
         return lookup_tables
+
+    def _create_model(self, config: ModelConfig):
+        """Create a model folder based on the default model."""
+        base_dir = config.base_dir()
+        if base_dir is None:
+            raise ValueError("A base directory should be set when using the default model.")
+        model_dir = base_dir / "generated_model"
+        if not model_dir.is_dir():
+            model_dir.mkdir()
+        config.set_dir("model", model_dir)
+        config.set_model("Reservoir")
+        for filename in ["reservoir.mo", "lookup_table_equations.csv"]:
+            default_file = DEFAULT_MODEL_DIR / filename
+            file = model_dir / filename
+            if file.is_file() and filecmp.cmp(default_file, file, shallow=False):
+                continue
+            shutil.copy2(default_file, file)
 
     # Methods for preprocsesing.
     def pre(self, *args, **kwargs):
