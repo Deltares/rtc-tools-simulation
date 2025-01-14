@@ -54,18 +54,11 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
         self._config = config
         self._lookup_tables = self._get_lookup_tables()
         self.plot_table_file = self._get_plot_table_file()
-        kwargs = {
-            key: val
-            for key, val in kwargs.items()
-            if key not in ["input_folder", "output_folder", "model_folder", "model_name"]
-        }
-        super().__init__(
-            input_folder=str(self._config.get_dir("input")),
-            output_folder=str(self._config.get_dir("output")),
-            model_folder=str(self._config.get_dir("model")),
-            model_name=str(self._config.model()),
-            **kwargs,
-        )
+        kwargs["input_folder"] = str(self._config.get_dir("input"))
+        kwargs["output_folder"] = str(self._config.get_dir("output"))
+        kwargs["model_folder"] = str(self._config.get_dir("model"))
+        kwargs["model_name"] = str(self._config.model())
+        super().__init__(**kwargs)
 
     def _get_plot_table_file(self):
         """Get the file that describes the plots."""

@@ -67,16 +67,6 @@ The :py:meth:`.ReservoirModel.set_q` scheme is applied to set reservoir outflow 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme is then applied to correct for volume observations 
 when they are supplied to the model.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/adjust_example/adjust_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python adjust_example.py`` from the command line.
-
-
 Lookup tables
 -------------
 
