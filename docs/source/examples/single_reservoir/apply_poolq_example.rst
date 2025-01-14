@@ -63,16 +63,6 @@ can be found in :ref:`reservoir-api`.
 In this example, the :py:meth:`.ReservoirModel.apply_poolq` scheme is then applied inside of
 :py:meth:`.ReservoirModel.apply_schemes` to set the reservoir outflow.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/poolq_example/poolq_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python poolq_example.py`` from the command line.
-
-
 Lookup tables
 -------------
 

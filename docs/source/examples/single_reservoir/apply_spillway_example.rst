@@ -83,17 +83,7 @@ by collecting the current reservoir elevation as this is used to determine opera
 The method then checks if the elevation, ``H``, is higher than the crest level.
 The crest level is supplied to the model via the ``rtcParameterConfig.xml`` input file.
 The ``set_q`` or ``apply_spillway`` scheme is then applied to set the reservoir
-outflow through the spillway or turbine. 
-
-The last lines
-
-.. literalinclude:: ../../../../examples/spillway_example/spillway_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python spillway_example.py`` from the command line.
-
+outflow through the spillway or turbine.
 
 Lookup tables
 -------------

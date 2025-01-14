@@ -81,16 +81,6 @@ The method then checks if the elevation H is higher than threshold value 1598.54
 The :py:meth:`.set_q` scheme is then applied to set the reservoir outflow equal to a value of 0.2 or 0.4 based
 on whether the defined elevation threshold is exceeded.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/set_q_example/set_q_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python set_q_example.py`` from the command line.
-
-
 Lookup tables
 -------------
 

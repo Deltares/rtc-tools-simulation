@@ -77,16 +77,6 @@ The method then checks if the current timestep is between the 12th and 19th of t
 The ``set_q`` or ``apply_passflow`` scheme is then applied to set the reservoir
 outflow.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/passflow_example/passflow_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python passflow_example.py`` from the command line.
-
-
 Lookup tables
 -------------
 

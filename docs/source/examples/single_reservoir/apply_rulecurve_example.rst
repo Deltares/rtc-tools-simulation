@@ -64,16 +64,6 @@ can be found in :ref:`reservoir-api`.
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme is then applied to set the reservoir outflow through the sluice.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/rulecurve_example/rulecurve_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python rulecurve_example.py`` from the command line.
-
-
 Lookup tables
 -------------
 
