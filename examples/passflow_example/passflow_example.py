@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from rtctools.util import run_simulation_problem
+
 from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
@@ -31,5 +33,4 @@ class SingleReservoir(ReservoirModel):
 
 # Create and run the model.
 if __name__ == "__main__":
-    model = SingleReservoir(CONFIG)
-    model.simulate()
+    run_simulation_problem(SingleReservoir, config=CONFIG)
