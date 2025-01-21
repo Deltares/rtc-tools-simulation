@@ -14,8 +14,9 @@ class AdjustModel(ReservoirModel):
     def apply_schemes(self):
         """Always adjust volume V to equal V_observed.
         Close the waterbalance through Q_error and Q_out_corrected"""
-        self.set_var("Q_turbine", 3)
-        self.apply_adjust()
+        if self.get_current_time() > self.get_start_time():
+            self.set_var("Q_turbine", 3)
+            self.apply_adjust()
 
 
 def test_adjust():
