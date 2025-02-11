@@ -4,7 +4,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>V</parameterId>
         <timeStep unit="second" multiplier="3600"/>
@@ -20,7 +20,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>Q.inflow.obs</parameterId>
         <timeStep unit="second" multiplier="3600"/>
@@ -516,7 +516,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>evaporation.obs</parameterId>
         <timeStep unit="second" multiplier="3600"/>
@@ -1012,7 +1012,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>rain.obs</parameterId>
         <timeStep unit="second" multiplier="3600"/>
@@ -1508,7 +1508,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>rulecurve</parameterId>
         <timeStep unit="second" multiplier="3600"/>
@@ -2004,7 +2004,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>Q.out.target</parameterId>
         <timeStep unit="second" multiplier="3600"/>
