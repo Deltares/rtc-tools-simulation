@@ -118,13 +118,13 @@ the outflow is set by :py:meth:`set_q`.
 Otherwise, the spillway scheme is applied.
 If the elevation is below the crest elevation, the outflow is set by :py:meth:`set_q`.
 
-The last lines
+The last line
 
 .. literalinclude:: ../../../../examples/single_reservoir/single_reservoir.py
   :language: python
   :start-at: # Create and run the model.
 
-create and run a :py:class:`SingleReservoir` model.
+runs a :py:class:`SingleReservoir` model.
 To run the model, we can run ``python <model_file>.py`` from the command line.
 
 

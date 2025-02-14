@@ -10,3 +10,6 @@ __pycache__
 
 # Distribution and packaging
 *.egg-info
+
+# Generated model folders
+generated_model

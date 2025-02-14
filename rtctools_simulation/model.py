@@ -19,69 +19,28 @@ class _SimulationProblem(SimulationProblem):
     Class to enable setting input after reading files.
     """
 
-    def initialize_input_variables(self):
-        """Initialize input variables."""
-        pass
-
     def set_input_variables(self):
         """Set input variables."""
         pass
 
     def initialize(self, config_file=None):
-        self.initialize_input_variables()
+        self.set_input_variables()
         super().initialize(config_file)
 
     def update(self, dt):
-        """
-        Do a basic timestep update.
-
-        This is copied from SimulationProblem.update.
-        Only the set
-
-        TODO: a nicer solution should be found rather than
-        copying most of an existing method.
-        """
+        # Temporarily update the time to set input variables.
+        # TODO: Ideally, rtc-tools allows for preprocessing before calling update.
+        # For now, temporarily updating the time provides a workaround.
         if dt > 0:
             self.set_time_step(dt)
         dt = self.get_time_step()
-
-        logger.debug("Taking a step at {} with size {}".format(self.get_current_time(), dt))
-
-        # increment time
-        self.set_var("time", self.get_current_time() + dt)
-
-        # set input variables
+        t_old = self.get_current_time()
+        t_new = t_old + dt
+        self.set_var("time", t_new)
         self.set_input_variables()
-
-        # take a step
-        guess = self.__state_vector[: self.__n_states]
-        if len(self.__mx["parameters"]) > 0:
-            next_state = self.__do_step(
-                guess, dt, self.__state_vector[: -len(self.__mx["parameters"])]
-            )
-        else:
-            next_state = self.__do_step(guess, dt, self.__state_vector)
-        # Check convergence of rootfinder
-        rootfinder_stats = self.__do_step.stats()
-
-        if not rootfinder_stats["success"]:
-            message = (
-                "Simulation has failed to converge at time {}. Solver failed with status {}"
-            ).format(self.get_current_time(), rootfinder_stats["nlpsol"]["return_status"])
-            logger.error(message)
-            raise Exception(message)
-
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            # compute max residual
-            largest_res = ca.norm_inf(
-                self.__res_vals(
-                    next_state, self.__dt, self.__state_vector[: -len(self.__mx["parameters"])]
-                )
-            )
-            logger.debug("Residual maximum magnitude: {:.2E}".format(float(largest_res)))
-
-        # Update state vector
-        self.__state_vector[: self.__n_states] = next_state.toarray().ravel()
+        # Restore the time and call super().update.
+        self.set_var("time", t_old)
+        super().update(dt)
 
 
 class Model(PlotMixin, PIMixin, _SimulationProblem):
@@ -91,13 +50,11 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
         self._config = config
         self._lookup_tables = self._get_lookup_tables()
         self.plot_table_file = self._get_plot_table_file()
-        super().__init__(
-            input_folder=self._config.get_dir("input"),
-            output_folder=self._config.get_dir("output"),
-            model_folder=self._config.get_dir("model"),
-            model_name=self._config.model(),
-            **kwargs,
-        )
+        kwargs["input_folder"] = str(self._config.get_dir("input"))
+        kwargs["output_folder"] = str(self._config.get_dir("output"))
+        kwargs["model_folder"] = str(self._config.get_dir("model"))
+        kwargs["model_name"] = str(self._config.model())
+        super().__init__(**kwargs)
 
     def _get_plot_table_file(self):
         """Get the file that describes the plots."""

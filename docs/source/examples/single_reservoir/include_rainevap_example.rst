@@ -71,15 +71,6 @@ can be found in :ref:`reservoir-api`.
 The :py:meth:`.ReservoirModel.include_rainevap` scheme is applied to include rain and evaporation in the simulation.
 The :py:meth:`.ReservoirModel.set_q` scheme is then applied to set flow through the sluice and the turbine.
 
-The last lines
-
-.. literalinclude:: ../../../../examples/rainevap_example/rainevap_example.py
-  :language: python
-  :start-at: # Create and run the model.
-
-create and run a :py:class:`.SingleReservoir` model.
-To run the model, we can run ``python rainevap_example.py`` from the command line.
-
 .. note::
 
       To include only rain, ``self.include_rainevap()`` and be replaced with ``self.include_rain()``. Likewise, 
