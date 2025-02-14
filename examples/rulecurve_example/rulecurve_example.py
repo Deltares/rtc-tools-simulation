@@ -12,14 +12,15 @@ CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 class SingleReservoir(ReservoirModel):
     """Example single reservoir model."""
 
+    def pre(self, *args, **kwargs):
+        super().pre(*args, **kwargs)
+        self.calculate_rule_curve_deviation(periods=3)
+        self.adjust_rulecurve(periods=3)
+
     def apply_schemes(self):
         """Apply schemes for controlling the reservoir."""
 
         self.apply_rulecurve(outflow="Q_sluice")
-
-    def calculate_output_variables(self):
-        """Calculate additional output variables."""
-        self.calculate_rule_curve_deviation(periods=3)
 
 
 # Create and run the model.
