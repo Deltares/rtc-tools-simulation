@@ -14,20 +14,7 @@ class SingleReservoir(ReservoirModel):
         """Apply schemes for controlling the reservoir."""
 
         # Collect reservoir elevation.
-        h = self.get_var("H")
-        critical_h = 1598.54
-        if h > critical_h:
-            self.set_q(
-                target_variable="Q_out",
-                input_type="parameter",
-                input_data=0.4,
-            )
-        else:
-            self.set_q(
-                target_variable="Q_out",
-                input_type="parameter",
-                input_data=0.2,
-            )
+        self.apply_fillspill()
 
 
 # Create and run the model.
