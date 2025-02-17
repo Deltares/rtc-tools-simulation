@@ -6,38 +6,26 @@
         <parameter id="Spillway_H">
         	<dblValue>1599.0</dblValue>
         </parameter>
-        <parameter id="Reservoir_Amax">
-        	<dblValue>1.0</dblValue>
-        </parameter>
-        <parameter id="Reservoir_Vmax">
-        	<dblValue>2.0</dblValue>
-        </parameter>
         <parameter id="Reservoir_Hmax">
-        	<dblValue>2.0</dblValue>
+        	<dblValue>1600.0</dblValue>
         </parameter>
         <parameter id="Reservoir_Hmin">
-        	<dblValue>0.0</dblValue>
+        	<dblValue>1580.0</dblValue>
         </parameter>
         <parameter id="Reservoir_Qmin">
-        	<dblValue>2.0</dblValue>
+        	<dblValue>20</dblValue>
+        </parameter>
+        <parameter id="Reservoir_Qlim">
+        	<dblValue>40</dblValue>
         </parameter>
         <parameter id="Reservoir_Qmax">
-        	<dblValue>4.0</dblValue>
-        </parameter>
-        <parameter id="Turbine_Qmax">
-        	<dblValue>200.0</dblValue>
+        	<dblValue>60</dblValue>
         </parameter>
         <parameter id="Spillgate_Qmax">
         	<dblValue>2000.0</dblValue>
         </parameter>
-        <parameter id="Spillgate_Hmin">
-        	<dblValue>1.5</dblValue>
-        </parameter>
-        <parameter id="Spillgate_Hmax">
-        	<dblValue>1.7</dblValue>
-        </parameter>
         <parameter id="Reservoir_Htarget">
-        	<dblValue>1.7</dblValue>
+        	<dblValue>1598.8</dblValue>
         </parameter>
 
     </group>
