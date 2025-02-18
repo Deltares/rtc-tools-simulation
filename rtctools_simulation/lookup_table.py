@@ -77,7 +77,8 @@ def get_lookup_table_from_csv(
     :return: lookup table in the form of a Casadi function.
     """
     data_csv = Path(file)
-    assert data_csv.is_file()
+    if not data_csv.is_file():
+        raise FileNotFoundError(f"File {data_csv} not found.")
     df = pd.read_csv(data_csv, sep=",")
     vars_in: list[str] = var_in if isinstance(var_in, list) else [var_in]
     var_in_grid = [df[var] for var in vars_in]
@@ -125,12 +126,14 @@ def get_lookup_tables_from_csv(
     """
     lookup_tables = {}
     lookup_tables_csv = Path(file)
-    assert lookup_tables_csv.is_file()
+    if not lookup_tables_csv.is_file():
+        raise FileNotFoundError(f"File {lookup_tables_csv} not found.")
     if data_dir is None:
         data_dir = lookup_tables_csv.parent
     else:
         data_dir = Path(data_dir)
-        assert data_dir.is_dir()
+        if not data_dir.is_dir():
+            raise FileNotFoundError(f"Directory {data_dir} not found.")
     lookup_tables_df = pd.read_csv(lookup_tables_csv, sep=",")
     for _, lookup_table_df in lookup_tables_df.iterrows():
         name = lookup_table_df["name"]
@@ -165,7 +168,10 @@ def get_empty_lookup_table(name: str, var_in: Union[str, list[str]], var_out: st
 
 
 def get_lookup_table_equations_from_csv(
-    file: Path, lookup_tables: Dict[str, ca.Function], variables: Dict[str, ca.MX]
+    file: Path,
+    lookup_tables: Dict[str, ca.Function],
+    variables: Dict[str, ca.MX],
+    allow_missing_lookup_tables=False,
 ) -> List[ca.MX]:
     """
     Get a list of lookup-table equations described by a csv file.
@@ -184,6 +190,7 @@ def get_lookup_table_equations_from_csv(
 
     :param lookup_tables: Dict of lookup tables.
     :param variables: Dict of symbolic variables used in the model.
+    :param allow_missing_lookup_tables: If True, replace missing lookup tables with empty tables.
 
     :return: list of equations.
     """
@@ -193,12 +200,19 @@ def get_lookup_table_equations_from_csv(
     equations_df = pd.read_csv(equations_csv, sep=",")
     for _, equation_df in equations_df.iterrows():
         name = equation_df["lookup_table"]
-        lookup_table = lookup_tables[name]
         var_in: str = equation_df["var_in"]
         var_in = var_in.split(" ")
         var_in = [var for var in var_in if var != ""]
+        var_out = equation_df["var_out"]
+        if name not in lookup_tables:
+            if allow_missing_lookup_tables:
+                lookup_table = get_empty_lookup_table(name, var_in, var_out)
+            else:
+                raise ValueError(f"Lookup table {name} not found.")
+        else:
+            lookup_table = lookup_tables[name]
         var_in_mx = [variables[var] for var in var_in]
-        var_out_mx = variables[equation_df["var_out"]]
+        var_out_mx = variables[var_out]
         if not lookup_table.n_in() == len(var_in):
             error = (
                 f"Lookup table {name} has wrong number of inputs: {lookup_table.n_in()}."
