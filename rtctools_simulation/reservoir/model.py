@@ -260,7 +260,6 @@ class ReservoirModel(Model):
 
     def apply_fillspill(
         self,
-        spill_type: str = "CREST",
     ) -> float:
         """
         Determines the outflow from the reservoir based on the inflow and minimum required
@@ -289,6 +288,19 @@ class ReservoirModel(Model):
         current_h = self.get_var("H")
         inflow = self.get_var("Q_in")
         parameters = self.parameters()
+        required_parameters = {
+            "Spillway_H",
+            "Reservoir_Htarget",
+            "Reservoir_Qmax",
+            "Reservoir_Qmin",
+        }
+        all_pars_present = [par in parameters.keys() for par in required_parameters]
+        if not all(all_pars_present):
+            raise KeyError(
+                f"Not all parameters [{required_parameters}] for FILLSPILL"
+                f"are configured in rtcParameterConfig.xml"
+            )
+
         ## If stage exceeds hmax, apply spill and release as much as possible
         if current_h > parameters["Spillway_H"]:
             self.apply_spillway()
