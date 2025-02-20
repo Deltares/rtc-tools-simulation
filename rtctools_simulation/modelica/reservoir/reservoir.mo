@@ -2,8 +2,8 @@ model Reservoir
   type FlowRatePerArea = Real(unit = "mm/hour");
   import SI = Modelica.SIunits;
 
-  parameter SI.Length H_crest();
-  parameter SI.Area max_reservoir_area() = 0;
+  parameter SI.Length Reservoir_Hmax();
+  parameter SI.Area Reservoir_Amax() = 0;
 
   SI.Volume V_observed();
   input SI.Volume H_observed();
@@ -50,7 +50,7 @@ equation
   compute_v * (der(V) - (Q_in - Q_out + Q_rain - Q_evap)) + (1 - compute_v) * (V - V_observed) = 0;
 
   Q_evap = Area * mm_evaporation_per_hour / 3600 / 1000 * include_evaporation;
-  Q_rain = max_reservoir_area * mm_rain_per_hour / 3600 / 1000 * include_rain;
+  Q_rain = Reservoir_Amax * mm_rain_per_hour / 3600 / 1000 * include_rain;
 
   Q_spill = do_spill * Q_spill_from_lookup_table;
 

@@ -10,6 +10,7 @@ from typing import Dict, Optional, Union
 import casadi as ca
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, Field
 
 import rtctools_simulation.lookup_table as lut
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
@@ -37,6 +38,30 @@ VARIABLES = [
     "Q_sluice",
     "V",
 ]
+
+
+class ParameterConfigError(BaseException):
+    pass
+
+
+class ReservoirParameterValidator(BaseModel):
+    Reservoir_Hmax: float = Field(100.0, gt=0)
+    Reservoir_Amax: float = Field(1000.0, gt=0)
+    Reservoir_Qmin: Optional[float] = Field(None, ge=0, required=False)
+    Reservoir_Qmax: Optional[float] = Field(None, gt=0, required=False)
+    Reservoir_Htarget: Optional[float] = Field(None, ge=0, required=False)
+    Generator_Qmax: Optional[float] = Field(None, gt=0, required=False)
+    """
+    Class for the parameter configuration supplied through the rtcParameterConfig.xml
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Perform additional checks
+        if self.Reservoir_Htarget is not None:
+            if self.Reservoir_Htarget > self.Reservoir_Hmax:
+                raise ParameterConfigError('"Reservoir_Htarget cannot exceed "Reservoir_Hmax')
 
 
 class ReservoirModel(Model):
@@ -154,6 +179,9 @@ class ReservoirModel(Model):
                         f"{var} contains NaNs in the input file. Setting these values to 0.0."
                     )
         # Set parameters.
+        print(self.parameters())
+        validate_parameters = ReservoirParameterValidator(**self.parameters())
+        print(validate_parameters.Reservoir_Hmax)
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
     # Helper functions for getting the time/date/variables.
@@ -224,7 +252,7 @@ class ReservoirModel(Model):
         h_observed = self.timeseries_at("H_observed", t)
         empty_observation = self.default_h
         if h_observed == empty_observation:
-            logger.debug("there are no observed elevations at time {t}")
+            logger.debug(f"there are no observed elevations at time {t}")
         else:
             self.set_var("compute_v", False)  ## Disable compute_v so V will equal v_observed
 
