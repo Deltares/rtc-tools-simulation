@@ -2,28 +2,32 @@ model Reservoir
   type FlowRatePerArea = Real(unit = "mm/hour");
   import SI = Modelica.SIunits;
 
+  // Parameters
   parameter SI.Length H_crest();
   parameter SI.Area max_reservoir_area() = 0;
 
-  SI.Volume V_observed();
-  input SI.Volume H_observed();
-  input SI.VolumeFlowRate Q_in();
-  input SI.VolumeFlowRate Q_turbine();
-  input SI.VolumeFlowRate Q_sluice();
-  input SI.VolumeFlowRate Q_out_from_input();
-  input Boolean do_spill;
-  input Boolean do_pass;
-  input Boolean do_poolq;
-  input Boolean compute_v;
-  input Boolean include_evaporation;
-  input Boolean include_rain;
-  input Boolean do_set_q_out;
-  input FlowRatePerArea mm_evaporation_per_hour();
-  input FlowRatePerArea mm_rain_per_hour();
-  input SI.Length rule_curve();
-  input Integer day;
+  // Inputs
+  // The fixed argument is necessary for defining optimization problems.
+  input SI.Length H_observed(fixed=true);
+  input SI.VolumeFlowRate Q_in(fixed=true);
+  input SI.VolumeFlowRate Q_turbine(fixed=false);
+  input SI.VolumeFlowRate Q_sluice(fixed=false);
+  input SI.VolumeFlowRate Q_out_from_input(fixed=false);
+  input Boolean do_spill(fixed=true);
+  input Boolean do_pass(fixed=true);
+  input Boolean do_poolq(fixed=true);
+  input Boolean do_set_q_out(fixed=true);
+  input Boolean use_composite_q(fixed=true);
+  input Boolean compute_v(fixed=true);
+  input Boolean include_evaporation(fixed=true);
+  input Boolean include_rain(fixed=true);
+  input FlowRatePerArea mm_evaporation_per_hour(fixed=true);
+  input FlowRatePerArea mm_rain_per_hour(fixed=true);
+  input Integer day(fixed=true);
 
+  // Outputs/Intermediates
   output SI.Volume V();
+  SI.Volume V_observed();
   output SI.VolumeFlowRate Q_out();
   output SI.VolumeFlowRate Q_out_corrected();
   output SI.VolumeFlowRate Q_error();
@@ -57,8 +61,8 @@ equation
   Q_out = (
     do_pass * Q_in
     + do_poolq * Q_out_from_lookup_table
-    + (1 - do_pass) * (1 - do_poolq) * (1 - do_set_q_out) * (Q_turbine + Q_spill + Q_sluice)
-    + (1 - do_pass) * (1 - do_poolq) * do_set_q_out * Q_out_from_input
+    + use_composite_q * (Q_turbine + Q_spill + Q_sluice)
+    + do_set_q_out * Q_out_from_input
   );
 
   // This equation creates a 'bookkeeping' variable that closes the mass-balance when compute_v = 0
