@@ -7,10 +7,16 @@
         	<dblValue>1598.543038</dblValue>
         </parameter>
         <parameter id="Reservoir_Htarget">
-        	<dblValue>1798.543038</dblValue>
+        	<dblValue>1498.543038</dblValue>
         </parameter>
         <parameter id="Reservoir_Amax">
         	<dblValue>5868679</dblValue>
+        </parameter>
+        <parameter id="Reservoir_Qmax">
+        	<dblValue>8</dblValue>
+        </parameter>
+        <parameter id="Reservoir_Qmin">
+        	<dblValue>8</dblValue>
         </parameter>
     </group>
 </parameters>

@@ -57,11 +57,46 @@ class ReservoirParameterValidator(BaseModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         # Perform additional checks
-        if self.Reservoir_Htarget is not None:
-            if self.Reservoir_Htarget > self.Reservoir_Hmax:
-                raise ParameterConfigError('"Reservoir_Htarget cannot exceed "Reservoir_Hmax')
+        self.check_lt("Reservoir_Hmax", "Reservoir_Htarget", allow_equal=True)
+        self.check_lt("Reservoir_Qmax", "Reservoir_Qmin", allow_equal=True)
+        # perform scheme specific checks
+        self.validate_fillspill()
+
+    def perform_function_validation(self):
+        """
+        Space to add validation rules for specific functions
+        """
+        self.validate_fillspill()
+
+    def get_par(self, par_name: str):
+        if not hasattr(self, par_name):
+            raise ParameterConfigError(f"Parameter {par_name} " f"is missing in configuration")
+        else:
+            par = getattr(self, par_name)
+        if par is None:
+            raise ParameterConfigError(f"{par_name} is None")
+        else:
+            return par
+
+    def check_lt(self, attr_1, attr_2, allow_equal=False):
+        """Checks if 1 is larger than 2 if both are present"""
+        par1 = self.get_par(attr_1)
+        par2 = self.get_par(attr_2)
+        print(par1, par2)
+        if par1 > par2:
+            pass
+        elif allow_equal and par1 == par2:
+            pass
+        else:
+            raise ParameterConfigError(
+                f"Parameter {attr_1} should be larger than "
+                f"{attr_2} but values are {[par1, par2]}"
+            )
+
+    def validate_fillspill(self):
+        """Function for additional checks required for the fillspill scheme"""
+        pass
 
 
 class ReservoirModel(Model):
@@ -179,10 +214,11 @@ class ReservoirModel(Model):
                         f"{var} contains NaNs in the input file. Setting these values to 0.0."
                     )
         # Set parameters.
-        print(self.parameters())
+        print("RTC-parameters: ", self.parameters())
         validate_parameters = ReservoirParameterValidator(**self.parameters())
-        print(validate_parameters.Reservoir_Hmax)
-        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
+        print("validated parameters :", validate_parameters)
+        self.max_reservoir_area = self.parameters().get("Reservoir_Hmax", 0)
+        print(self.max_reservoir_area)
 
     # Helper functions for getting the time/date/variables.
     def get_var(self, var: str) -> float:
