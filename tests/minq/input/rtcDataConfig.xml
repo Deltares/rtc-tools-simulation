@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rtcDataConfig xmlns="http://www.wldelft.nl/fews" xmlns:rtc="http://www.wldelft.nl/fews" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews ../xsd/rtcDataConfig.xsd">
+	<!--IMPORT-->
+	<!--Inputs-->
+	<!--States of model at t0-->
+    <timeSeries id="V">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>V</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<!--Inflows-->
+	<timeSeries id="Q_in">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.in</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="Q_turbine">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.turbine</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="Q_sluice">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.sluice</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="Q_out_from_input">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out_from_input</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_evaporation_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>evaporation</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_rain_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rain</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="rule_curve">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rulecurve</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="H_observed">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>H.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<!-- Ouputs -->
+    <timeSeries id="Q_out">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+    <timeSeries id="Q_out_corrected">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out_corrected</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+    <timeSeries id="Q_spill">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.spill</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+    <timeSeries id="H">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>H</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="rule_curve_deviation">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rulecurve.deviation</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+</rtcDataConfig>

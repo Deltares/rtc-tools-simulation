@@ -5,7 +5,7 @@ import math
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, get_args
+from typing import Dict, List, Optional, Union, get_args
 
 import numpy as np
 
@@ -17,10 +17,14 @@ from rtctools_simulation.reservoir._input import (
     input_to_dict,
 )
 from rtctools_simulation.reservoir._variables import (
+    FixedInputVar,
     InputVar,
     OutputVar,
     QOutControlVar,
+    SchemeVar,
+    StateVar,
 )
+from rtctools_simulation.reservoir.minq import QMinParameters, QMinProblem
 from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
 from rtctools_simulation.reservoir.rule_curve_deviation import (
     rule_curve_deviation,
@@ -404,6 +408,97 @@ class ReservoirModel(Model):
             self._input.outflow.components.sluice = value
         else:
             raise ValueError(f"Outflow shoud be one of {get_args(QOutControlVar)}.")
+
+    def apply_minq(
+        self,
+        params: QMinParameters,
+        horizon: Union[datetime, int, None] = None,
+    ):
+        """
+        Determine and use outflow with a minimal peak.
+
+        The outflow is minimized for the given optimization parameters and time horizon.
+        If the horizon is not set, the end time of the simulation will be used.
+        """
+        self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+        if self.get_current_time() == self.get_start_time():
+            # Q_out at the start time will have no affect, so we can set it to zero.
+            # Optimization is not possible, since not all states have been initialized.
+            self._input.outflow.from_input = 0
+            return
+        times_sec = self._get_optimization_times(horizon)
+        name = f"Q_out_minq_horizon_{times_sec[-1]}"
+        if name not in self.io.get_timeseries_names():
+            self._calculate_qmin(times_sec=times_sec, params=params, name=name)
+        q_out = self.timeseries_at(name, self.get_current_time())
+        self._input.outflow.from_input = q_out
+
+    def _get_optimization_times(self, horizon: Union[datetime, int, None] = None) -> List[int]:
+        """Get time stamps (seconds) for optimization given a time horizon."""
+        if horizon is None:
+            horizon = self.get_end_time()
+        elif isinstance(horizon, datetime):
+            t0 = self.io.reference_datetime
+            horizon = self.io.datetime_to_sec(horizon, t0)
+        times = list(self.times())
+        current_time = self.get_current_time()
+        i_current = times.index(current_time)
+        i_start = max(i_current - 1, 0)
+        i_horizon = times.index(horizon)
+        times_sec = times[i_start : i_horizon + 1]
+        if len(times_sec) == 0:
+            raise ValueError("Optimization period contains no times.")
+        return times_sec
+
+    def _calculate_qmin(
+        self,
+        params: QMinParameters,
+        times_sec: list[int],
+        name: str,
+    ):
+        """
+        Calculate the optimized outflow for the Q_min scheme.
+
+        Optimize for the given horizon (in seconds relative to start time).
+        Store the result in the timeseries with the given name.
+        """
+        datetimes = [self.io.sec_to_datetime(t, self.io.reference_datetime) for t in times_sec]
+        self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+        input_timeseries = self._get_optimization_input_timeseries(times_sec)
+        problem = QMinProblem(
+            config=self._config,
+            datetimes=datetimes,
+            params=params,
+            input_timeseries=input_timeseries,
+        )
+        problem.optimize()
+        results = problem.extract_results()
+        var = OutputVar.Q_OUT.value
+        values = np.zeros(len(self.times()))
+        i_start = list(self.times()).index(times_sec[0])
+        i_end = list(self.times()).index(times_sec[-1]) + 1
+        values[i_start:i_end] = results[var]
+        self.set_timeseries(name, values)
+
+    def _get_optimization_input_timeseries(self, times_sec: List[int]) -> Dict[str, list]:
+        """Get timeseries to use for optimization."""
+        input_vars = {}
+        for var in get_args(FixedInputVar) + get_args(StateVar):
+            values = [self.timeseries_at(var.value, t) for t in times_sec]
+            input_vars[var] = values
+        index_first_time_stamp = list(self.times()).index(times_sec[0])
+        nans = [np.nan for t in times_sec if t >= self.get_current_time()]
+        results = self.extract_results()
+        for var in get_args(StateVar):
+            values = list(results[var.value])[index_first_time_stamp:]
+            input_vars[var] = values + nans
+        modelica_vars = input_to_dict(self._input)
+        for var in get_args(SchemeVar):
+            input_vars[var] = [modelica_vars[var] for _ in times_sec]
+        t0 = self.io.reference_datetime
+        days = [self.io.sec_to_datetime(time, t0).day for time in times_sec]
+        input_vars[InputVar.DAY] = days
+        return input_vars
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):

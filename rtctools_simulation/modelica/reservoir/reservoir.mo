@@ -39,6 +39,10 @@ model Reservoir
   SI.VolumeFlowRate Q_spill_from_lookup_table();
   output SI.VolumeFlowRate Q_spill();
 
+  // Auxiliary variables for optimization.
+  SI.VolumeFlowRate Q_out_max();
+
+
 equation
   // Lookup tables:
   // V -> Area
@@ -67,5 +71,8 @@ equation
 
   // This equation creates a 'bookkeeping' variable that closes the mass-balance when compute_v = 0
   Q_out_corrected = Q_out -  Q_error;
+
+  // Equations for optimization.
+  der(Q_out_max) = 0;
 
 end Reservoir;
