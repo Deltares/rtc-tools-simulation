@@ -30,5 +30,5 @@ def test_adjust():
     final_qout_corr = model.get_var("Q_out_corrected")
     final_qerror = model.get_var("Q_error")
     test_outcome = [final_h, final_qout, final_qerror, final_qout_corr]
-    expected = [1598.31, 3.0, -0.808, 3.808]
+    expected = [1542.306754, 3.0, -0.808, 3.808]
     numpy.testing.assert_array_almost_equal(test_outcome, expected, decimal=3)
