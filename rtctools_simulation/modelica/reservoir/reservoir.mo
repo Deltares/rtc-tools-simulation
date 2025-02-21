@@ -36,6 +36,10 @@ model Reservoir
   SI.VolumeFlowRate Q_spill_from_lookup_table();
   output SI.VolumeFlowRate Q_spill();
 
+  // Auxiliary variables for optimization.
+  SI.VolumeFlowRate Q_out_max();
+
+
 equation
   // Lookup tables:
   // V -> Area
@@ -56,5 +60,8 @@ equation
     + use_composite_q * (Q_turbine + Q_spill + Q_sluice)
     + do_set_q_out * Q_out_from_input
   );
+
+  // Equations for optimization.
+  der(Q_out_max) = 0;
 
 end Reservoir;
