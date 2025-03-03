@@ -58,7 +58,7 @@ class ReservoirParameterValidator(BaseModel):
     @model_validator(mode="after")
     def val_maximums(self):
         """Checks if 1 is larger than 2 if both are present"""
-        if self.Reservoir_Qmax < self.Reservoir_Qmin:
+        if self.Reservoir_Qmin is not None and self.Reservoir_Qmax < self.Reservoir_Qmin:
             raise ParameterConfigError(
                 f"Parameter 'Reservoir_Qmax' should be larger than or equal to "
                 f"'Reservoir_Qmin' but values are {[self.Reservoir_Qmax , self.Reservoir_Qmin]}"
