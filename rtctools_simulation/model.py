@@ -70,7 +70,8 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
             logger.debug("No lookup tables found.")
             return {}
         lookup_tables_dir = self._config.get_dir("lookup_tables")
-        assert lookup_tables_dir is not None, "Directory lookup_tables not found."
+        if lookup_tables_dir is None:
+            raise FileNotFoundError("Directory lookup_tables not found.")
         lookup_tables = lut.get_lookup_tables_from_csv(
             file=lookup_tables_csv, data_dir=lookup_tables_dir
         )
@@ -84,7 +85,7 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
         """Return a lookup table."""
         return self._lookup_tables[lookup_table]
 
-    def _get_lookup_table_equations(self) -> List[ca.MX]:
+    def _get_lookup_table_equations(self, allow_missing_lookup_tables=False) -> List[ca.MX]:
         """Get a list of lookup-table equations."""
         equations_csv = self._config.get_file("lookup_table_equations.csv", dirs=["model"])
         if equations_csv is None:
@@ -96,6 +97,7 @@ class Model(PlotMixin, PIMixin, _SimulationProblem):
             file=equations_csv,
             lookup_tables=lookup_tables,
             variables=variables,
+            allow_missing_lookup_tables=allow_missing_lookup_tables,
         )
         return equations
 
