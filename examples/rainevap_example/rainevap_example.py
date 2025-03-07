@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rtctools.util import run_simulation_problem
 
-from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import InputVar, ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 
@@ -18,12 +18,12 @@ class SingleReservoir(ReservoirModel):
         # Apply schemes.
         self.include_rainevap()
         self.set_q(
-            target_variable="Q_turbine",
+            target_variable=InputVar.Q_TURBINE,
             input_type="parameter",
             input_data=1,
         )
         self.set_q(
-            target_variable="Q_sluice",
+            target_variable=InputVar.Q_SLUICE,
             input_type="parameter",
             input_data="Q_sluice_target",
         )

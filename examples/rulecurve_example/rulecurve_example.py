@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rtctools.util import run_simulation_problem
 
-from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import InputVar, ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 
@@ -15,7 +15,7 @@ class SingleReservoir(ReservoirModel):
     def apply_schemes(self):
         """Apply schemes for controlling the reservoir."""
 
-        self.apply_rulecurve(outflow="Q_sluice")
+        self.apply_rulecurve(outflow=InputVar.Q_SLUICE)
 
     def calculate_output_variables(self):
         """Calculate additional output variables."""

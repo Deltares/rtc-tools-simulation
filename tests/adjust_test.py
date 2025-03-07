@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy.testing
 
-from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import InputVar, ModelConfig, ReservoirModel
 
 adjust_dir = Path(__file__).parent.resolve() / "adjust"
 
@@ -15,7 +15,7 @@ class AdjustModel(ReservoirModel):
         """Always adjust volume V to equal V_observed.
         Close the waterbalance through Q_error and Q_out_corrected"""
         if self.get_current_time() > self.get_start_time():
-            self.set_var("Q_turbine", 3)
+            self.set_q(InputVar.Q_TURBINE, input_data=3)
             self.apply_adjust()
 
 
@@ -30,5 +30,5 @@ def test_adjust():
     final_qout_corr = model.get_var("Q_out_corrected")
     final_qerror = model.get_var("Q_error")
     test_outcome = [final_h, final_qout, final_qerror, final_qout_corr]
-    expected = [1598.31, 3.0, -0.808, 3.808]
+    expected = [1542.306754, 3.0, -0.808, 3.808]
     numpy.testing.assert_array_almost_equal(test_outcome, expected, decimal=3)
