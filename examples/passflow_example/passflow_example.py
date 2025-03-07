@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rtctools.util import run_simulation_problem
 
-from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import InputVar, ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 
@@ -24,7 +24,7 @@ class SingleReservoir(ReservoirModel):
             self.apply_passflow()
         else:
             self.set_q(
-                target_variable="Q_out",
+                target_variable=InputVar.Q_OUT,
                 input_type="timeseries",
                 input_data="Q_out_target",
                 apply_func="INST",

@@ -6,6 +6,7 @@ SetQ module for reservoir operation.
 import logging
 
 import numpy as np
+from rtctools.simulation.simulation_problem import SimulationProblem
 
 logger = logging.getLogger("rtctools")
 
@@ -156,7 +157,7 @@ def _getq_from_ts(
 
 
 def _preprocess_input_setq(
-    model,
+    model: SimulationProblem,
     target_value,
     target_variable: str = "Q_release",
     input_type: str = "timeseries",
@@ -184,17 +185,17 @@ def _preprocess_input_setq(
     return [input_data, input_data_name, target_value]
 
 
-def setq(
-    model: object,
+def getq(
+    model: SimulationProblem,
     target_variable: str = "Q_turbine",
     input_type: str = "timeseries",
     apply_func: str = "MEAN",
     input_data: str = None,
     timestep: int = None,
     nan_option: str = None,
-) -> object:
+) -> float:
     """
-    Set one of the input or output discharges to a given value,
+    Get one of the input or output discharges to a given value,
     or a value determined from an input list.
 
     :param Model: object
@@ -226,19 +227,14 @@ def setq(
               forward. If same distance, take average.
             - 'INTERP': Interpolates linearly between the closest forward and backward data points.
 
-    :return: Updated model with adjusted Q_variable
+    :return: target value.
     """
+    target_variable = target_variable.name
     target_value = np.nan  ## Set as default result
     ## Checks to process input_data into a consistent format (list/single value)
     input_data, input_data_name, target_value = _preprocess_input_setq(
         model, target_value, target_variable, input_type, input_data
     )
-    if "Q_out" == target_variable:
-        target_variable = "Q_out_from_input"
-        model.set_var("do_set_q_out", True)
-        model.set_var("do_poolq", False)
-        model.set_var("do_pass", False)
-        model.set_var("do_spill", False)
     if timestep is None and input_type == "timeseries" and apply_func == "INST":
         ## If no t is given, default to current timestep
         timestep = int(model.get_current_time() // model.get_time_step())
@@ -246,23 +242,26 @@ def setq(
         target_value = _getq_from_ts(
             input_data, timestep, input_data_name, target_variable, apply_func, nan_option
         )
-        model.set_var(target_variable, target_value)
     elif input_type == "parameter":
-        _setq_from_parameter(model, target_value, nan_option, input_data_name, target_variable)
-
+        target_value = _setq_from_parameter(
+            target_value, nan_option, input_data_name, target_variable
+        )
+    else:
+        raise ValueError("Argument input_type should be either `timeseries` or `parameter`.")
     if np.isnan(target_value):
         logger.error(
             f'setq was completed with a NaN value as result. "{model.get_var(target_variable)}"'
             f" is now NaN"
         )
+    return target_value
 
 
-def _setq_from_parameter(model, target_value, nan_option, input_data_name, target_variable):
+def _setq_from_parameter(target_value, nan_option, input_data_name, target_variable) -> float:
     """
     Use setq function to fix functionality to a minimum value. This increases user-friendliness.
     For documentation, see setq
 
-    :return: set discharge to the minimum value from given input list
+    :return: updated target value.
     """
     if np.isnan(target_value):
         if nan_option is None:
@@ -275,17 +274,4 @@ def _setq_from_parameter(model, target_value, nan_option, input_data_name, targe
                 f'setq detects a nan for "{input_data_name}" when setting '
                 f'"{target_variable} and option "{nan_option}" is not able to treat this.'
             )
-    model.set_var(target_variable, target_value)
-
-
-def setqmin(model, target_variable="Q_release", input_data=None):
-    """
-    Use setq function to fix functionality to a minimum value. This increases user-friendliness.
-    For documentation, see setq
-
-    :return: set discharge to the minimum value from given input list
-    """
-    target_value = setq(
-        model, target_variable, "timeseries", apply_func="MIN", input_data=input_data
-    )
     return target_value

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from rtctools.util import run_simulation_problem
 
-from rtctools_simulation.reservoir.model import ModelConfig, ReservoirModel
+from rtctools_simulation.reservoir.model import InputVar, ModelConfig, ReservoirModel
 
 CONFIG = ModelConfig(base_dir=Path(__file__).parent)
 
@@ -26,7 +26,7 @@ class SingleReservoir(ReservoirModel):
             september = 9
             if april <= datetime.month <= september:
                 self.set_q(
-                    target_variable="Q_out",
+                    target_variable=InputVar.Q_OUT,
                     input_type="parameter",
                     input_data=0.4,
                 )
@@ -34,7 +34,7 @@ class SingleReservoir(ReservoirModel):
                 self.apply_spillway()
         else:
             self.set_q(
-                target_variable="Q_out",
+                target_variable=InputVar.Q_OUT,
                 input_type="parameter",
                 input_data=0.2,
             )

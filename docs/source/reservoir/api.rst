@@ -20,7 +20,13 @@ Available schemes include:
 
 An overview of all schemes is given below.
 
-.. autodata:: rtctools_simulation.reservoir.model.VARIABLES
+.. autoclass:: rtctools_simulation.reservoir._variables.InputVar
+  :members:
+
+.. autoclass:: rtctools_simulation.reservoir._variables.OutputVar
+  :members:
+
+.. autodata:: rtctools_simulation.reservoir._variables.QOutControlVar
 
 .. autoclass:: rtctools_simulation.reservoir.model.ReservoirModel
   :members:
