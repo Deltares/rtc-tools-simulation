@@ -158,6 +158,8 @@ class ReservoirModel(Model):
         :param name: variable name.
         :param value: value to set the variable with.
         :returns: value of the given variable.
+
+        :meta private:
         """
         if not self._allow_set_var:
             raise ValueError("Do not set variables directly. Use schemes instead.")
@@ -409,6 +411,8 @@ class ReservoirModel(Model):
 
         This method sets default values for internal variables at each timestep.
         This is important to ensure that the schemes behave as expected.
+
+        :meta private:
         """
         self._input = Input()
         self._input.volume.h_observed = self.get_var(InputVar.H_OBSERVED.value)
@@ -426,6 +430,8 @@ class ReservoirModel(Model):
 
         This method is called at each timestep and should be implemented by the user.
         This method should contain the logic for which scheme is applied under which conditions.
+
+        :meta private:
         """
         pass
 
@@ -447,6 +453,8 @@ class ReservoirModel(Model):
 
         .. note:: Be careful if you choose to overwrite this method as default values have been
             carefully chosen to select the correct default schemes.
+
+        :meta private:
         """
         self._allow_set_var = False
         self.set_default_input()
