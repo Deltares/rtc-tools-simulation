@@ -19,7 +19,7 @@ Jinja2 = "*"
 numpy = "*"
 pandas = "*"
 pydantic = "*"
-rtc-tools = "^2.6"
+rtc-tools = "^2.7.0a4"
 rtc-tools-interface = "0.10.*, 0.10.0a1"
 
 [tool.poetry.scripts]
