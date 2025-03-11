@@ -48,7 +48,10 @@ class ReservoirModel(Model):
         if use_default_model:
             self._create_model(config)
         super().__init__(config, **kwargs)
+        # Stored parameters
         self.max_reservoir_area = 0  # Set during pre().
+        self.default_h = 0  # Set during pre().
+        # Model inputs and input controls.
         self._input = Input()
         self._allow_set_var = True
 
@@ -81,26 +84,17 @@ class ReservoirModel(Model):
             carefully chosen to select the correct default schemes.
         """
         super().pre(*args, **kwargs)
-        # Set default input timeseries.
-        ref_series = self.io.get_timeseries("Q_in")
-        times = ref_series[0]
-        zeros = np.full(len(times), 0.0)
-        timeseries = self.io.get_timeseries_names()
-        optional_timeseries = [
-            "H_observed",
-            "mm_evaporation_per_hour",
-            "mm_rain_per_hour",
-            "Q_turbine",
-            "Q_sluice",
-            "Q_out_from_input",
-        ]
-        # to prevent infeasibilities this value needs to be within the range of the lookup table
+        timeseries_names = self.io.get_timeseries_names()
+        input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
+        default_values = {var: 0 for var in input_vars}
+        # To avoide infeasibilities,
+        # the default value for the elevation needs to be within the range of the lookup table.
         # We use the intial volume or elevation to ensure this.
-        if "V" in timeseries:
+        if "V" in timeseries_names:
             self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
-        elif "H" in timeseries:
+        elif "H" in timeseries_names:
             self.default_h = float(self.get_timeseries("H")[0])
-        elif "H_observed" in timeseries:
+        elif "H_observed" in timeseries_names:
             self.default_h = float(self.get_timeseries("H_observed")[0])
         else:
             raise Exception(
@@ -108,34 +102,19 @@ class ReservoirModel(Model):
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
-        for var in optional_timeseries:
-            if var not in timeseries:
-                if var == "H_observed":
-                    self.io.set_timeseries(var, times, [self.default_h] * len(times))
-                    logger.info(
-                        f"{var} not found in the input file. Setting it to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(var, times, zeros)
-                    logger.info(f"{var} not found in the input file. Setting it to 0.0.")
-            if np.any(np.isnan(self.get_timeseries(var))):
-                if var == "H_observed":
-                    self.io.set_timeseries(
-                        var,
-                        times,
-                        [self.default_h if np.isnan(x) else x for x in self.get_timeseries(var)],
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. "
-                        f"Setting these values to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(
-                        var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. Setting these values to 0.0."
-                    )
+        default_values[InputVar.H_OBSERVED.value] = self.default_h
+        for var, default_value in default_values.items():
+            if var not in timeseries_names:
+                self.set_timeseries(var, [default_value] * len(self.times()))
+                logger.info(f"{var} not found in the input file. Setting it to {self.default_h}.")
+            timeseries = self.get_timeseries(var)
+            if np.any(np.isnan(timeseries)):
+                timeseries = [default_value if np.isnan(x) else x for x in timeseries]
+                self.set_timeseries(var, timeseries)
+                logger.info(
+                    f"{var} contains NaNs in the input file. "
+                    f"Setting these values to {default_value}."
+                )
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
