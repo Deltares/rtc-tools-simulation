@@ -425,18 +425,18 @@ class ReservoirModel(Model):
         The function overwrites the required timeseries of 'rule_curve', and should be
         called in
         """
+        if application_time is None:
+            application_time = self.first_missing_Hobs
+            logger.info(
+                'Setting application time for function "adjust_rulecurve'
+                'to the first missing value in input timeseries "H_observed" '
+                f"which is {application_time}"
+            )
         if application_time > self.first_missing_Hobs:
             raise ValueError(
                 f"Application time in 'adjust_rulecurve' needs to be before"
                 f"the first missing value in 'H_observed' at "
                 f"{self.first_missing_Hobs}"
-            )
-        if application_time is None:
-            application_time = self.first_missing_Hobs
-            logger.info(
-                'Setting application time for function "adjust_rulecurve'
-                'to the first missing value in input timeseries "H_observed"'
-                f"which is {application_time}"
             )
         deviations = self.io.get_timeseries("rule_curve_deviation")
         index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]
