@@ -214,14 +214,8 @@ class ReservoirModel(Model):
         When applying this scheme, V is set to V_observed and a corrected version of the outflow,
         Q_out_corrected, is calculated in order to preserve the mass balance.
         """
-        t = self.get_current_time()
-        h_observed = self.timeseries_at("H_observed", t)
-        empty_observation = self.default_h
-        if h_observed == empty_observation:
-            logger.debug("there are no observed elevations at time {t}")
-        else:
-            # Disable compute_v so V will equal v_observed
-            self._input.volume.compute_v = False
+        # Disable compute_v so V will equal v_observed
+        self._input.volume.compute_v = False
 
     def apply_passflow(self):
         """Scheme to let the outflow be the same as the inflow.
