@@ -21,6 +21,8 @@ class RuleCurveModel(ReservoirModel):
     def __init__(self, config, do_apply_rulecurve=True, **kwargs):
         super().__init__(config, **kwargs)
         self.do_apply_rulecurve = do_apply_rulecurve
+        self.calculate_rule_curve_deviation(periods=1)
+        self.adjust_rulecurve(periods=1, extrapolate_trend_linear=True)
 
     def apply_schemes(self):
         """Apply rule curve."""

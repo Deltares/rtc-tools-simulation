@@ -12,8 +12,8 @@
         <parameter id="rule_curve_blend">
         	<dblValue>1</dblValue>
         </parameter>
-        <parameter id="rule_curve_q_max">
-        	<dblValue>36000</dblValue>
+        <parameter id="Reservoir_Qmax">
+        	<dblValue>10</dblValue>
         </parameter>
     </group>
 </parameters>

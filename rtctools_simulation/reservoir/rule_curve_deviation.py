@@ -11,7 +11,7 @@ def rule_curve_deviation(
     rule_curve: np.ndarray,
     periods: int,
     inflows: Optional[np.ndarray] = None,
-    q_max: float = np.inf,
+    qin_max: float = np.inf,
     maximum_difference: float = np.inf,
 ) -> np.ndarray:
     """
@@ -28,7 +28,7 @@ def rule_curve_deviation(
         The number of periods to calculate the average deviation over.
     :param inflows: np.ndarray (optional)
         The inflows [m^3/s], required if q_max is not np.inf.
-    :param q_max: float (optional)
+    :param qin_max: float (optional)
         The maximum inflow.
     :param maximum_difference: float (optional)
         The maximum absolute deviation per timestep.
@@ -36,8 +36,6 @@ def rule_curve_deviation(
     :return: np.ndarray
         The average deviation for each timestep.
     """
-    if len(observed_elevations) != len(rule_curve):
-        raise ValueError("The observed elevations and pool elevations should have the same length.")
     if np.any(np.isnan(observed_elevations)):
         raise ValueError("The observed elevations should not contain NaN values.")
     if periods < 1:
@@ -46,20 +44,16 @@ def rule_curve_deviation(
         raise ValueError(
             "The number of periods cannot be larger than the number of observed elevations."
         )
-    if q_max != np.inf and inflows is None:
+    if qin_max != np.inf and inflows is None:
         raise ValueError("The inflows should be provided if the maximum inflow is set.")
     deviation_array = observed_elevations - rule_curve
     deviation_array = np.where(
-        abs(deviation_array) > maximum_difference,
-        np.full(len(deviation_array), maximum_difference),
-        deviation_array,
-    )
+        abs(deviation_array) > maximum_difference, 0, deviation_array
+    )  # Alternative: 0 -> maximum_difference
     if inflows is not None:
-        deviation_array = np.where(
-            inflows > q_max, np.full(len(deviation_array), 0), deviation_array
-        )
+        deviation_array = np.where(inflows > qin_max, 0, deviation_array)
 
     average_deviation = np.full(len(observed_elevations), np.nan)
-    for i in range(periods, len(rule_curve) + 1):
+    for i in range(periods, len(observed_elevations) + 1):
         average_deviation[i - 1] = sum(deviation_array[i - periods : i]) / periods
     return average_deviation

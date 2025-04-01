@@ -329,10 +329,10 @@ class ReservoirModel(Model):
             the resulting height may differ from the rule curve target.
         """
         current_step = int(self.get_current_time() / self.get_time_step())
-        q_max = self.parameters().get("rule_curve_q_max")
+        q_max = self.parameters().get("Reservoir_Qmax") * self.get_time_step()  # V/timestep max
         if q_max is None:
             raise ValueError(
-                "The parameter rule_curve_q_max is not set, "
+                "The parameter Reservoir_Qmax is not set, "
                 + "which is required for the rule curve scheme"
             )
         blend = self.parameters().get("rule_curve_blend")
@@ -370,7 +370,7 @@ class ReservoirModel(Model):
         h_var: str = "H_observed",
         periods: int = 1,
         inflows: Optional[np.ndarray] = None,
-        q_max: float = np.inf,
+        max_inflow: float = np.inf,
         maximum_difference: float = np.inf,
     ):
         """Calculate the moving average between the rule curve and the simulated elevations.
@@ -383,7 +383,7 @@ class ReservoirModel(Model):
         :param periods: The number of periods over which to calculate the moving average.
         :param inflows: Optional. The inflows to the reservoir. If provided, the moving average
                         will be calculated only for the periods with non-zero inflows.
-        :param q_max: Optional. The maximum discharge allowed while calculating the moving average.
+        :param max_inflow: Optional. The maximum inflow allowed while calculating a moving average.
                       Default is infinity, required if q_max is set.
         :param maximum_difference: Optional. The maximum allowable difference between the rule curve
                                    and the observed elevations.
@@ -401,7 +401,7 @@ class ReservoirModel(Model):
             rule_curve,
             periods,
             inflows=inflows,
-            q_max=q_max,
+            qin_max=max_inflow,
             maximum_difference=maximum_difference,
         )
         self.set_timeseries("rule_curve_deviation", deviations)
