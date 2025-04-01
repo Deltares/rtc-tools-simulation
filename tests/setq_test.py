@@ -68,7 +68,7 @@ nan_end = [5, 7, np.nan, np.nan, np.nan, np.nan]
         ## Test setq from internal variable
         ("Q_turbine", "INST", "Q_in", "timeseries", None, None, 3.7766178),
         ## Test seting q_out
-        ("Q_out", "INST", "Q_in", "timeseries", None, None, 3.7766178),
+        ("Q_out_from_input", "INST", "Q_in", "timeseries", None, None, 3.7766178),
     ],
 )
 def test_set_q(target_variable, apply_func, input_data, input_type, timestep, nan_option, expected):
@@ -92,7 +92,10 @@ def test_set_q(target_variable, apply_func, input_data, input_type, timestep, na
     model = SingleReservoir(config)
     try:
         model.simulate()
-        q_result = model.extract_results()[target_variable][test_timestep]
+        output_variable = target_variable
+        if target_variable == "Q_out_from_input":
+            output_variable = "Q_out"
+        q_result = model.extract_results()[output_variable][test_timestep]
     except NoDataException:
         q_result = NoDataException
     if expected is NoDataException:

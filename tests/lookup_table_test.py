@@ -1,7 +1,7 @@
 """Module for testing lookup-table functionalities."""
 import re
 from pathlib import Path
-from typing import List
+from typing import Iterable, List
 
 import casadi as ca
 import numpy.testing
@@ -89,47 +89,46 @@ def test_get_empty_lookup_table(var_in, var_out, values_in, value_out):
     numpy.testing.assert_almost_equal(lookup_table(*values_in), value_out)
 
 
-def get_variables():
-    """Get a dict of variables."""
-    return {
-        "Day": ca.MX.sym("Day"),
-        "V": ca.MX.sym("V"),
-        "H": ca.MX.sym("H"),
-        "QSpill": ca.MX.sym("QSpill"),
-        "QOut": ca.MX.sym("QOut"),
-    }
+def get_mx_symbols(vars: Iterable[str]):
+    """Get a dict of ca.MX symbols."""
+    return {var: ca.MX.sym(var) for var in vars}
 
 
 def test_get_lookup_table_equations_from_csv():
     """Test getting lookup-table equations described by a csv file."""
-    variables = get_variables()
+    values = {
+        "Day": 2,
+        "V": 1.4,
+        "H": 1.2,
+        "H2": 0,
+        "QSpill": 0.2,
+        "QOut": 0.15,
+    }
+    variables = get_mx_symbols(values.keys())
     lookup_tables = lut.get_lookup_tables_from_csv(DATA_DIR / "lookup_tables.csv")
     equations = lut.get_lookup_table_equations_from_csv(
         file=DATA_DIR / "lookup_table_equations.csv",
         lookup_tables=lookup_tables,
         variables=variables,
+        allow_missing_lookup_tables=True,
     )
     residual_fun = ca.Function(
         "residual",
         variables.values(),
         equations,
         variables.keys(),
-        ["ResH", "ResQSpill", "ResQOut"],
+        ["ResH", "ResH2", "ResQSpill", "ResQOut"],
     )
-    day = 2
-    volume = 1.4
-    height = 1.2
-    q_spill = 0.2
-    q_out = 0.15
-    resdiual = residual_fun(V=volume, H=height, QSpill=q_spill, QOut=q_out, Day=day)
+    resdiual = residual_fun(**values)
     numpy.testing.assert_almost_equal(resdiual["ResH"], 0)
+    numpy.testing.assert_almost_equal(resdiual["ResH2"], 0)
     numpy.testing.assert_almost_equal(resdiual["ResQSpill"], 0)
     numpy.testing.assert_almost_equal(resdiual["ResQOut"], 0)
 
 
 def test_get_lookup_table_equations_check():
     """Test lookup table check when getting lookup table equations."""
-    variables = get_variables()
+    variables = get_mx_symbols(["H", "QOut"])
     lookup_tables = lut.get_lookup_tables_from_csv(DATA_DIR / "lookup_tables.csv")
     exception_pattern = "Lookup table qout_from_day_h has wrong number of inputs"
     with pytest.raises(AssertionError) as e_info:

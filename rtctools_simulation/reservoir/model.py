@@ -5,15 +5,24 @@ import math
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Optional, Union, get_args
 
-import casadi as ca
 import numpy as np
-import pandas as pd
 
-import rtctools_simulation.lookup_table as lut
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
+from rtctools_simulation.interpolate import fill_nans_with_interpolation
 from rtctools_simulation.model import Model, ModelConfig
+from rtctools_simulation.reservoir._input import (
+    Input,
+    OutflowType,
+    input_to_dict,
+)
+from rtctools_simulation.reservoir._variables import (
+    FixedInputVar,
+    InputVar,
+    OutputVar,
+    QOutControlVar,
+)
 from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
 from rtctools_simulation.reservoir.rule_curve_deviation import (
     rule_curve_deviation,
@@ -22,21 +31,6 @@ from rtctools_simulation.reservoir.rule_curve_deviation import (
 DEFAULT_MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
 logger = logging.getLogger("rtctools")
-
-#: Reservoir model variables.
-VARIABLES = [
-    "Area",
-    "H",
-    "H_crest",
-    "Q_evap",
-    "Q_in",
-    "Q_out",
-    "Q_rain",
-    "Q_spill",
-    "Q_turbine",
-    "Q_sluice",
-    "V",
-]
 
 
 class ReservoirModel(Model):
@@ -52,25 +46,14 @@ class ReservoirModel(Model):
         if use_default_model:
             self._create_model(config)
         super().__init__(config, **kwargs)
+        # Stored parameters
         self.max_reservoir_area = 0  # Set during pre().
+        # Model inputs and input controls.
+        self._input = Input()
+        self._allow_set_var = True
 
-    def _get_lookup_tables(self) -> Dict[str, ca.Function]:
-        lookup_tables = super()._get_lookup_tables()
-        equations_csv = self._config.get_file("lookup_table_equations.csv", dirs=["model"])
-        assert equations_csv.is_file()
-        equations_df = pd.read_csv(equations_csv, sep=",")
-        for _, equation_df in equations_df.iterrows():
-            name = equation_df["lookup_table"]
-            var_in: str = equation_df["var_in"]
-            var_in = var_in.split(" ")
-            var_in = [var for var in var_in if var != ""]
-            if name not in lookup_tables:
-                warning = f"Lookup table {name} not found. Using an empty lookup table instead."
-                logger.warning(warning)
-                var_out = equation_df["var_out"]
-                lookup_table = lut.get_empty_lookup_table(name, var_in, var_out)
-                lookup_tables[name] = lookup_table
-        return lookup_tables
+    def _get_lookup_table_equations(self, allow_missing_lookup_tables=True):
+        return super()._get_lookup_table_equations(allow_missing_lookup_tables)
 
     def _create_model(self, config: ModelConfig):
         """Create a model folder based on the default model."""
@@ -98,84 +81,79 @@ class ReservoirModel(Model):
             carefully chosen to select the correct default schemes.
         """
         super().pre(*args, **kwargs)
-        # Set default input timeseries.
-        ref_series = self.io.get_timeseries("Q_in")
-        times = ref_series[0]
-        zeros = np.full(len(times), 0.0)
-        timeseries = self.io.get_timeseries_names()
-        optional_timeseries = [
-            "H_observed",
-            "mm_evaporation_per_hour",
-            "mm_rain_per_hour",
-            "Q_turbine",
-            "Q_sluice",
-            "Q_out_from_input",
-        ]
-        # to prevent infeasibilities this value needs to be within the range of the lookup table
+        timeseries_names = self.io.get_timeseries_names()
+        input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
+        default_values = {var: 0 for var in input_vars}
+        # To avoid infeasibilities,
+        # the default value for the elevation needs to be within the range of the lookup table.
         # We use the intial volume or elevation to ensure this.
-        if "V" in timeseries:
-            self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
-        # elif "H" in timeseries:
-        #     self.default_h = float(self.get_timeseries("H")[0])
-        elif "H_observed" in timeseries:
-            self.default_h = float(self.get_timeseries("H_observed")[0])
+        if "H_observed" in timeseries_names:
+            initial_h = float(self.get_timeseries("H_observed")[0])
+        elif "H" in timeseries_names:
+            initial_h = float(self.get_timeseries("H")[0])
+        elif "V" in timeseries_names:
+            initial_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
         else:
             raise Exception(
                 'No initial condition is provided for reservoir elevation, "H", '
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
-        for var in optional_timeseries:
-            if var not in timeseries:
-                if var == "H_observed":
-                    self.io.set_timeseries(var, times, [self.default_h] * len(times))
-                    logger.info(
-                        f"{var} not found in the input file. Setting it to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(var, times, zeros)
-                    logger.info(f"{var} not found in the input file. Setting it to 0.0.")
-            if np.any(np.isnan(self.get_timeseries(var))):
-                if var == "H_observed":
-                    h_timeseries = self.io.get_timeseries("H_observed")
-                    for x in range(len(h_timeseries[0])):
-                        if np.isnan(h_timeseries[1][x]):
-                            self.first_missing_Hobs = h_timeseries[0][x]
-                            break
-                    self.io.set_timeseries(
-                        var,
-                        times,
-                        [self.default_h if np.isnan(x) else x for x in self.get_timeseries(var)],
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. "
-                        f"Setting these values to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(
-                        var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. Setting these values to 0.0."
-                    )
+        default_values[InputVar.H_OBSERVED.value] = initial_h
+        for var in input_vars:
+            default_value = default_values[var]
+            if var not in timeseries_names:
+                self.set_timeseries(var, [default_value] * len(self.times()))
+                logger.info(f"{var} not found in the input file. Setting it to {default_value}.")
+                continue
+            timeseries = self.get_timeseries(var)
+            if var == InputVar.H_OBSERVED.value and np.isnan(timeseries[0]):
+                timeseries[0] = initial_h
+            if np.all(np.isnan(timeseries)):
+                timeseries = [default_value] * len(self.times())
+                logger.info(
+                    f"{var} contains only NaNs in the input file. "
+                    f"Setting these values to {default_value}."
+                )
+                continue
+            logger.info(
+                f"{var} contains NaNs in the input file. "
+                f"Setting these values using linear interpolation."
+            )
+            timeseries = fill_nans_with_interpolation(self.times(), timeseries)
+            self.set_timeseries(var, timeseries)
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
-    # Helper functions for getting the time/date/variables.
-    def get_var(self, var: str) -> float:
+    # Helper functions for getting/setting the time/date/variables.
+    def get_var(self, name: str) -> float:
         """
         Get the value of a given variable at the current time.
 
         :param var: name of the variable.
-            Should be one of :py:const:`VARIABLES`.
         :returns: value of the given variable.
         """
         try:
-            value = super().get_var(var)
+            value = super().get_var(name)
         except KeyError:
-            message = f"Variable {var} not found." f" Expected var to be one of {VARIABLES}."
+            expected_vars = list(InputVar) + list(OutputVar)
+            message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
             return KeyError(message)
         return value
+
+    def set_var(self, name: str, value):
+        """
+        Set the value of a given variable at the current time.
+
+        :param name: variable name.
+        :param value: value to set the variable with.
+        :returns: value of the given variable.
+
+        :meta private:
+        """
+        if not self._allow_set_var:
+            raise ValueError("Do not set variables directly. Use schemes instead.")
+        return super().set_var(name, value)
 
     def get_current_time(self) -> int:
         """
@@ -214,24 +192,20 @@ class ReservoirModel(Model):
         This scheme ensures that the spill "Q_spill" is computed from the elevation "H" using a
         lookuptable "qspill_from_h".
         """
-        self.set_var("do_spill", True)
+        self._input.outflow.outflow_type = OutflowType.COMPOSITE
+        self._input.outflow.components.do_spill = True
 
     def apply_adjust(self):
         """Scheme to adjust simulated volume to observed volume.
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         Observed pool elevations (H_observed) can be provided to the model, internally these are
-        converted to observed volumes (V_observed) via the lookup table ``h_from_v''.
+        converted to observed volumes (V_observed) via the lookup table ``h_from_v``.
         When applying this scheme, V is set to V_observed and a corrected version of the outflow,
         Q_out_corrected, is calculated in order to preserve the mass balance.
         """
-        t = self.get_current_time()
-        h_observed = self.timeseries_at("H_observed", t)
-        empty_observation = self.default_h
-        if h_observed == empty_observation:
-            logger.debug("there are no observed elevations at time {t}")
-        else:
-            self.set_var("compute_v", False)  ## Disable compute_v so V will equal v_observed
+        # Disable compute_v so V will equal v_observed
+        self._input.volume.compute_v = False
 
     def apply_passflow(self):
         """Scheme to let the outflow be the same as the inflow.
@@ -242,9 +216,7 @@ class ReservoirModel(Model):
             :py:meth:`.ReservoirModel.apply_poolq`, or :py:meth:`.ReservoirModel.set_q` when the
             target variable is Q_out.
         """
-        self.set_var("do_poolq", False)
-        self.set_var("do_pass", True)
-        self.set_var("do_set_q_out", False)
+        self._input.outflow.outflow_type = OutflowType.PASS
 
     def apply_poolq(self):
         """Scheme to let the outflow be determined by a lookup table with name "qout_from_v".
@@ -259,9 +231,7 @@ class ReservoirModel(Model):
             :py:meth:`.ReservoirModel.apply_passflow`, or :py:meth:`.ReservoirModel.set_q` when the
             target variable is Q_out.
         """
-        self.set_var("do_pass", False)
-        self.set_var("do_poolq", True)
-        self.set_var("do_set_q_out", False)
+        self._input.outflow.outflow_type = OutflowType.LOOKUP_TABLE
 
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
@@ -280,7 +250,7 @@ class ReservoirModel(Model):
         assert (
             self.max_reservoir_area > 0
         ), "To include rainfall, make sure to set the max_reservoir_area parameter."
-        self.set_var("include_rain", True)
+        self._input.rain_evap.include_rain = True
 
     def include_evaporation(self):
         """Scheme to include the effect of evaporation on the reservoir volume.
@@ -294,7 +264,7 @@ class ReservoirModel(Model):
 
             der(V) = Q_in - Q_out + Q_rain - Q_evap.
         """
-        self.set_var("include_evaporation", True)
+        self._input.rain_evap.include_evaporation = True
 
     def include_rainevap(self):
         """Scheme to include the effect of both rainfall and evaporation on the reservoir volume.
@@ -303,10 +273,10 @@ class ReservoirModel(Model):
         This scheme implements both :py:meth:`.ReservoirModel.include_rain`
         and :py:meth:`.ReservoirModel.include_evaporation`.
         """
-        self.include_evaporation()
-        self.include_rain()
+        self._input.rain_evap.include_rain = True
+        self._input.rain_evap.include_evaporation = True
 
-    def apply_rulecurve(self, outflow: str = "Q_turbine", ignore_inflows=False):
+    def apply_rulecurve(self, outflow: QOutControlVar = InputVar.Q_TURBINE, ignore_inflows=False):
         """Scheme to set the outflow of the reservoir in order to reach a rulecurve.
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
@@ -323,11 +293,14 @@ class ReservoirModel(Model):
         The user must also provide a timeseries with the name ``rule_curve``. This contains the
         water level target for each timestep.
 
-        :param outflow: outflow variable that is modified to reach the rulecurve.
+        :param outflow: :py:type:`~rtctools_simulation.reservoir._variables.QOutControlVar`
+            (default: :py:type:`~rtctools_simulation.reservoir._variables.InputVar.Q_TURBINE`)
+            outflow variable that is modified to reach the rulecurve.
 
         .. note:: This scheme does not correct for the inflows to the reservoir. As a result,
             the resulting height may differ from the rule curve target.
         """
+        outflow = InputVar(outflow)
         current_step = int(self.get_current_time() / self.get_time_step())
         q_max = self.parameters().get("Reservoir_Qmax") * self.get_time_step()  # V/timestep max
         if q_max is None:
@@ -362,7 +335,7 @@ class ReservoirModel(Model):
         discharge_per_second = discharge / self.get_time_step()
         if not ignore_inflows:
             discharge_per_second += self.get_var("Q_in")
-        self.set_var(outflow, discharge_per_second)
+        self._set_q(outflow, discharge_per_second)
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
     def calculate_rule_curve_deviation(
@@ -455,30 +428,38 @@ class ReservoirModel(Model):
         rule_curve[-len(future_deviations) :] += future_deviations
         self.set_timeseries("rule_curve", rule_curve)
 
+    def _set_q(self, q_var: QOutControlVar, value: float):
+        """Set an outflow control variable."""
+        if q_var == InputVar.Q_OUT:
+            self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+            self._input.outflow.from_input = value
+        elif q_var == InputVar.Q_TURBINE:
+            self._input.outflow.outflow_type = OutflowType.COMPOSITE
+            self._input.outflow.components.turbine = value
+        elif q_var == InputVar.Q_SLUICE:
+            self._input.outflow.outflow_type = OutflowType.COMPOSITE
+            self._input.outflow.components.sluice = value
+        else:
+            raise ValueError(f"Outflow shoud be one of {get_args(QOutControlVar)}.")
+
     # Methods for applying schemes / setting input.
     def set_default_input(self):
         """Set default input values.
 
         This method sets default values for internal variables at each timestep.
         This is important to ensure that the schemes behave as expected.
+
+        :meta private:
         """
-        if np.isnan(self.get_var("Q_turbine")):
-            self.set_var("Q_turbine", 0)
-        if np.isnan(self.get_var("Q_sluice")):
-            self.set_var("Q_sluice", 0)
-        if np.isnan(self.get_var("H_observed")):
-            self.set_var("H_observed", self.default_h)
-        if np.isnan(self.get_var("Q_out_from_input")):
-            self.set_var("Q_out_from_input", 0)
-        self.set_var("do_spill", False)
-        self.set_var("do_pass", False)
-        self.set_var("do_poolq", False)
-        self.set_var("include_rain", False)
-        self.set_var("include_evaporation", False)
-        self.set_var("compute_v", True)
-        self.set_var("do_set_q_out", False)
-        day = self.get_current_datetime().day
-        self.set_var("day", day)
+        self._input = Input()
+        self._input.volume.h_observed = self.get_var(InputVar.H_OBSERVED.value)
+        self._input.inflow = self.get_var(InputVar.Q_IN.value)
+        self._input.rain_evap.mm_evaporation_per_hour = self.get_var("mm_evaporation_per_hour")
+        self._input.rain_evap.mm_rain_per_hour = self.get_var("mm_rain_per_hour")
+        self._input.outflow.components.turbine = self.get_var("Q_turbine")
+        self._input.outflow.components.sluice = self.get_var("Q_sluice")
+        self._input.outflow.from_input = self.get_var("Q_out_from_input")
+        self._input.day = self.get_current_datetime().day
 
     def apply_schemes(self):
         """
@@ -486,6 +467,8 @@ class ReservoirModel(Model):
 
         This method is called at each timestep and should be implemented by the user.
         This method should contain the logic for which scheme is applied under which conditions.
+
+        :meta private:
         """
         pass
 
@@ -507,9 +490,23 @@ class ReservoirModel(Model):
 
         .. note:: Be careful if you choose to overwrite this method as default values have been
             carefully chosen to select the correct default schemes.
+
+        :meta private:
         """
+        self._allow_set_var = False
         self.set_default_input()
         self.apply_schemes()
+        self._allow_set_var = True
+        self._set_modelica_input()
+
+    def _set_modelica_input(self):
+        """Set the Modelica input variables."""
+        # Validate model input.
+        self._input = Input(**self._input.model_dump())
+        # Set Modelica inputs.
+        modelica_vars = input_to_dict(self._input)
+        for var, value in modelica_vars.items():
+            self.set_var(var.value, value)
 
     # Plotting
     def get_output_variables(self):
@@ -527,7 +524,7 @@ class ReservoirModel(Model):
 
     def set_q(
         self,
-        target_variable: str = "Q_turbine",
+        target_variable: QOutControlVar = InputVar.Q_TURBINE,
         input_type: str = "timeseries",
         input_data: Union[str, float, list[float]] = None,
         apply_func: str = "MEAN",
@@ -544,7 +541,8 @@ class ReservoirModel(Model):
             in combination with :py:meth:`.ReservoirModel.apply_poolq`, or
             :py:meth:`.ReservoirModel.apply_passflow` if the target variable is Q_out.
 
-        :param target_variable: str (default: 'Q_turbine')
+        :param target_variable: :py:type:`~rtctools_simulation.reservoir._variables.QOutControlVar`
+            (default: :py:const:`~rtctools_simulation.reservoir._variables.InputVar.Q_TURBINE`)
             The variable that is to be set. Needs to be an internal variable, limited to discharges.
         :param input_type: str (default: 'timeseries')
             The type of target data. Either 'timeseries' or 'parameter'. If it is a timeseries,
@@ -578,7 +576,8 @@ class ReservoirModel(Model):
                   points.
         """
         # TODO: enable set_q to handle variable timestep sizes.
-        setq_functions.setq(
+        target_variable = InputVar(target_variable)
+        target_value = setq_functions.getq(
             self,
             target_variable,
             input_type,
@@ -587,3 +586,4 @@ class ReservoirModel(Model):
             timestep,
             nan_option,
         )
+        self._set_q(target_variable.value, target_value)
