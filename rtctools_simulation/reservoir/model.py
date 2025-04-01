@@ -10,6 +10,7 @@ from typing import Optional, Union, get_args
 import numpy as np
 
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
+from rtctools_simulation.interpolate import fill_nans_with_interpolation
 from rtctools_simulation.model import Model, ModelConfig
 from rtctools_simulation.reservoir._input import (
     Input,
@@ -17,6 +18,7 @@ from rtctools_simulation.reservoir._input import (
     input_to_dict,
 )
 from rtctools_simulation.reservoir._variables import (
+    FixedInputVar,
     InputVar,
     OutputVar,
     QOutControlVar,
@@ -44,7 +46,9 @@ class ReservoirModel(Model):
         if use_default_model:
             self._create_model(config)
         super().__init__(config, **kwargs)
+        # Stored parameters
         self.max_reservoir_area = 0  # Set during pre().
+        # Model inputs and input controls.
         self._input = Input()
         self._allow_set_var = True
 
@@ -77,61 +81,47 @@ class ReservoirModel(Model):
             carefully chosen to select the correct default schemes.
         """
         super().pre(*args, **kwargs)
-        # Set default input timeseries.
-        ref_series = self.io.get_timeseries("Q_in")
-        times = ref_series[0]
-        zeros = np.full(len(times), 0.0)
-        timeseries = self.io.get_timeseries_names()
-        optional_timeseries = [
-            "H_observed",
-            "mm_evaporation_per_hour",
-            "mm_rain_per_hour",
-            "Q_turbine",
-            "Q_sluice",
-            "Q_out_from_input",
-        ]
-        # to prevent infeasibilities this value needs to be within the range of the lookup table
+        timeseries_names = self.io.get_timeseries_names()
+        input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
+        default_values = {var: 0 for var in input_vars}
+        # To avoid infeasibilities,
+        # the default value for the elevation needs to be within the range of the lookup table.
         # We use the intial volume or elevation to ensure this.
-        if "V" in timeseries:
-            self.default_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
-        elif "H" in timeseries:
-            self.default_h = float(self.get_timeseries("H")[0])
-        elif "H_observed" in timeseries:
-            self.default_h = float(self.get_timeseries("H_observed")[0])
+        if "H_observed" in timeseries_names:
+            initial_h = float(self.get_timeseries("H_observed")[0])
+        elif "H" in timeseries_names:
+            initial_h = float(self.get_timeseries("H")[0])
+        elif "V" in timeseries_names:
+            initial_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
         else:
             raise Exception(
                 'No initial condition is provided for reservoir elevation, "H", '
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
-        for var in optional_timeseries:
-            if var not in timeseries:
-                if var == "H_observed":
-                    self.io.set_timeseries(var, times, [self.default_h] * len(times))
-                    logger.info(
-                        f"{var} not found in the input file. Setting it to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(var, times, zeros)
-                    logger.info(f"{var} not found in the input file. Setting it to 0.0.")
-            if np.any(np.isnan(self.get_timeseries(var))):
-                if var == "H_observed":
-                    self.io.set_timeseries(
-                        var,
-                        times,
-                        [self.default_h if np.isnan(x) else x for x in self.get_timeseries(var)],
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. "
-                        f"Setting these values to {self.default_h}."
-                    )
-                else:
-                    self.io.set_timeseries(
-                        var, times, [0 if np.isnan(x) else x for x in self.get_timeseries(var)]
-                    )
-                    logger.info(
-                        f"{var} contains NaNs in the input file. Setting these values to 0.0."
-                    )
+        default_values[InputVar.H_OBSERVED.value] = initial_h
+        for var in input_vars:
+            default_value = default_values[var]
+            if var not in timeseries_names:
+                self.set_timeseries(var, [default_value] * len(self.times()))
+                logger.info(f"{var} not found in the input file. Setting it to {default_value}.")
+                continue
+            timeseries = self.get_timeseries(var)
+            if var == InputVar.H_OBSERVED.value and np.isnan(timeseries[0]):
+                timeseries[0] = initial_h
+            if np.all(np.isnan(timeseries)):
+                timeseries = [default_value] * len(self.times())
+                logger.info(
+                    f"{var} contains only NaNs in the input file. "
+                    f"Setting these values to {default_value}."
+                )
+                continue
+            logger.info(
+                f"{var} contains NaNs in the input file. "
+                f"Setting these values using linear interpolation."
+            )
+            timeseries = fill_nans_with_interpolation(self.times(), timeseries)
+            self.set_timeseries(var, timeseries)
         # Set parameters.
         self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
@@ -214,14 +204,8 @@ class ReservoirModel(Model):
         When applying this scheme, V is set to V_observed and a corrected version of the outflow,
         Q_out_corrected, is calculated in order to preserve the mass balance.
         """
-        t = self.get_current_time()
-        h_observed = self.timeseries_at("H_observed", t)
-        empty_observation = self.default_h
-        if h_observed == empty_observation:
-            logger.debug("there are no observed elevations at time {t}")
-        else:
-            # Disable compute_v so V will equal v_observed
-            self._input.volume.compute_v = False
+        # Disable compute_v so V will equal v_observed
+        self._input.volume.compute_v = False
 
     def apply_passflow(self):
         """Scheme to let the outflow be the same as the inflow.
