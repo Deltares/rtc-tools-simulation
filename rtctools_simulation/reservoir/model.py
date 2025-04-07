@@ -23,10 +23,7 @@ from rtctools_simulation.reservoir._variables import (
     OutputVar,
     QOutControlVar,
 )
-from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
-from rtctools_simulation.reservoir.rule_curve_deviation import (
-    rule_curve_deviation,
-)
+from rtctools_simulation.reservoir.rule_curve import rule_curve_deviation, rule_curve_discharge
 
 DEFAULT_MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
@@ -300,7 +297,7 @@ class ReservoirModel(Model):
         .. note:: This scheme does not correct for the inflows to the reservoir. As a result,
             the resulting height may differ from the rule curve target.
         """
-        outflow = InputVar(outflow)
+        # outflow = InputVar(outflow)
         current_step = int(self.get_current_time() / self.get_time_step())
         q_max = self.parameters().get("Reservoir_Qmax") * self.get_time_step()  # V/timestep max
         if q_max is None:
@@ -335,6 +332,7 @@ class ReservoirModel(Model):
         discharge_per_second = discharge / self.get_time_step()
         if not ignore_inflows:
             discharge_per_second += self.get_var("Q_in")
+        print(discharge_per_second)
         self._set_q(outflow, discharge_per_second)
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
@@ -364,7 +362,7 @@ class ReservoirModel(Model):
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
             are stored in the timeseries "rule_curve_deviation".
         """
-        observed_elevations = self.get_timeseries(h_var)
+        observed_elevations = self.io.get_timeseries(h_var)[1]
         try:
             rule_curve = self.io.get_timeseries("rule_curve")[1]
         except KeyError as exc:
@@ -377,7 +375,7 @@ class ReservoirModel(Model):
             qin_max=max_inflow,
             maximum_difference=maximum_difference,
         )
-        self.set_timeseries("rule_curve_deviation", deviations)
+        self.io.set_timeseries("rule_curve_deviation", self.io.datetimes, deviations)
 
     def adjust_rulecurve(
         self,
@@ -398,21 +396,26 @@ class ReservoirModel(Model):
         deviations to the rulecurve.
 
         The function overwrites the required timeseries of 'rule_curve', and should be
-        called in
+        called in self.apply_schemes()
         """
+        h_obs = np.array(self.io.get_timeseries("H_observed"))
         if application_time is None:
-            application_time = self.first_missing_Hobs
-            logger.info(
-                'Setting application time for function "adjust_rulecurve" '
-                'to the first missing value in input timeseries "H_observed" '
-                f"which is {application_time}"
-            )
-        if application_time > self.first_missing_Hobs:
-            raise ValueError(
-                f"Application time in 'adjust_rulecurve' needs to be before"
-                f"the first missing value in 'H_observed' at "
-                f"{self.first_missing_Hobs}"
-            )
+            try:
+                first_missing_hobs = h_obs[0, np.isnan(list(h_obs[1]))][0]
+                application_time = first_missing_hobs
+                logger.info(
+                    'Setting application time for function "adjust_rulecurve" '
+                    'to the first missing value in input timeseries "H_observed" '
+                    f"which is {application_time}"
+                )
+            except AttributeError as err:
+                raise AttributeError(
+                    "Application time is not provided for 'adjust_rulecuve'"
+                    " and no missing observations can be found to find a "
+                    "starting point. Configuration of the application time "
+                    "is required."
+                ) from err
+
         deviations = self.io.get_timeseries("rule_curve_deviation")
         index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]
         deviations = deviations[1][index_time]
@@ -426,7 +429,7 @@ class ReservoirModel(Model):
             )
             future_deviations += trend_difference
         rule_curve[-len(future_deviations) :] += future_deviations
-        self.set_timeseries("rule_curve", rule_curve)
+        self.io.set_timeseries("rule_curve", self.io.get_timeseries("rule_curve")[0], rule_curve)
 
     def _set_q(self, q_var: QOutControlVar, value: float):
         """Set an outflow control variable."""
