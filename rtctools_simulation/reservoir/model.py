@@ -132,10 +132,10 @@ class ReservoirModel(Model):
         """
         try:
             value = super().get_var(name)
-        except KeyError:
+        except KeyError as err:
             expected_vars = list(InputVar) + list(OutputVar)
             message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
-            return KeyError(message)
+            raise KeyError(message) from err
         return value
 
     def set_var(self, name: str, value):
