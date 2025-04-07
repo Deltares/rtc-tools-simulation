@@ -135,7 +135,7 @@ class ReservoirModel(Model):
         except KeyError:
             expected_vars = list(InputVar) + list(OutputVar)
             message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
-            return KeyError(message)
+            raise KeyError(message)
         return value
 
     def set_var(self, name: str, value):
@@ -333,7 +333,7 @@ class ReservoirModel(Model):
         if not ignore_inflows:
             discharge_per_second += self.get_var("Q_in")
         print(discharge_per_second)
-        self._set_q(outflow, discharge_per_second)
+        self._set_q(outflow, max(0, discharge_per_second))
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
     def calculate_rule_curve_deviation(
