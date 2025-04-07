@@ -333,7 +333,7 @@ class ReservoirModel(Model):
         if not ignore_inflows:
             discharge_per_second += self.get_var("Q_in")
         print(discharge_per_second)
-        self._set_q(outflow, discharge_per_second)
+        self._set_q(outflow, max(0, discharge_per_second))
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
     def calculate_rule_curve_deviation(
@@ -433,6 +433,7 @@ class ReservoirModel(Model):
 
     def _set_q(self, q_var: QOutControlVar, value: float):
         """Set an outflow control variable."""
+        print("Printing in model._set_q: ", q_var, value)
         if q_var == InputVar.Q_OUT:
             self._input.outflow.outflow_type = OutflowType.FROM_INPUT
             self._input.outflow.from_input = value
@@ -505,6 +506,7 @@ class ReservoirModel(Model):
     def _set_modelica_input(self):
         """Set the Modelica input variables."""
         # Validate model input.
+        print(self._input.model_dump())
         self._input = Input(**self._input.model_dump())
         # Set Modelica inputs.
         modelica_vars = input_to_dict(self._input)

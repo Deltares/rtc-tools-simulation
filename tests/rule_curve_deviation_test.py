@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from rtctools_simulation.reservoir.rule_curve_deviation import (
+from rtctools_simulation.reservoir.rule_curve import (
     rule_curve_deviation,
 )
 
@@ -13,7 +13,7 @@ test_data = [
         "rule_curve": np.array([10, 10, 10, 10, 10]),
         "periods": 1,
         "inflows": np.array([0, 0, 0, 0, 0]),
-        "q_max": np.inf,
+        "qin_max": np.inf,
         "maximum_difference": np.inf,
         "expected": np.array([0, 0, 0, 0, 0]),
     },
@@ -22,7 +22,7 @@ test_data = [
         "rule_curve": np.array([20, 20, 20, 20, 20]),
         "periods": 2,
         "inflows": np.array([0, 0, 0, 0, 0]),
-        "q_max": np.inf,
+        "qin_max": np.inf,
         "maximum_difference": np.inf,
         "expected": np.array([np.nan, -10, -10, -10, -10]),
     },
@@ -31,7 +31,7 @@ test_data = [
         "rule_curve": np.array([10, 20, 30, 40, 50]),
         "periods": 2,
         "inflows": np.array([0, 0, 0, 0, 0]),
-        "q_max": np.inf,
+        "qin_max": np.inf,
         "maximum_difference": np.inf,
         "expected": np.array([np.nan, -5, -15, -25, -35]),
     },
@@ -40,7 +40,7 @@ test_data = [
         "rule_curve": np.array([20, 20, 20, 20, 20]),
         "periods": 2,
         "inflows": np.array([10, 10, 10, 10, 10]),
-        "q_max": 1,
+        "qin_max": 1,
         "maximum_difference": np.inf,
         "expected": np.array([np.nan, 0, 0, 0, 0]),
     },
@@ -49,25 +49,25 @@ test_data = [
         "rule_curve": np.array([20, 20, 20, 20, 20]),
         "periods": 2,
         "inflows": np.array([10, 10, 0, 10, 10]),
-        "q_max": 1,
+        "qin_max": 1,
         "maximum_difference": np.inf,
         "expected": np.array([np.nan, 0, -5, -5, 0]),
     },
-    {  # Test whether exceecing the max deviations gives average deviation equal to max_diff.
+    {  # Test whether exceeding the max deviations gives average deviation equal to 0.
         "observed_elevations": np.array([10, 10, 10, 10, 10]),
         "rule_curve": np.array([20, 20, 20, 20, 20]),
         "periods": 2,
         "inflows": np.array([10, 10, 10, 10, 10]),
-        "q_max": np.inf,
+        "qin_max": np.inf,
         "maximum_difference": 1,
-        "expected": np.array([np.nan, 1, 1, 1, 1]),
+        "expected": np.array([np.nan, 0, 0, 0, 0]),
     },
     {  # Test the number of periods equal to the array length.
         "observed_elevations": np.array([10, 10, 10, 10, 10]),
         "rule_curve": np.array([10, 10, 10, 10, 20]),
         "periods": 5,
         "inflows": np.array([10, 10, 10, 10, 10]),
-        "q_max": np.inf,
+        "qin_max": np.inf,
         "maximum_difference": np.inf,
         "expected": np.array([np.nan, np.nan, np.nan, np.nan, -2]),
     },
