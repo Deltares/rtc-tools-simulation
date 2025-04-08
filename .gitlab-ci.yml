@@ -16,7 +16,7 @@ style:
     - pre-commit run --all-files --show-diff-on-failure
 
 # test
-test38:
+test:
   stage: test
   before_script:
     - pip install -e .
