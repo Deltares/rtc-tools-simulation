@@ -135,10 +135,10 @@ class ReservoirModel(Model):
         """
         try:
             value = super().get_var(name)
-        except KeyError:
+        except KeyError as error:
             expected_vars = list(InputVar) + list(OutputVar)
             message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
-            return KeyError(message)
+            raise KeyError(message) from error
         return value
 
     def set_var(self, name: str, value):
@@ -298,6 +298,11 @@ class ReservoirModel(Model):
         .. note:: This scheme does not correct for the inflows to the reservoir. As a result,
             the resulting height may differ from the rule curve target.
         """
+        if self.get_current_time() == self.get_start_time():
+            logger.debug(
+                "Skip applying rule curve at initial time, since no previous volume is available."
+            )
+            return
         outflow = InputVar(outflow)
         current_step = int(self.get_current_time() / self.get_time_step())
         q_max = self.parameters().get("rule_curve_q_max")
