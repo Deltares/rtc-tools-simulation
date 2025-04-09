@@ -4,7 +4,7 @@
 
 Make sure to have at least pip 21.3 installed.
 Go to the root directory of this project (directory that contains pyproject.toml).
-Run `pip install -e .`.
+Run `pip install -e . --config-settings editable_mode=compat`.
 
 ## Pre-commit Checks
 
