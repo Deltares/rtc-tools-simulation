@@ -285,7 +285,7 @@ class ReservoirModel(Model):
             - ``rule_curve_blend``:  Number of timesteps over which to bring the pool back to the
               scheduled elevation.
             - ''ignore_inflows'' : Whether to ignore the inflow, and solely use
-              current volume difference
+              current volume difference. Defaults to False
 
         The user must also provide a timeseries with the name ``rule_curve``. This contains the
         water level target for each timestep.
@@ -293,9 +293,6 @@ class ReservoirModel(Model):
         :param outflow: :py:type:`~rtctools_simulation.reservoir._variables.QOutControlVar`
             (default: :py:type:`~rtctools_simulation.reservoir._variables.InputVar.Q_TURBINE`)
             outflow variable that is modified to reach the rulecurve.
-
-        .. note:: This scheme does not correct for the inflows to the reservoir. As a result,
-            the resulting height may differ from the rule curve target.
         """
         # outflow = InputVar(outflow)
         current_step = int(self.get_current_time() / self.get_time_step())
@@ -391,7 +388,6 @@ class ReservoirModel(Model):
 
         :param periods: The number of periods over which to calculate the moving average.
         :param application_time: Optional. Time at which to start applying the correction.
-        Needs to be before the first missing value in H_observed.
         :param extrapolate_trend_linear: Bool. Option to extrapolate a trend in the
         deviations to the rulecurve.
 
