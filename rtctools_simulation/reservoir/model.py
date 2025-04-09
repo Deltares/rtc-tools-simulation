@@ -23,10 +23,7 @@ from rtctools_simulation.reservoir._variables import (
     OutputVar,
     QOutControlVar,
 )
-from rtctools_simulation.reservoir.rule_curve import rule_curve_discharge
-from rtctools_simulation.reservoir.rule_curve_deviation import (
-    rule_curve_deviation,
-)
+from rtctools_simulation.reservoir.rule_curve import rule_curve_deviation, rule_curve_discharge
 
 DEFAULT_MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
 
@@ -135,10 +132,10 @@ class ReservoirModel(Model):
         """
         try:
             value = super().get_var(name)
-        except KeyError:
+        except KeyError as err:
             expected_vars = list(InputVar) + list(OutputVar)
             message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
-            return KeyError(message)
+            raise KeyError(message) from err
         return value
 
     def set_var(self, name: str, value):
@@ -276,7 +273,7 @@ class ReservoirModel(Model):
         self._input.rain_evap.include_rain = True
         self._input.rain_evap.include_evaporation = True
 
-    def apply_rulecurve(self, outflow: QOutControlVar = InputVar.Q_TURBINE):
+    def apply_rulecurve(self, outflow: QOutControlVar = InputVar.Q_TURBINE, ignore_inflows=False):
         """Scheme to set the outflow of the reservoir in order to reach a rulecurve.
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
@@ -287,6 +284,8 @@ class ReservoirModel(Model):
               (m^3/timestep)
             - ``rule_curve_blend``:  Number of timesteps over which to bring the pool back to the
               scheduled elevation.
+            - ''ignore_inflows'' : Whether to ignore the inflow, and solely use
+              current volume difference
 
         The user must also provide a timeseries with the name ``rule_curve``. This contains the
         water level target for each timestep.
@@ -298,12 +297,12 @@ class ReservoirModel(Model):
         .. note:: This scheme does not correct for the inflows to the reservoir. As a result,
             the resulting height may differ from the rule curve target.
         """
-        outflow = InputVar(outflow)
+        # outflow = InputVar(outflow)
         current_step = int(self.get_current_time() / self.get_time_step())
-        q_max = self.parameters().get("rule_curve_q_max")
+        q_max = self.parameters().get("Reservoir_Qmax") * self.get_time_step()  # V/timestep max
         if q_max is None:
             raise ValueError(
-                "The parameter rule_curve_q_max is not set, "
+                "The parameter Reservoir_Qmax is not set, "
                 + "which is required for the rule curve scheme"
             )
         blend = self.parameters().get("rule_curve_blend")
@@ -331,19 +330,23 @@ class ReservoirModel(Model):
             blend,
         )
         discharge_per_second = discharge / self.get_time_step()
-        self._set_q(outflow, discharge_per_second)
-        logger.debug(f"Rule curve function has set the outflow to {discharge_per_second} m^3/s.")
+        if not ignore_inflows:
+            discharge_per_second += self.get_var("Q_in")
+        print(discharge_per_second)
+        self._set_q(outflow, max(0, discharge_per_second))
+        logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
     def calculate_rule_curve_deviation(
         self,
-        periods: int,
+        h_var: str = "H_observed",
+        periods: int = 1,
         inflows: Optional[np.ndarray] = None,
-        q_max: float = np.inf,
+        max_inflow: float = np.inf,
         maximum_difference: float = np.inf,
     ):
         """Calculate the moving average between the rule curve and the simulated elevations.
 
-        This method can be applied inside :py:meth:`.ReservoirModel.calculate_output_variables`.
+        This method can be applied inside :py:meth:`.ReservoirModel.pre`.
 
         This method calculates the moving average between the rule curve and the simulated
         elevations over a specified number of periods. It takes the following parameters:
@@ -351,15 +354,15 @@ class ReservoirModel(Model):
         :param periods: The number of periods over which to calculate the moving average.
         :param inflows: Optional. The inflows to the reservoir. If provided, the moving average
                         will be calculated only for the periods with non-zero inflows.
-        :param q_max: Optional. The maximum discharge allowed while calculating the moving average.
+        :param max_inflow: Optional. The maximum inflow allowed while calculating a moving average.
                       Default is infinity, required if q_max is set.
         :param maximum_difference: Optional. The maximum allowable difference between the rule curve
-                                   and the simulated elevations.
+                                   and the observed elevations.
 
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
             are stored in the timeseries "rule_curve_deviation".
         """
-        observed_elevations = self.extract_results().get("H")
+        observed_elevations = self.io.get_timeseries(h_var)[1]
         try:
             rule_curve = self.io.get_timeseries("rule_curve")[1]
         except KeyError as exc:
@@ -369,11 +372,64 @@ class ReservoirModel(Model):
             rule_curve,
             periods,
             inflows=inflows,
-            q_max=q_max,
-            maximimum_difference=maximum_difference,
+            qin_max=max_inflow,
+            maximum_difference=maximum_difference,
         )
-        self.set_timeseries("rule_curve_deviation", deviations)
-        self.extract_results().update({"rule_curve_deviation": deviations})
+        self.io.set_timeseries("rule_curve_deviation", self.io.datetimes, deviations)
+
+    def adjust_rulecurve(
+        self,
+        periods: int,
+        application_time: Optional[np.datetime64] = None,
+        extrapolate_trend_linear: Optional[bool] = False,
+    ):
+        """
+        Adjusts the rulecurve of timesteps after H_observed becomes unavailable based on
+        deviations in the timesteps prior.
+
+        This method can be applied inside :py:meth:`.ReservoirModel.pre`.
+
+        :param periods: The number of periods over which to calculate the moving average.
+        :param application_time: Optional. Time at which to start applying the correction.
+        Needs to be before the first missing value in H_observed.
+        :param extrapolate_trend_linear: Bool. Option to extrapolate a trend in the
+        deviations to the rulecurve.
+
+        The function overwrites the required timeseries of 'rule_curve', and should be
+        called in self.apply_schemes()
+        """
+        h_obs = np.array(self.io.get_timeseries("H_observed"))
+        if application_time is None:
+            try:
+                first_missing_hobs = h_obs[0, np.isnan(list(h_obs[1]))][0]
+                application_time = first_missing_hobs
+                logger.info(
+                    'Setting application time for function "adjust_rulecurve" '
+                    'to the first missing value in input timeseries "H_observed" '
+                    f"which is {application_time}"
+                )
+            except AttributeError as err:
+                raise AttributeError(
+                    "Application time is not provided for 'adjust_rulecuve'"
+                    " and no missing observations can be found to find a "
+                    "starting point. Configuration of the application time "
+                    "is required."
+                ) from err
+
+        deviations = self.io.get_timeseries("rule_curve_deviation")
+        index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]
+        deviations = deviations[1][index_time]
+        first_dev, last_dev = deviations[periods - 1], deviations[-1]
+        rule_curve = self.io.get_timeseries("rule_curve")[1]
+        future_deviations = np.full(shape=(len(rule_curve) - len(deviations)), fill_value=last_dev)
+        if extrapolate_trend_linear:
+            trend = (last_dev - first_dev) / (len(deviations) - 1)
+            trend_difference = np.linspace(
+                trend, len(future_deviations) * trend, len(future_deviations)
+            )
+            future_deviations += trend_difference
+        rule_curve[-len(future_deviations) :] += future_deviations
+        self.io.set_timeseries("rule_curve", self.io.get_timeseries("rule_curve")[0], rule_curve)
 
     def _set_q(self, q_var: QOutControlVar, value: float):
         """Set an outflow control variable."""

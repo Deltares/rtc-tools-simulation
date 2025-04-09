@@ -8,6 +8,12 @@
 			<parameterId>rulecurve</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="H_observed">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>H.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!--States of model at t0-->
 	<timeSeries id="Q_turbine">
 		<PITimeSeries>
@@ -15,46 +21,46 @@
 			<parameterId>Q.turbine</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-    <timeSeries id="V">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>V</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <!--Inflows-->
-    <timeSeries id="Q_in">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>Q.inflow.obs</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <timeSeries id="mm_evaporation_per_hour">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>evaporation.obs</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <timeSeries id="mm_rain_per_hour">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>rain.obs</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <!--Targets and goals-->
-    <!-- Ouputs -->
-    <timeSeries id="Q_out">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>Q.out</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <timeSeries id="Q_spill">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>Q.spill</parameterId>
-        </PITimeSeries>
-    </timeSeries>
-    <timeSeries id="H">
+	<timeSeries id="V">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>V</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<!--Inflows-->
+	<timeSeries id="Q_in">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.inflow.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_evaporation_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>evaporation.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="mm_rain_per_hour">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>rain.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<!--Targets and goals-->
+	<!-- Ouputs -->
+	<timeSeries id="Q_out">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="Q_spill">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.spill</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="H">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>H</parameterId>
@@ -66,10 +72,10 @@
 			<parameterId>rulecurve.deviation</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-    <timeSeries id="Q_out_target">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>Q.out.target</parameterId>
-        </PITimeSeries>
-    </timeSeries>
+	<timeSeries id="Q_out_target">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.out.target</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 </rtcDataConfig>
