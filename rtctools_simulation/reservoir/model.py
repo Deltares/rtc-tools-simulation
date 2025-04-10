@@ -419,7 +419,7 @@ class ReservoirModel(Model):
     ):
         """Calculate the moving average between the rule curve and the simulated elevations.
 
-        This method can be applied inside :py:meth:`.ReservoirModel.calculate_output_variables`.
+        This method can be applied inside :py:meth:`.ReservoirModel.pre`.
 
         This method calculates the moving average between the rule curve and the simulated
         elevations over a specified number of periods. It takes the following parameters:
@@ -430,7 +430,7 @@ class ReservoirModel(Model):
         :param q_max: Optional. The maximum discharge allowed while calculating the moving average.
                       Default is infinity, required if q_max is set.
         :param maximum_difference: Optional. The maximum allowable difference between the rule curve
-                                   and the simulated elevations.
+                                   and the observed elevations.
 
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
             are stored in the timeseries "rule_curve_deviation".
@@ -455,15 +455,35 @@ class ReservoirModel(Model):
         self,
         periods: int,
         application_time: Optional[np.datetime64] = None,
-        extrapolate_trend_linear: bool = False,
+        extrapolate_trend_linear: Optional[bool] = False,
     ):
-        """ """
+        """
+        Adjusts the rulecurve of timesteps after H_observed becomes unavailable based on
+        deviations in the timesteps prior.
+
+        This method can be applied inside :py:meth:`.ReservoirModel.pre`.
+
+        :param periods: The number of periods over which to calculate the moving average.
+        :param application_time: Optional. Time at which to start applying the correction.
+        Needs to be before the first missing value in H_observed.
+        :param extrapolate_trend_linear: Bool. Option to extrapolate a trend in the
+        deviations to the rulecurve.
+
+        The function overwrites the required timeseries of 'rule_curve', and should be
+        called in
+        """
         if application_time is None:
             application_time = self.first_missing_Hobs
             logger.info(
                 'Setting application time for function "adjust_rulecurve'
-                'to the first missing value in input timeseries "H_observed"'
+                'to the first missing value in input timeseries "H_observed" '
                 f"which is {application_time}"
+            )
+        if application_time > self.first_missing_Hobs:
+            raise ValueError(
+                f"Application time in 'adjust_rulecurve' needs to be before"
+                f"the first missing value in 'H_observed' at "
+                f"{self.first_missing_Hobs}"
             )
         deviations = self.io.get_timeseries("rule_curve_deviation")
         index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]

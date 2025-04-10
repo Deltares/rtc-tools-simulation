@@ -14,7 +14,7 @@ test_data = [
         "periods": 1,
         "inflows": np.array([0, 0, 0, 0, 0]),
         "q_max": np.inf,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([0, 0, 0, 0, 0]),
     },
     {  # Test whether non-zero difference gives non-zero average deviation
@@ -23,7 +23,7 @@ test_data = [
         "periods": 2,
         "inflows": np.array([0, 0, 0, 0, 0]),
         "q_max": np.inf,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([np.nan, -10, -10, -10, -10]),
     },
     {  # Test on increasing rule curve.
@@ -32,7 +32,7 @@ test_data = [
         "periods": 2,
         "inflows": np.array([0, 0, 0, 0, 0]),
         "q_max": np.inf,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([np.nan, -5, -15, -25, -35]),
     },
     {  # Test whether exceecing the max inflow gives zero average deviation.
@@ -41,7 +41,7 @@ test_data = [
         "periods": 2,
         "inflows": np.array([10, 10, 10, 10, 10]),
         "q_max": 1,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([np.nan, 0, 0, 0, 0]),
     },
     {  # Test whether only a single deviation is zeroed.
@@ -50,7 +50,7 @@ test_data = [
         "periods": 2,
         "inflows": np.array([10, 10, 0, 10, 10]),
         "q_max": 1,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([np.nan, 0, -5, -5, 0]),
     },
     {  # Test whether exceecing the max deviations gives average deviation equal to max_diff.
@@ -59,7 +59,7 @@ test_data = [
         "periods": 2,
         "inflows": np.array([10, 10, 10, 10, 10]),
         "q_max": np.inf,
-        "maximimum_difference": 1,
+        "maximum_difference": 1,
         "expected": np.array([np.nan, 1, 1, 1, 1]),
     },
     {  # Test the number of periods equal to the array length.
@@ -68,7 +68,7 @@ test_data = [
         "periods": 5,
         "inflows": np.array([10, 10, 10, 10, 10]),
         "q_max": np.inf,
-        "maximimum_difference": np.inf,
+        "maximum_difference": np.inf,
         "expected": np.array([np.nan, np.nan, np.nan, np.nan, -2]),
     },
 ]
