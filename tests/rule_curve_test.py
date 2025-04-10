@@ -58,7 +58,7 @@ def test_rule_curve(target_volume, current_volume, q_max, blend, expected):
         (
             True,  # blend=1, q_max=10, rulecurve_input is 0.9 for each step.
             False,
-            np.array([0.4, 0.4, 1.0]),
+            np.array([0.0, 0.4, 1.0]),
             np.array([1.3, 0.9, 0.9]),
             np.array([1.15, 0.9, 0.9]),
             np.array([0.9, 0.9, 1.0]),
@@ -66,7 +66,7 @@ def test_rule_curve(target_volume, current_volume, q_max, blend, expected):
         (
             True,
             True,
-            np.array([0.4, 0.4, 1.0]),
+            np.array([0.0, 0.4, 1.0]),
             np.array([1.3, 0.9, 0.9]),
             np.array([1.15, 0.9, 0.9]),
             np.array([0.9, 0.9, 0.9]),

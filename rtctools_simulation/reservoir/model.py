@@ -1,4 +1,5 @@
 """Module for a reservoir model."""
+
 import filecmp
 import logging
 import math
@@ -106,7 +107,7 @@ class ReservoirModel(Model):
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
-        
+
         # save the first missing H_observed value for potential use in the rulecurve/adjust scheme
         if "H_observed" in timeseries_names:
             if np.any(np.isnan(self.get_timeseries("H_observed"))):
@@ -154,7 +155,7 @@ class ReservoirModel(Model):
             value = super().get_var(name)
         except KeyError as error:
             expected_vars = list(InputVar) + list(OutputVar)
-            message = f"Variable {name} not found." f" Expected var to be one of {expected_vars}."
+            message = f"Variable {name} not found. Expected var to be one of {expected_vars}."
             raise KeyError(message) from error
         return value
 
@@ -390,8 +391,7 @@ class ReservoirModel(Model):
         v_from_h_lookup_table = self.lookup_tables().get("v_from_h")
         if v_from_h_lookup_table is None:
             raise ValueError(
-                "The lookup table v_from_h is not found"
-                " It is required for the rule curve scheme."
+                "The lookup table v_from_h is not found It is required for the rule curve scheme."
             )
         volume_target = v_from_h_lookup_table(rule_curve[current_step])
         current_volume = self.get_var("V")
@@ -416,13 +416,19 @@ class ReservoirModel(Model):
         max_inflow: float = np.inf,
         maximum_difference: float = np.inf,
     ):
-        """Calculate the moving average between the rule curve and the simulated elevations.
+        """Calculate the moving average between the rule curve and a chosen elevation timeseries.
 
-        This method can be applied inside :py:meth:`.ReservoirModel.pre`.
+        This method can be applied inside :py:meth:`.ReservoirModel.pre` is calculating deviations
+        with input timeseries.
+
+        It can be applied in the :py:meth:`.ReservoirModel.calculate_output_variables` method
+        to calculate deviations with the simulated timeseries.
 
         This method calculates the moving average between the rule curve and the simulated
         elevations over a specified number of periods. It takes the following parameters:
 
+        :param h_var: The name of the elevation timeseries to compare with the rule curve.
+            Default is "H_observed".
         :param periods: The number of periods over which to calculate the moving average.
         :param inflows: Optional. The inflows to the reservoir. If provided, the moving average
                         will be calculated only for the periods with non-zero inflows.
@@ -432,9 +438,15 @@ class ReservoirModel(Model):
                                    and the observed elevations.
 
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
-            are stored in the timeseries "rule_curve_deviation".
+            are stored in the timeseries "rule_curve_deviation_<h_var>".
         """
-        observed_elevations = self.io.get_timeseries(h_var)[1]
+        if not hasattr(self, "_io_output"):
+            try:
+                observed_elevations = self.io.get_timeseries(h_var)[1]
+            except KeyError as exc:
+                raise KeyError(f"The {h_var} timeseries is not found in the input file.") from exc
+        else:
+            observed_elevations = self.extract_results().get(h_var)
         try:
             rule_curve = self.io.get_timeseries("rule_curve")[1]
         except KeyError as exc:
@@ -447,12 +459,15 @@ class ReservoirModel(Model):
             qin_max=max_inflow,
             maximum_difference=maximum_difference,
         )
-        self.set_timeseries("rule_curve_deviation", deviations)
-        self.extract_results().update({"rule_curve_deviation": deviations})
+
+        self.set_timeseries("rule_curve_deviation_" + h_var, deviations)
+        if hasattr(self, "_io_output"):
+            self.extract_results().update({"rule_curve_deviation_" + h_var: deviations})
 
     def adjust_rulecurve(
         self,
         periods: int,
+        h_var: str = "H_observed",
         application_time: Optional[np.datetime64] = None,
         extrapolate_trend_linear: Optional[bool] = False,
     ):
@@ -463,6 +478,7 @@ class ReservoirModel(Model):
         This method can be applied inside :py:meth:`.ReservoirModel.pre`.
 
         :param periods: The number of periods over which to calculate the moving average.
+        :param h_var: The name of the elevation timeseries to adjust the rulecurve.
         :param application_time: Optional. Time at which to start applying the correction.
         :param extrapolate_trend_linear: Bool. Option to extrapolate a trend in the
         deviations to the rulecurve.
@@ -470,7 +486,7 @@ class ReservoirModel(Model):
         The function overwrites the required timeseries of 'rule_curve', and should be
         called in self.apply_schemes()
         """
-        h_obs = np.array(self.io.get_timeseries("H_observed"))
+        h_obs = np.array(self.io.get_timeseries(h_var))
         if application_time is None:
             try:
                 first_missing_hobs = h_obs[0, np.isnan(list(h_obs[1]))][0]
@@ -488,7 +504,7 @@ class ReservoirModel(Model):
                     "is required."
                 ) from err
 
-        deviations = self.io.get_timeseries("rule_curve_deviation")
+        deviations = self.io.get_timeseries("rule_curve_deviation_" + h_var)
         index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]
         deviations = deviations[1][index_time]
         first_dev, last_dev = deviations[periods - 1], deviations[-1]
