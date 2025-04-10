@@ -12,13 +12,13 @@ def rule_curve_deviation(
     periods: int,
     inflows: Optional[np.ndarray] = None,
     q_max: float = np.inf,
-    maximimum_difference: float = np.inf,
+    maximum_difference: float = np.inf,
 ) -> np.ndarray:
     """
     Computes an adjusted moving average of the deviation between the observed pool elevation and
     the rule curve elevation. Deviations at timesteps where the inflow exceeds the maximum inflow
-    are set to the maximimum_difference. Deviations that exceed the maximum deviation
-    are also set to the maximimum_difference.
+    are set to the maximum_difference. Deviations that exceed the maximum deviation
+    are also set to the maximum_difference.
 
     :param observed_elevations: np.ndarray
         The observed pool elevations [m].
@@ -30,7 +30,7 @@ def rule_curve_deviation(
         The inflows [m^3/s], required if q_max is not np.inf.
     :param q_max: float (optional)
         The maximum inflow.
-    :param maximimum_difference: float (optional)
+    :param maximum_difference: float (optional)
         The maximum absolute deviation per timestep.
 
     :return: np.ndarray
@@ -50,8 +50,8 @@ def rule_curve_deviation(
         raise ValueError("The inflows should be provided if the maximum inflow is set.")
     deviation_array = observed_elevations - rule_curve
     deviation_array = np.where(
-        abs(deviation_array) > maximimum_difference,
-        np.full(len(deviation_array), maximimum_difference),
+        abs(deviation_array) > maximum_difference,
+        np.full(len(deviation_array), maximum_difference),
         deviation_array,
     )
     if inflows is not None:

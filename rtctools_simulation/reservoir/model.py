@@ -109,6 +109,16 @@ class ReservoirModel(Model):
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
+        
+        # save the first missing H_observed value for potential use in the rulecurve/adjust scheme
+        if "H_observed" in timeseries_names:
+            if np.any(np.isnan(self.get_timeseries("H_observed"))):
+                h_timeseries = self.io.get_timeseries("H_observed")
+                for x in range(len(h_timeseries[0])):
+                    if np.isnan(h_timeseries[1][x]):
+                        self.first_missing_Hobs = h_timeseries[0][x]
+                        break
+
         default_values[InputVar.H_OBSERVED.value] = initial_h
         for var in input_vars:
             default_value = default_values[var]
@@ -401,7 +411,8 @@ class ReservoirModel(Model):
 
     def calculate_rule_curve_deviation(
         self,
-        periods: int,
+        h_var: str = "H_observed",
+        periods: int = 1,
         inflows: Optional[np.ndarray] = None,
         q_max: float = np.inf,
         maximum_difference: float = np.inf,
@@ -424,7 +435,7 @@ class ReservoirModel(Model):
         .. note:: The rule curve timeseries must be present in the timeseries import. The results
             are stored in the timeseries "rule_curve_deviation".
         """
-        observed_elevations = self.extract_results().get("H")
+        observed_elevations = self.get_timeseries(h_var)
         try:
             rule_curve = self.io.get_timeseries("rule_curve")[1]
         except KeyError as exc:
@@ -435,10 +446,39 @@ class ReservoirModel(Model):
             periods,
             inflows=inflows,
             q_max=q_max,
-            maximimum_difference=maximum_difference,
+            maximum_difference=maximum_difference,
         )
         self.set_timeseries("rule_curve_deviation", deviations)
         self.extract_results().update({"rule_curve_deviation": deviations})
+
+    def adjust_rulecurve(
+        self,
+        periods: int,
+        application_time: Optional[np.datetime64] = None,
+        extrapolate_trend_linear: bool = False,
+    ):
+        """ """
+        if application_time is None:
+            application_time = self.first_missing_Hobs
+            logger.info(
+                'Setting application time for function "adjust_rulecurve'
+                'to the first missing value in input timeseries "H_observed"'
+                f"which is {application_time}"
+            )
+        deviations = self.io.get_timeseries("rule_curve_deviation")
+        index_time = [deviations[0][x] < application_time for x in range(len(deviations[0]))]
+        deviations = deviations[1][index_time]
+        first_dev, last_dev = deviations[periods - 1], deviations[-1]
+        rule_curve = self.io.get_timeseries("rule_curve")[1]
+        future_deviations = np.full(shape=(len(rule_curve) - len(deviations)), fill_value=last_dev)
+        if extrapolate_trend_linear:
+            trend = (last_dev - first_dev) / (len(deviations) - 1)
+            trend_difference = np.linspace(
+                trend, len(future_deviations) * trend, len(future_deviations)
+            )
+            future_deviations += trend_difference
+        rule_curve[-len(future_deviations) :] += future_deviations
+        self.set_timeseries("rule_curve", rule_curve)
 
     def _set_q(self, q_var: QOutControlVar, value: float):
         """Set an outflow control variable."""
