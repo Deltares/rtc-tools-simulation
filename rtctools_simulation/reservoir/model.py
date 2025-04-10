@@ -509,7 +509,6 @@ class ReservoirModel(Model):
 
     def _set_q(self, q_var: QOutControlVar, value: float):
         """Set an outflow control variable."""
-        print("Printing in model._set_q: ", q_var, value)
         if q_var == InputVar.Q_OUT:
             self._input.outflow.outflow_type = OutflowType.FROM_INPUT
             self._input.outflow.from_input = value
@@ -582,7 +581,6 @@ class ReservoirModel(Model):
     def _set_modelica_input(self):
         """Set the Modelica input variables."""
         # Validate model input.
-        print(self._input.model_dump())
         self._input = Input(**self._input.model_dump())
         # Set Modelica inputs.
         modelica_vars = input_to_dict(self._input)

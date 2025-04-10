@@ -17,15 +17,20 @@ OUTPUT_DIR = BASE_DIR / "output_rule_curve"
 class RuleCurveModel(ReservoirModel):
     """Class for simulating a rule curve model."""
 
-    def __init__(self, config, do_apply_rulecurve=True, **kwargs):
+    def __init__(self, config, do_apply_rulecurve=True, do_extrapolate=False, **kwargs):
         super().__init__(config, **kwargs)
         self.do_apply_rulecurve = do_apply_rulecurve
+        self.do_extrapolate = do_extrapolate
 
-    def pre(self, *args, **kwargs):
+    def pre(self, *args, do_extrapolate=False, **kwargs):
         super().pre(*args, **kwargs)
         self.calculate_rule_curve_deviation(periods=1)
-        t_0 = datetime.datetime(2020, 1, 1, 0, second=1)
-        self.adjust_rulecurve(periods=1, extrapolate_trend_linear=True, application_time=t_0)
+        t_0 = datetime.datetime(2020, 1, 1, 0, second=2)
+        if self.do_extrapolate:
+            do_extrapolate = True
+        self.adjust_rulecurve(
+            periods=1, extrapolate_trend_linear=do_extrapolate, application_time=t_0
+        )
 
     def apply_schemes(self):
         """Apply rule curve."""
@@ -48,31 +53,34 @@ def test_rule_curve(target_volume, current_volume, q_max, blend, expected):
 
 
 @pytest.mark.parametrize(
-    "do_apply_rulecurve, q_ref, v_ref, h_ref, rulecurve_ref",
+    "do_apply_rulecurve, do_extrapolate, q_ref, v_ref, h_ref, rulecurve_ref",
     [
         (
             True,  # blend=1, q_max=10, rule_curve is 0.5 for each step.
-            np.array([0.0, 0.8, 0.0]),
-            np.array([1.3, 0.5, 1.5]),
-            np.array([1.15, 0.5, 1.25]),
-            np.array([0.8, 0.8, 0.8]),
+            False,
+            np.array([0.4, 0.4, 1.0]),
+            np.array([1.3, 0.9, 0.9]),
+            np.array([1.15, 0.9, 0.9]),
+            np.array([0.9, 0.9, 1.0]),
         ),
         (
-            False,
-            np.array([0.0, 0.5, 0.5]),
-            np.array([1.3, 0.8, 1.3]),
-            np.array([1.15, 0.8, 1.15]),
-            np.array([0.5, 0.5, 0.5]),
+            True,
+            True,
+            np.array([0.4, 0.4, 1.0]),
+            np.array([1.3, 0.9, 0.9]),
+            np.array([1.15, 0.9, 0.9]),
+            np.array([0.9, 0.9, 0.9]),
         ),
     ],
 )
-def test_rule_curve_scheme(do_apply_rulecurve, q_ref, v_ref, h_ref, rulecurve_ref):
+def test_rule_curve_scheme(do_apply_rulecurve, do_extrapolate, q_ref, v_ref, h_ref, rulecurve_ref):
     """Test the rule curve scheme."""
     config = ModelConfig(base_dir=BASE_DIR, dirs={"output": OUTPUT_DIR})
-    model = RuleCurveModel(config, do_apply_rulecurve=do_apply_rulecurve)
+    model = RuleCurveModel(
+        config, do_apply_rulecurve=do_apply_rulecurve, do_extrapolate=do_extrapolate
+    )
     model.simulate()
     output = model.extract_results()
-    print(output)
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
     h_out = np.array(output["H"])

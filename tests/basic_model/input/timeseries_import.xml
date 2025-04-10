@@ -103,9 +103,9 @@
               <stationName>Reservoir1</stationName>
               <units>mm/hour</units>
             </header>
-              <event date="2020-01-01" time="00:00:00" value="0.5" flag="8"/>
-              <event date="2020-01-01" time="00:00:01" value="0.5" flag="8"/>
-              <event date="2020-01-01" time="00:00:02" value="0.5" flag="8"/>
+              <event date="2020-01-01" time="00:00:00" value="0.9" flag="8"/>
+              <event date="2020-01-01" time="00:00:01" value="0.9" flag="8"/>
+              <event date="2020-01-01" time="00:00:02" value="0.9" flag="8"/>
           </series>
           <series>
             <header>
@@ -121,8 +121,8 @@
               <stationName>Reservoir1</stationName>
               <units>mm/hour</units>
             </header>
-              <event date="2020-01-01" time="00:00:00" value="0.5" flag="8"/>
-              <event date="2020-01-01" time="00:00:01" value="0.5" flag="8"/>
-              <event date="2020-01-01" time="00:00:02" value="0.5" flag="8"/>
+              <event date="2020-01-01" time="00:00:00" value="1.1" flag="8"/>
+              <event date="2020-01-01" time="00:00:01" value="1.0" flag="8"/>
+              <event date="2020-01-01" time="00:00:02" value="0.9" flag="8"/>
           </series>
 </TimeSeries>

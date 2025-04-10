@@ -15,7 +15,7 @@
 			<parameterId>V</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<timeSeries id="H_observed_input">
+	<timeSeries id="H_observed">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>H.obs</parameterId>
