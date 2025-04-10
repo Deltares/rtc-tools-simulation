@@ -15,6 +15,12 @@
 			<parameterId>V</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+	<timeSeries id="H_observed_input">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>H.obs</parameterId>
+		</PITimeSeries>
+	</timeSeries>
 	<!--Inflows-->
 	<timeSeries id="Q_in">
 		<PITimeSeries>
