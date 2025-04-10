@@ -56,7 +56,7 @@ def test_rule_curve(target_volume, current_volume, q_max, blend, expected):
     "do_apply_rulecurve, do_extrapolate, q_ref, v_ref, h_ref, rulecurve_ref",
     [
         (
-            True,  # blend=1, q_max=10, rule_curve is 0.5 for each step.
+            True,  # blend=1, q_max=10, rulecurve_input is 0.9 for each step.
             False,
             np.array([0.4, 0.4, 1.0]),
             np.array([1.3, 0.9, 0.9]),

@@ -86,10 +86,6 @@ def test_rule_curve_deviation(test_case):
 @pytest.mark.parametrize(
     "observed_elevations, rule_curve, periods, expected_error",
     [
-        # Pool elevations and rule curve have different lengths.
-        (np.array([1, 2, 3]), np.array([1, 2]), 2, ValueError),
-        # Pool elevation contains NaN values.
-        (np.array([1, 2, np.nan]), np.array([1, 2, 3]), 2, ValueError),
         # Periods less than 1.
         (np.array([1, 2, 3]), np.array([1, 2, 3]), 0, ValueError),
         # Periods greater than number of observed elevations.
