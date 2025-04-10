@@ -52,10 +52,9 @@ def rule_curve_deviation(
     maximum_difference: float = np.inf,
 ) -> np.ndarray:
     """
-    Computes an adjusted moving average of the deviation between the observed pool elevation and
+    Computes a moving average of the deviation between the observed pool elevation and
     the rule curve elevation. Deviations at timesteps where the inflow exceeds the maximum inflow
-    are set to the maximum_difference. Deviations that exceed the maximum deviation
-    are also set to the maximum_difference.
+    are set to 0. Deviations that exceed the maximum deviation are also set to the 0.
 
     :param observed_elevations: np.ndarray
         The observed pool elevations [m].
