@@ -485,7 +485,6 @@ class ReservoirModel(Model):
         The function overwrites the required timeseries of 'rule_curve', and should be
         called in self.apply_schemes()
         """
-        h_obs = np.array(self.io.get_timeseries(h_var))
         if application_time is None:
             try:
                 application_time = self.first_missing_Hobs

@@ -1,5 +1,4 @@
 """Example that illustrates use of the rulecurve scheme."""
-import datetime
 from pathlib import Path
 
 from rtctools.util import run_simulation_problem
