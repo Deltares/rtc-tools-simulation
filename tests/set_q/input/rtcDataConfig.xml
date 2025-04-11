@@ -36,18 +36,6 @@
 			<parameterId>Q.out</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	    <timeSeries id="Q_out_corrected">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.out.corrected</parameterId>
-		</PITimeSeries>
-	</timeSeries>
-	    <timeSeries id="Q_error">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.error</parameterId>
-		</PITimeSeries>
-	</timeSeries>
     <timeSeries id="Q_spill">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>

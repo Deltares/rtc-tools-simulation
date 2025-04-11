@@ -18,7 +18,6 @@ model Reservoir
   input Boolean do_poolq(fixed=true);
   input Boolean do_set_q_out(fixed=true);
   input Boolean use_composite_q(fixed=true);
-  input Boolean compute_v(fixed=true);
   input Boolean include_evaporation(fixed=true);
   input Boolean include_rain(fixed=true);
   input FlowRatePerArea mm_evaporation_per_hour(fixed=true);
@@ -29,8 +28,6 @@ model Reservoir
   output SI.Volume V();
   SI.Volume V_observed();
   output SI.VolumeFlowRate Q_out();
-  output SI.VolumeFlowRate Q_out_corrected();
-  output SI.VolumeFlowRate Q_error();
   SI.VolumeFlowRate Q_out_from_lookup_table();
   output SI.Length H();
   output SI.VolumeFlowRate Q_evap();
@@ -46,12 +43,7 @@ equation
   // H -> QSpill_from_lookup_table
   // V -> QOut (when do_poolq)
 
-  // Q_error defined as the difference in precalculated Q_out and the observed Volume change,
-  // needed for ADJUST function
-  Q_error = (compute_v - 1) * ((Q_in - Q_out) - der(V));
-
-  // compute_v is a Boolean that calculates Q_out physics-based if 1, and observation-based when 0
-  compute_v * (der(V) - (Q_in - Q_out + Q_rain - Q_evap)) + (1 - compute_v) * (V - V_observed) = 0;
+  der(V) - (Q_in - Q_out + Q_rain - Q_evap) = 0;
 
   Q_evap = Area * mm_evaporation_per_hour / 3600 / 1000 * include_evaporation;
   Q_rain = max_reservoir_area * mm_rain_per_hour / 3600 / 1000 * include_rain;
@@ -64,8 +56,5 @@ equation
     + use_composite_q * (Q_turbine + Q_spill + Q_sluice)
     + do_set_q_out * Q_out_from_input
   );
-
-  // This equation creates a 'bookkeeping' variable that closes the mass-balance when compute_v = 0
-  Q_out_corrected = Q_out -  Q_error;
 
 end Reservoir;
