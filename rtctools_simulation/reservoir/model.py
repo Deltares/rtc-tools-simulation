@@ -80,27 +80,33 @@ class ReservoirModel(Model):
         """
         super().pre(*args, **kwargs)
 
-        # create a copy of timeseries which may be ovwritten by the simulation
-        # TODO: this can be extended, for now we only copy the rulecurve timeseries
-        # and H_observed timeseries
+        self._copy_timeseries()
+        initial_h = self._determine_initial_elevation()
+        self._handle_missing_h_observed()
+        self._process_input_variables(initial_h)
+        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
+
+    def _copy_timeseries(self):
+        """Create a copy of timeseries which may be overwritten by the simulation."""
         timeseries_to_copy = ["H_observed", "rule_curve"]
         for timeseries in timeseries_to_copy:
             if timeseries in list(self.io.get_timeseries_names()):
                 timeseries_input = self.get_timeseries(timeseries)
                 self.set_timeseries(f"{timeseries}_input", timeseries_input.copy())
 
+    def _determine_initial_elevation(self):
+        """Determine the initial elevation based on available timeseries.
+
+        To avoid infeasibilities, the default value for the elevation needs
+        to be within the range of the lookup table.
+        We use the intial volume or elevation to ensure this."""
         timeseries_names = self.io.get_timeseries_names()
-        input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
-        default_values = {var: 0 for var in input_vars}
-        # To avoid infeasibilities,
-        # the default value for the elevation needs to be within the range of the lookup table.
-        # We use the intial volume or elevation to ensure this.
         if "H_observed" in timeseries_names:
-            initial_h = float(self.get_timeseries("H_observed")[0])
+            return float(self.get_timeseries("H_observed")[0])
         elif "H" in timeseries_names:
-            initial_h = float(self.get_timeseries("H")[0])
+            return float(self.get_timeseries("H")[0])
         elif "V" in timeseries_names:
-            initial_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+            return float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
         else:
             raise Exception(
                 'No initial condition is provided for reservoir elevation, "H", '
@@ -108,7 +114,9 @@ class ReservoirModel(Model):
                 "One of these must be provided."
             )
 
-        # save the first missing H_observed value for potential use in the rulecurve/adjust scheme
+    def _handle_missing_h_observed(self):
+        """Save the first missing H_observed value for potential use in schemes."""
+        timeseries_names = self.io.get_timeseries_names()
         if "H_observed" in timeseries_names:
             if np.any(np.isnan(self.get_timeseries("H_observed"))):
                 h_timeseries = self.io.get_timeseries("H_observed")
@@ -117,7 +125,13 @@ class ReservoirModel(Model):
                         self.first_missing_Hobs = h_timeseries[0][x]
                         break
 
+    def _process_input_variables(self, initial_h):
+        """Process input variables and handle missing or NaN values."""
+        timeseries_names = self.io.get_timeseries_names()
+        input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
+        default_values = {var: 0 for var in input_vars}
         default_values[InputVar.H_OBSERVED.value] = initial_h
+
         for var in input_vars:
             default_value = default_values[var]
             if var not in timeseries_names:
@@ -140,8 +154,6 @@ class ReservoirModel(Model):
             )
             timeseries = fill_nans_with_interpolation(self.times(), timeseries)
             self.set_timeseries(var, timeseries)
-        # Set parameters.
-        self.max_reservoir_area = self.parameters().get("max_reservoir_area", 0)
 
     # Helper functions for getting/setting the time/date/variables.
     def get_var(self, name: str) -> float:
