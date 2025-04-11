@@ -24,11 +24,6 @@ class _SimulationProblem(SimulationProblem):
         pass
 
     def initialize(self, config_file=None):
-        # create a copy of timeseries which may be ovwritten by the simulation
-        # TODO: this can be extended, for now we only copy the rulecurve timeseries
-        if "rule_curve" in list(self.io.get_timeseries_names()):
-            rule_curve_input = self.get_timeseries("rule_curve")
-            self.set_timeseries("rule_curve_input", rule_curve_input.copy())
         self.set_input_variables()
         super().initialize(config_file)
 

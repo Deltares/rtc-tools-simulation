@@ -404,7 +404,6 @@ class ReservoirModel(Model):
         discharge_per_second = discharge / self.get_time_step()
         if not ignore_inflows:
             discharge_per_second += self.get_var("Q_in")
-        print(discharge_per_second)
         self._set_q(outflow, max(0, discharge_per_second))
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
@@ -489,8 +488,7 @@ class ReservoirModel(Model):
         h_obs = np.array(self.io.get_timeseries(h_var))
         if application_time is None:
             try:
-                first_missing_hobs = h_obs[0, np.isnan(list(h_obs[1]))][0]
-                application_time = first_missing_hobs
+                application_time = self.first_missing_Hobs
                 logger.info(
                     'Setting application time for function "adjust_rulecurve" '
                     'to the first missing value in input timeseries "H_observed" '

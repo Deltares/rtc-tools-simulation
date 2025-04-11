@@ -140,7 +140,6 @@ def test_rule_curve_deviation(
     outcome = rule_curve_deviation(
         observed_elevations, rule_curve, periods, inflows, qin_max, maximum_difference
     )
-    print(outcome)
     np.testing.assert_array_almost_equal(outcome, expected_outcome, decimal=3)
 
 

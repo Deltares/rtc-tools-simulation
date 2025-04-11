@@ -17,8 +17,7 @@ class SingleReservoir(ReservoirModel):
         self.calculate_rule_curve_deviation(periods=3, h_var="H_observed")
         self.adjust_rulecurve(
             periods=3,
-            extrapolate_trend_linear=False,
-            application_time=datetime.datetime(2022, 6, 13, 0),
+            extrapolate_trend_linear=True,
         )
 
     def apply_schemes(self):
