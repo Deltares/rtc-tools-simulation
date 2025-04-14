@@ -407,6 +407,11 @@ class ReservoirModel(Model):
             )
         volume_target = v_from_h_lookup_table(rule_curve[current_step])
         current_volume = self.get_var("V")
+        if not ignore_inflows:
+            q_max -= self.get_var("Q_in") * self.get_time_step()
+        if q_max < 0:
+            logger.debug("Q_max is negative. Setting it to 0.")
+            q_max = 0
         discharge = rule_curve_discharge(
             volume_target,
             current_volume,
