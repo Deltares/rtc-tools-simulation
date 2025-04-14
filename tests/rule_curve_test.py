@@ -42,7 +42,7 @@ class RuleCurveModel(ReservoirModel):
     "target_volume, current_volume, q_max, blend, expected",
     [
         (5, 10, np.inf, 1, 5),  # Test positive inflow with one timestep.
-        (10, 5, np.inf, 1, 0),  # Test zero outflow when target is higher than current.
+        (10, 5, np.inf, 1, -5),  # Test negative outflow when target is higher than current.
         (5, 10, np.inf, 2, 2.5),  # Test positive flow in with two timesteps.
         (5, 10, 1, 2, 1),  # Test limiting q_max.
     ],
@@ -58,9 +58,9 @@ def test_rule_curve(target_volume, current_volume, q_max, blend, expected):
         (
             True,  # blend=1, q_max=10, rulecurve_input is 0.9 for each step.
             False,
-            np.array([0.0, 0.4, 1.0]),
-            np.array([1.3, 0.9, 0.9]),
-            np.array([1.15, 0.9, 0.9]),
+            np.array([0.0, 0.4, 0.9]),
+            np.array([1.3, 0.9, 1.0]),
+            np.array([1.15, 0.9, 1.0]),
             np.array([0.9, 0.9, 1.0]),
         ),
         (
@@ -84,7 +84,7 @@ def test_rule_curve_scheme(do_apply_rulecurve, do_extrapolate, q_ref, v_ref, h_r
     q_out = np.array(output["Q_out"])
     v_out = np.array(output["V"])
     h_out = np.array(output["H"])
-    new_rulecurve = model.io.get_timeseries("rule_curve")[1]
+    new_rulecurve = model.get_timeseries("rule_curve")
     np.testing.assert_array_almost_equal(q_out, q_ref, decimal=3)
     np.testing.assert_array_almost_equal(v_out, v_ref, decimal=3)
     np.testing.assert_array_almost_equal(h_out, h_ref, decimal=3)

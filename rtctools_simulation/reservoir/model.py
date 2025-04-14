@@ -406,22 +406,22 @@ class ReservoirModel(Model):
                 "The lookup table v_from_h is not found It is required for the rule curve scheme."
             )
         volume_target = v_from_h_lookup_table(rule_curve[current_step])
-        current_volume = self.get_var("V")
+        previous_volume = self.get_var("V")
         if not ignore_inflows:
-            q_max -= self.get_var("Q_in") * self.get_time_step()
+            q_max -= self.timeseries_at("Q_in", self.get_current_time()) * self.get_time_step()
         if q_max < 0:
             logger.debug("Q_max is negative. Setting it to 0.")
             q_max = 0
         discharge = rule_curve_discharge(
             volume_target,
-            current_volume,
+            previous_volume,
             q_max,
             blend,
         )
         discharge_per_second = discharge / self.get_time_step()
         if not ignore_inflows:
-            discharge_per_second += self.get_var("Q_in")
-        self._set_q(outflow, max(0, discharge_per_second))
+            discharge_per_second += self.timeseries_at("Q_in", self.get_current_time())
+        self._set_q(outflow, max(0, float(discharge_per_second)))
         logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
 
     def calculate_rule_curve_deviation(

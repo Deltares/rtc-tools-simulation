@@ -40,7 +40,7 @@ def rule_curve_discharge(
         raise ValueError("The rule curve maximum discharge parameter should be non-negative.")
     volume_difference = current_volume - target_volume
     required_flow = volume_difference / blend
-    return max(min(required_flow, q_max), 0)
+    return min(required_flow, q_max)
 
 
 def rule_curve_deviation(
