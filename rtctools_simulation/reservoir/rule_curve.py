@@ -69,7 +69,7 @@ def rule_curve_deviation(
     :param maximum_difference: float (optional)
         The maximum absolute deviation per timestep.
 
-    :return: np.ndarray
+    :return: np.ndarray (same shape as rule_curve)
         The average deviation for each timestep.
     """
     if periods < 1:
@@ -87,7 +87,7 @@ def rule_curve_deviation(
     if inflows is not None:
         deviation_array = np.where(inflows > qin_max, 0, deviation_array)
 
-    average_deviation = np.full(len(observed_elevations), np.nan)
+    average_deviation = np.full(len(rule_curve), np.nan)
     for i in range(periods, len(observed_elevations) + 1):
         if not np.sum(np.isnan(deviation_array[i - periods : i])) > (periods / 2):
             average_deviation[i - 1] = np.nanmean(deviation_array[i - periods : i])
