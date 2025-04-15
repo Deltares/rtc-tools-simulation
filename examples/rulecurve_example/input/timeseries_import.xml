@@ -1750,10 +1750,10 @@
 		<event date="2022-06-16" time="18:00:00" value="1598" flag="8"/>
 		<event date="2022-06-16" time="19:00:00" value="1598" flag="8"/>
 		<event date="2022-06-16" time="20:00:00" value="1598" flag="8"/>
-		<event date="2022-06-16" time="21:00:00" value="1597" flag="8"/>
-		<event date="2022-06-16" time="22:00:00" value="1597" flag="8"/>
-		<event date="2022-06-16" time="23:00:00" value="1597" flag="8"/>
-		<event date="2022-06-17" time="00:00:00" value="1597" flag="8"/>
+		<event date="2022-06-16" time="21:00:00" value="1598" flag="8"/>
+		<event date="2022-06-16" time="22:00:00" value="1598" flag="8"/>
+		<event date="2022-06-16" time="23:00:00" value="1598" flag="8"/>
+		<event date="2022-06-17" time="00:00:00" value="1598" flag="8"/>
 		<event date="2022-06-17" time="01:00:00" value="-999.0" flag="8"/>
 		<event date="2022-06-17" time="02:00:00" value="-999.0" flag="8"/>
 		<event date="2022-06-17" time="03:00:00" value="-999.0" flag="8"/>
