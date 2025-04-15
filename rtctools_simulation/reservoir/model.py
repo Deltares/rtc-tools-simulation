@@ -488,8 +488,7 @@ class ReservoirModel(Model):
         extrapolate_trend_linear: Optional[bool] = False,
     ):
         """
-        Adjusts the rulecurve of timesteps after H_observed becomes unavailable based on
-        deviations in the timesteps prior.
+        Adjusts the rulecurve based on deviations compared to H_observed.
 
         This method can be applied inside :py:meth:`.ReservoirModel.pre`.
 
