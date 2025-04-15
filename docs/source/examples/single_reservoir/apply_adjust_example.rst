@@ -15,7 +15,6 @@ be adjusted based upon these observed values. Hence the outflow from the reservo
 water balances between simulation and observation. At times without volume observations, reservoir outflow should be 0.4 m3/s.
 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme can be applied to model these operations. 
-An additional output variable ``Q_out_corrected`` describes the corrected outflow based upon the observed volumes. 
 
 Main Model (python) File
 ------------------------
@@ -114,10 +113,10 @@ For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
 
 The results of the simulation run can be seen in the plot below. Observed (constant) volumes are provided for the initial
-time period, note that this leads to a non-zero ``Q_out_corrected``. 
+time period. 
 
 By choosing `Show results from previous run`, results are shown without the :py:meth:`.ReservoirModel.apply_adjust` scheme.
-It can be seen that in this case the simulated volumes differ from observations, and ``Q_out_corrected`` is equal to ``Q_out``.
+It can be seen that in this case the simulated volumes differ from observations.
 
 .. raw:: html
     :file: figures\\final_results_adjust.html

@@ -10,12 +10,10 @@ EXAMPLE_DIR = pathlib.Path(__file__).parent.parent.resolve() / "examples"
 
 @pytest.mark.parametrize(
     "example",
-    [
-        "single_reservoir/single_reservoir.py",
-    ],
+    [str(path.relative_to(EXAMPLE_DIR)) for path in EXAMPLE_DIR.rglob("*.py")],
 )
 def test_example(example: pathlib.Path):
-    """Test if a given example runs succesfully."""
+    """Test if a given example runs successfully."""
     example = EXAMPLE_DIR / example
     example_run = subprocess.run(
         [sys.executable, example],

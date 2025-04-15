@@ -6,33 +6,16 @@
         <type>instantaneous</type>
         <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
-        <parameterId>Q.turbine</parameterId>
-        <timeStep unit="second" multiplier="3600"/>
-        <startDate date="2022-06-07" time="06:00:00"/>
-        <endDate date="2022-06-07" time="09:00:00"/>
-        <forecastDate date="2022-06-07" time="06:00:00"/>
-        <missVal>-999.0</missVal>
-        <stationName>Reservoir1</stationName>
-        <units>m/s</units>
-    </header>
-      <event date="2022-06-07" time="06:00:00" value="0.05" flag="8"/>
-    </series>
-
-    <series>
-      <header>
-        <type>instantaneous</type>
-        <moduleInstanceId>reservoir</moduleInstanceId>
-        <locationId>reservoir</locationId>
         <parameterId>V</parameterId>
-        <timeStep unit="second" multiplier="3600"/>
-        <startDate date="2022-06-07" time="06:00:00"/>
-        <endDate date="2022-06-07" time="09:00:00"/>
-        <forecastDate date="2022-06-07" time="06:00:00"/>
+        <timeStep unit="second" multiplier="1"/>
+        <startDate date="2022-06-07" time="00:00:00"/>
+        <endDate date="2022-06-07" time="00:00:03"/>
+        <forecastDate date="2022-06-07" time="00:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
         <units>m3</units>
       </header>
-      <event date="2022-06-07" time="06:00:00" value="136500000" flag="8"/>
+      <event date="2022-06-07" time="00:00:00" value="10" flag="8"/>
     </series>
     <series>
       <header>
@@ -40,18 +23,18 @@
         <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>H.obs</parameterId>
-        <timeStep unit="second" multiplier="3600"/>
-        <startDate date="2022-06-07" time="06:00:00"/>
-        <endDate date="2022-06-07" time="09:00:00"/>
-        <forecastDate date="2022-06-07" time="06:00:00"/>
+        <timeStep unit="second" multiplier="1"/>
+        <startDate date="2022-06-07" time="00:00:00"/>
+        <endDate date="2022-06-07" time="00:00:03"/>
+        <forecastDate date="2022-06-07" time="00:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
         <units>m3</units>
       </header>
-      <event date="2022-06-07" time="06:00:00" value="1598.31" flag="8"/>
-      <event date="2022-06-07" time="07:00:00" value="1598.31" flag="8"/>
-      <event date="2022-06-07" time="08:00:00" value="1598.31" flag="8"/>
-      <event date="2022-06-07" time="09:00:00" value="1598.31" flag="8"/>
+      <event date="2022-06-07" time="00:00:00" value="5" flag="8"/>
+      <event date="2022-06-07" time="00:00:01" value="4" flag="8"/>
+      <event date="2022-06-07" time="00:00:02" value="3" flag="8"/>
+      <event date="2022-06-07" time="00:00:03" value="4" flag="8"/>
     </series>
     <series>
       <header>
@@ -59,17 +42,17 @@
         <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>Q.inflow.obs</parameterId>
-        <timeStep unit="second" multiplier="3600"/>
-        <startDate date="2022-06-07" time="06:00:00"/>
-        <endDate date="2022-06-07" time="09:00:00"/>
-        <forecastDate date="2022-06-07" time="06:00:00"/>
+        <timeStep unit="second" multiplier="1"/>
+        <startDate date="2022-06-07" time="00:00:00"/>
+        <endDate date="2022-06-07" time="00:00:03"/>
+        <forecastDate date="2022-06-07" time="00:00:00"/>
         <missVal>-999.0</missVal>
         <stationName>Reservoir1</stationName>
         <units>m/s</units>
     </header>
-      <event date="2022-06-07" time="06:00:00" value="4.1549306" flag="8"/>
-      <event date="2022-06-07" time="07:00:00" value="3.7766178" flag="8"/>
-      <event date="2022-06-07" time="08:00:00" value="3.7766178" flag="8"/>
-      <event date="2022-06-07" time="09:00:00" value="3.8080494" flag="8"/>
+      <event date="2022-06-07" time="00:00:00" value="1" flag="8"/>
+      <event date="2022-06-07" time="00:00:01" value="1" flag="8"/>
+      <event date="2022-06-07" time="00:00:02" value="1" flag="8"/>
+      <event date="2022-06-07" time="00:00:03" value="0" flag="8"/>
     </series>
 </TimeSeries>

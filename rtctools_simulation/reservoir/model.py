@@ -81,6 +81,16 @@ class ReservoirModel(Model):
             carefully chosen to select the correct default schemes.
         """
         super().pre(*args, **kwargs)
+
+        # create a copy of timeseries which may be ovwritten by the simulation
+        # TODO: this can be extended, for now we only copy the rulecurve timeseries
+        # and H_observed timeseries
+        timeseries_to_copy = ["H_observed", "rule_curve"]
+        for timeseries in timeseries_to_copy:
+            if timeseries in list(self.io.get_timeseries_names()):
+                timeseries_input = self.get_timeseries(timeseries)
+                self.set_timeseries(f"{timeseries}_input", timeseries_input.copy())
+
         timeseries_names = self.io.get_timeseries_names()
         input_vars = get_args(QOutControlVar) + get_args(FixedInputVar)
         default_values = {var: 0 for var in input_vars}
@@ -204,8 +214,58 @@ class ReservoirModel(Model):
         When applying this scheme, V is set to V_observed and a corrected version of the outflow,
         Q_out_corrected, is calculated in order to preserve the mass balance.
         """
-        # Disable compute_v so V will equal v_observed
-        self._input.volume.compute_v = False
+        if self.get_current_time() == self.get_start_time():
+            logger.debug(
+                "Skip applying adjust at initial time, since no previous volume is available."
+            )
+            return
+        current_step = int(self.get_current_time() / self.get_time_step())
+        h_observed = self.get_timeseries("H_observed_input")[current_step]
+        if np.isnan(h_observed):
+            if np.all(np.isnan(self.get_timeseries("H_observed_input")[current_step:])):
+                logger.debug(
+                    f"Observed elevation is NaN for timestep {current_step} and all future "
+                    "timesteps. Elevations will not be adjusted."
+                )
+                return
+            else:
+                logger.info(
+                    f"Observed elevation not provided for timestep {current_step}. "
+                    "Elevations will not be adjusted."
+                )
+                return
+        q_out = self._get_q_out_for_h_target(h_observed)
+        q_out = max(0, q_out)  # If outflow is negative, set outflow to zero.
+        self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+        self._set_q(InputVar.Q_OUT, float(q_out))
+
+    def _get_q_out_for_h_target(self, h_target) -> float:
+        """Get the required outflow given a target elevation."""
+        v_from_h = self.lookup_tables().get("v_from_h")
+        if v_from_h is None:
+            raise ValueError("The lookup table v_from_h is not found.")
+        v_target = v_from_h(h_target)
+        v_previous = self.get_var("V")
+        t_current = self.get_current_time()
+        dt = self.get_time_step()
+        mm_per_hour_to_m_per_s = 1 / 3600 / 1000
+        q_in = self.timeseries_at(InputVar.Q_IN.value, t_current)
+        if self._input.rain_evap.include_evaporation:
+            area_from_v = self.lookup_tables().get("area_from_v")
+            if area_from_v is None:
+                raise ValueError("The lookup table area_from_v is not found.")
+            area = area_from_v(v_target)
+            evap_mm_per_hour = self.timeseries_at(InputVar.Q_EVAP.value, t_current)
+            q_evap = area * evap_mm_per_hour * mm_per_hour_to_m_per_s
+        else:
+            q_evap = 0
+        if self._input.rain_evap.include_rain:
+            rain_mm_per_hour = self.timeseries_at(InputVar.Q_RAIN.value, t_current)
+            q_rain = self.max_reservoir_area * rain_mm_per_hour * mm_per_hour_to_m_per_s
+        else:
+            q_rain = 0
+        q_out = q_in + q_rain - q_evap - (v_target - v_previous) / dt
+        return q_out
 
     def apply_passflow(self):
         """Scheme to let the outflow be the same as the inflow.

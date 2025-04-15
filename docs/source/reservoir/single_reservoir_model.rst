@@ -33,7 +33,6 @@ Inputs
 * ``do_spill``: A boolean which determines whether or not the spillway scheme is applied.
 * ``do_pass``: A boolean which determines whether or not the passflow scheme is applied.
 * ``do_poolq``: A boolean which determines whether or not the poolq scheme is applied.
-* ``compute_v``: A boolean which determines whether or not the adjust scheme is applied.
 * ``include_evaporation``: A boolean which determines whether or not evaporation is accounted for.
 * ``include_rain``: A boolean which determines whether or not rain is accounted for.
 * ``mm_evaporation_per_hour``: The evaporation from the reservoir (mm per hour).
@@ -46,8 +45,7 @@ default values are set via
 the python script if they are not provided by the user. These defaults do not negatively affect the solution, but allow the 
 script to run if the user is not interested in considering a turbine flow for instance, or wishes to set reservoir inflow via a scheme. 
 
-``compute_v`` has a default of True, as the volume of the reservoir is always computed by the simulation, unless the
-adjust scheme is applied. All other input booleans which refer to the application of schemes have a default of ``False``. 
+All input booleans which refer to the application of schemes have a default of ``False``. 
 
 Outputs
 -------
@@ -56,8 +54,6 @@ Outputs
 
 * ``V``: The volume of the reservoir.
 * ``Q_out``: The outflow from the reservoir.
-* ``Q_out_corrected``: The corrected outflow of the reservoir given observed volumes if the adjust schme is applied.
-* ``Q_error``: The difference in precalculated Q_out and the observed Volume change, used by the adjust scheme.
 * ``H``: The elevation of the reservoir.
 * ``Q_evap``: The amount of water leaving the reservoir at each timestep due to evaporation.
 * ``Q_rain``: The amount of water entering the reservoir at each timestep due to rain.

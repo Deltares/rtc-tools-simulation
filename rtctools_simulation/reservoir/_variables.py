@@ -16,7 +16,6 @@ class InputVar(str, Enum):
     Q_EVAP = "mm_evaporation_per_hour"  #: evaporation (mm/hour)
     Q_RAIN = "mm_rain_per_hour"  #: rain (mm/hour)
     # Scheme inputs
-    COMPUTE_V = "compute_v"
     DO_SPILL = "do_spill"
     DO_PASS = "do_pass"
     DO_POOL_Q = "do_poolq"
@@ -34,7 +33,6 @@ class OutputVar(str, Enum):
     VOLUME = "V"  #: water volume (m^3)
     HEIGHT = "H"  #: water height (m)
     Q_OUT = "Q_out"  #: outflow (m^3/s)
-    Q_OUT_CORRECTED = "Q_out_corrected"  #: outflow after correction (m^3/s)
     Q_EVAP = "Q_evap"  #: evaporation (m^3/s)
     Q_RAIN = "Q_rain"  #: rain (m^3/s)
     Q_SPILL = "Q_spill"  #: spill (m^3/s)
@@ -59,7 +57,6 @@ FixedInputVar = Literal[
 
 #: Scheme variables.
 SchemeVar = Literal[
-    InputVar.COMPUTE_V,
     InputVar.DO_SPILL,
     InputVar.DO_PASS,
     InputVar.DO_POOL_Q,
