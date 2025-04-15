@@ -13,7 +13,6 @@ from rtctools_simulation.reservoir._variables import InputVar
 
 
 class Volume(pydantic.BaseModel):
-    compute_v: bool = True
     h_observed: pydantic.NonNegativeFloat = 0
 
 
@@ -85,7 +84,6 @@ def input_to_dict(model_input: Input) -> dict[InputVar]:
         InputVar.Q_IN: model_input.inflow,
         InputVar.Q_EVAP: model_input.rain_evap.mm_evaporation_per_hour,
         InputVar.Q_RAIN: model_input.rain_evap.mm_rain_per_hour,
-        InputVar.COMPUTE_V: model_input.volume.compute_v,
         InputVar.DO_SPILL: model_input.outflow.components.do_spill,
         InputVar.DO_PASS: model_input.outflow.outflow_type == OutflowType.PASS,
         InputVar.DO_POOL_Q: model_input.outflow.outflow_type == OutflowType.LOOKUP_TABLE,

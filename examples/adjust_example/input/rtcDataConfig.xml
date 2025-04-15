@@ -72,18 +72,6 @@
 			<parameterId>rulecurve.deviation</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-    <timeSeries id="Q_out_corrected">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.out.corrected</parameterId>
-		</PITimeSeries>
-	</timeSeries>
-	    <timeSeries id="Q_error">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.error</parameterId>
-		</PITimeSeries>
-	</timeSeries>
     <timeSeries id="Q_out_target">
         <PITimeSeries>
             <locationId>reservoir</locationId>
