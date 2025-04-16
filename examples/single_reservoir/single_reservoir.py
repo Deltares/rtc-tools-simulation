@@ -41,7 +41,7 @@ class SingleReservoir(ReservoirModel):
 
     def calculate_output_variables(self):
         """Calculate additional output variables."""
-        self.calculate_rule_curve_deviation(periods=3)
+        self.calculate_rule_curve_deviation(periods=3, h_var="H")
 
 
 # Create and run the model.

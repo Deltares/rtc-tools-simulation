@@ -10,9 +10,9 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_rulecurve` sch
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``. ``Q_out`` is comprised of a single component, 
-a sluice, ``Q_sluice``.
+a turbine, ``Q_turbine``.
 The reservoir outflow should be determined to achieve the rulecurve (elevation of 1600m).
-The rulecurve elevation should be achieved in single timestep with a maximum outflow of 10m3/s = 36000 m3/timestep.
+The rulecurve elevation should be achieved in single timestep with a maximum outflow of 10m3/s.
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme can be applied to model these operations. 
 
@@ -53,6 +53,7 @@ of the predefined class :py:class:`.ReservoirModel`.
 An overview of this class can be found in :ref:`reservoir-api`
 and details of the underlying model it uses can be found in :ref:`single-reservoir-model`.
 
+
 The method :py:meth:`.ReservoirModel.apply_schemes` is called every timestep and contains the logic
 for which schemes are applied.
 The first argument ``self`` is the :py:class:`.SingleReservoir` object itself.
@@ -62,13 +63,23 @@ Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
 An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
-The :py:meth:`.ReservoirModel.apply_rulecurve` scheme is then applied to set the reservoir outflow through the sluice.
+The :py:meth:`.ReservoirModel.apply_rulecurve` scheme is then applied to set the reservoir outflow through the turbine.
+It will aim to match the simulated elevation to the provided rule curve. There are functions provided that
+can alter the originally provided rule curve to account for differences with observations (e.g. during a
+very dry year, or after some maintenance project). This will need to be computed before model simulation.
+
+In the method :py:meth:`.ReservoirModel.pre` functions are called that accomplish certain pre-processing objectives.
+In this model, we compute the deviation of the observed elevations to the provided rule curve. Based on these deviations,
+the original rule curve is adjusted. In this case, we take the latest known deviation and apply that to all timesteps
+after the end of ``H_observed``. There is also functionality to provide an application time, average deviations over a
+moving window, or extrapolate the deviations linearly after the application time.
+
 
 Lookup tables
 -------------
 
-The :py:meth:`.ReservoirModel.apply_rulecurve` scheme uses a lookup table ``v_from_h``. This has uses the same 
-data as the ``h_from_v`` lookup table, the data mapping can be achived in the ``lookup_tables.csv`` file. 
+The :py:meth:`.ReservoirModel.apply_rulecurve` scheme uses a lookup table ``v_from_h``. This  uses the same
+data as the ``h_from_v`` lookup table, the data mapping can be achieved in the ``lookup_tables.csv`` file.
 
 .. csv-table:: <base_dir>/lookup_tables/lookup_tables.csv
   :file: ../../../../examples/rulecurve_example/lookup_tables/lookup_tables.csv
@@ -85,9 +96,10 @@ Input Data Files
 ----------------
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file.
-``rule_curve_q_max``, upper limiting discharge while blending pool elevation (m^3/timestep), and
-``rule_curve_blend``, the number of timesteps over which to bring the pool back to the scheduled elevation.
-
+``Reservoir_Qmax``, upper limiting discharge while blending pool elevation (m^3), and
+``rule_curve_blend``, the factor by which to reduce the current reservoir volume difference that will be mapped to the discharge this timestep.
+``rule_curve_blend`` > 1 will cause the elevation to converge to the rule curve over time, but not match it. In this case (blend = 1)
+it aims to match the rule_curve elevation at each timestep
 
 These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.
 
