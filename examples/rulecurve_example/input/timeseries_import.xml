@@ -6,22 +6,6 @@
 			<type>instantaneous</type>
 			<moduleInstanceId>reservoir</moduleInstanceId>
 			<locationId>reservoir</locationId>
-			<parameterId>V</parameterId>
-			<timeStep unit="second" multiplier="3600"/>
-			<startDate date="2022-06-07" time="06:00:00"/>
-			<endDate date="2022-06-27" time="06:00:00"/>
-			<forecastDate date="2022-06-07" time="06:00:00"/>
-			<missVal>-999.0</missVal>
-			<stationName>Reservoir1</stationName>
-			<units>m3</units>
-		</header>
-		<event date="2022-06-07" time="06:00:00" value="144722142" flag="8"/>
-	</series>
-	<series>
-		<header>
-			<type>instantaneous</type>
-			<moduleInstanceId>reservoir</moduleInstanceId>
-			<locationId>reservoir</locationId>
 			<parameterId>Q.inflow.obs</parameterId>
 			<timeStep unit="second" multiplier="3600"/>
 			<startDate date="2022-06-07" time="06:00:00"/>

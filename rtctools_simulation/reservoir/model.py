@@ -102,17 +102,34 @@ class ReservoirModel(Model):
         We use the intial volume or elevation to ensure this."""
         timeseries_names = self.io.get_timeseries_names()
         if "H_observed" in timeseries_names:
-            return float(self.get_timeseries("H_observed")[0])
+            initial_h = float(self.get_timeseries("H_observed")[0])
+            logger.info("Using H_observed timeseries for initial elevation.")
         elif "H" in timeseries_names:
-            return float(self.get_timeseries("H")[0])
+            initial_h = float(self.get_timeseries("H")[0])
+            logger.info("Using H timeseries for initial elevation.")
         elif "V" in timeseries_names:
-            return float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+            initial_h = float(self._lookup_tables["h_from_v"](self.get_timeseries("V")[0]))
+            logger.info("Using V timeseries for initial elevation.")
         else:
             raise Exception(
                 'No initial condition is provided for reservoir elevation, "H", '
                 'reservoir volume, "V", or observed elevation "H_observed". '
                 "One of these must be provided."
             )
+        # set the initial volume
+        v_from_h = self.lookup_tables().get("v_from_h")
+        if v_from_h is None:
+            raise ValueError("The lookup table v_from_h is not found.")
+        initial_v = float(v_from_h(initial_h))
+        if "V" in timeseries_names and initial_v != self.get_timeseries("V")[0]:
+            logger.warning(
+                f"Initial elevation {initial_h} does not match the provided initial volume "
+                f"{self.get_timeseries('V')[0]}. Initial volume will be overwritten."
+            )
+        volumes = np.full_like(self.times(), np.nan)
+        volumes[0] = initial_v
+        self.set_timeseries("V", volumes)
+        return initial_h
 
     def _handle_missing_h_observed(self):
         """Save the first missing H_observed value for potential use in schemes."""
