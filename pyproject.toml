@@ -20,7 +20,7 @@ numpy = "*"
 pandas = "*"
 pydantic = "*"
 rtc-tools = "^2.6"
-rtc-tools-interface = "0.7.*"
+rtc-tools-interface = "0.10.*, 0.10.0a1"
 
 [tool.poetry.scripts]
 rtc-tools-reservoir-template = "rtctools_simulation.cli.reservoir:create_reservoir_template"
