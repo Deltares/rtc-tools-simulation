@@ -336,26 +336,11 @@ class ReservoirModel(Model):
         """
         Determines the outflow from the reservoir based on the inflow and minimum required
         outflow (downstream water demands or power generation objectives), as well as reservoir
-        characteristics of maximum discharge of the dam facilitied or operational rules
+        characteristics of maximum discharge of the dam facilities or operational rules
         (e.g. maximum generator discharge, maximum sluice discharge).
+        Requires preconfigured parameters for ["Spillway_H", "Reservoir_Htarget", "Reservoir_Qmax",
+            "Reservoir_Qmin"] in rtcParameterConfig.xml
 
-        :param inflow: float
-            Discharge into the reservoir at the current timestep [m^3/s].
-        :param qmin: float
-            Required minimum discharge [m^3/s].
-        :param qlim: float
-            Maximum discharge without spill [m^3/s]
-        :param hmax: float
-            Elevation at which spill starts to occur, either controlled by gated facilities or
-            uncontrolled across the crest. [m]
-        :param spill_type: str
-            Type of spill that occurs, either gated or crested
-        :param qpassmax: float
-            Maximum discharge that can be routed through the facilities of the structure,
-            without routing over the crest. If exceeded, the SPILLWAY function is activated. [m3/s]
-
-        :return q_out: float
-            The computed outflow for the current timestep [m^3/s].
         """
         current_h = self.get_var("H")
         inflow = self.get_var("Q_in")

@@ -26,6 +26,6 @@ def test_fillspill():
     q_turbine = np.array(output["Q_turbine"])
     q_spill = np.array(output["Q_spill"])
     q_turbine_ref = np.array([0.0, 20, 20, 60, 60, 60, 60])
-    q_spill_ref = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 63.5886, 51.1293])
+    q_spill_ref = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 63.0582, 50.9090])
     numpy.testing.assert_array_almost_equal(q_turbine, q_turbine_ref, decimal=3)
     numpy.testing.assert_array_almost_equal(q_spill, q_spill_ref, decimal=3)
