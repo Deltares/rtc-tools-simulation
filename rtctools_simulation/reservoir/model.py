@@ -330,6 +330,66 @@ class ReservoirModel(Model):
         """
         self._input.outflow.outflow_type = OutflowType.LOOKUP_TABLE
 
+    def apply_fillspill(
+        self,
+    ) -> float:
+        """
+        Determines the outflow from the reservoir based on the inflow and minimum required
+        outflow (downstream water demands or power generation objectives), as well as reservoir
+        characteristics of maximum discharge of the dam facilities or operational rules
+        (e.g. maximum generator discharge, maximum sluice discharge).
+        Requires preconfigured parameters for ["Spillway_H", "Reservoir_Htarget", "Reservoir_Qmax",
+            "Reservoir_Qmin"] in rtcParameterConfig.xml
+
+        """
+        current_h = self.get_var("H")
+        inflow = self.get_var("Q_in")
+        parameters = self.parameters()
+        required_parameters = {
+            "Spillway_H",
+            "Reservoir_Htarget",
+            "Reservoir_Qmax",
+            "Reservoir_Qmin",
+        }
+        all_pars_present = [par in parameters.keys() for par in required_parameters]
+        if not all(all_pars_present):
+            raise KeyError(
+                f"Not all parameters [{required_parameters}] for FILLSPILL"
+                f"are configured in rtcParameterConfig.xml"
+            )
+
+        ## If stage exceeds hmax, apply spill and release as much as possible
+        if current_h > parameters["Spillway_H"]:
+            self.apply_spillway()
+            self.set_q(
+                target_variable="Q_turbine",
+                input_type="parameter",
+                input_data=parameters["Reservoir_Qmax"],
+            )
+        elif current_h >= parameters["Reservoir_Htarget"]:
+            if inflow > parameters["Reservoir_Qmax"]:  ## discharge qlim, excess is added to storage
+                self.set_q(
+                    target_variable="Q_turbine",
+                    input_type="parameter",
+                    input_data=parameters["Reservoir_Qmax"],
+                )
+            elif (
+                inflow <= parameters["Reservoir_Qmax"]
+            ):  ## If inflow between qmin and qlim, pass it directly through the system
+                self.apply_passflow()
+        elif current_h < parameters["Reservoir_Htarget"]:  ## Use storage to supply minimum outflow
+            self.set_q(
+                target_variable="Q_turbine",
+                input_type="parameter",
+                input_data=parameters["Reservoir_Qmin"],
+            )
+        else:
+            logger.warning(
+                f"apply_fillspill : At model time {self.get_current_datetime()} "
+                f"apply_fillspill was called but conditions of H_sim with value '{current_h}'"
+                f" was such that no subscheme was applied and nothing has changed."
+            )
+
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
 
