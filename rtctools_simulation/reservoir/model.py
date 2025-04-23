@@ -383,6 +383,12 @@ class ReservoirModel(Model):
                 input_type="parameter",
                 input_data=parameters["Reservoir_Qmin"],
             )
+        else:
+            logger.warning(
+                f"apply_fillspill : At model time {self.get_current_datetime()} "
+                f"apply_fillspill was called but conditions of H_sim with value '{current_h}'"
+                f" was such that no subscheme was applied and nothing has changed."
+            )
 
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
