@@ -4,7 +4,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>Q.turbine</parameterId>
         <timeStep unit="second" multiplier="86400"/>
@@ -21,7 +21,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>V</parameterId>
         <timeStep unit="second" multiplier="86400"/>
@@ -37,7 +37,7 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
+        <moduleInstanceId>reservoir</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>H.obs</parameterId>
         <timeStep unit="second" multiplier="86400"/>
@@ -59,7 +59,6 @@
     <series>
       <header>
         <type>instantaneous</type>
-        <moduleInstanceId>NHPS_DQF_preprocess</moduleInstanceId>
         <locationId>reservoir</locationId>
         <parameterId>Q.inflow.obs</parameterId>
         <timeStep unit="second" multiplier="86400"/>

@@ -5,6 +5,7 @@
 		<header>
 			<type>instantaneous</type>
 			<locationId>reservoir</locationId>
+			<moduleInstanceId>reservoir</moduleInstanceId>
 			<parameterId>V</parameterId>
 			<timeStep unit="second" multiplier="3600"/>
 			<startDate date="2022-06-07" time="06:00:00"/>
@@ -20,6 +21,7 @@
 		<header>
 			<type>instantaneous</type>
 			<locationId>reservoir</locationId>
+			<moduleInstanceId>reservoir</moduleInstanceId>
 			<parameterId>Q.inflow.obs</parameterId>
 			<timeStep unit="second" multiplier="3600"/>
 			<startDate date="2022-06-07" time="06:00:00"/>
