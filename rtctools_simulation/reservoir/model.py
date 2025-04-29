@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional, Union, get_args
 
 import numpy as np
+import scipy
 
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.interpolate import fill_nans_with_interpolation
@@ -708,3 +709,92 @@ class ReservoirModel(Model):
             nan_option,
         )
         self._set_q(target_variable.value, target_value)
+
+    def find_maxq(self, discharge_relation: str):
+        """
+        Utility to calculate the theoretical maximum discharge out of the reservoir.
+        Supports 3 different methods
+        This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
+        """
+        supported_relations = ["Case1", "Case2", "Case3"]
+        if discharge_relation not in supported_relations:
+            raise KeyError(
+                f" At timestep {self.get_current_datetime()}:"
+                f'Utility find_maxq has an invalid argument. "{discharge_relation}"'
+                f"is not one of the supported discharge relations. "
+                f"Choose one of {supported_relations}"
+            )
+        current_h = self.get_var("H")
+
+        if discharge_relation == "Case1":
+            try:
+                q_from_h = self.lookup_tables().get("q_from_h")
+                spill_q = q_from_h(current_h)
+            except Exception:
+                spill_q = 0
+                logger.warning(
+                    f" At timestep {self.get_current_datetime()}:"
+                    f"Utility find_maxq is not able to compute spill from h."
+                    f'Lookup table "q_from_h" might be missing'
+                )
+
+            if "Reservoir_Qmax" not in self.parameters():
+                raise KeyError from None(
+                    "find_maxq can not access parameter"
+                    '"Reservoir_Qmax" in rtcParameterConfig.xml'
+                )
+            maxq = spill_q + self.parameters()["Reservoir_Qmax"]
+        if discharge_relation == "Case2":
+            if "Reservoir_Qmax" not in self.parameters():
+                raise KeyError(
+                    "find_maxq can not access parameter"
+                    '"Reservoir_Qmax" in rtcParameterConfig.xml'
+                )
+            maxq = self.parameters()["Reservoir_Qmax"]
+        else:  # Discharge_relation == 'Case3'
+            maxq = self._find_maxq_tailwater()
+        return maxq
+
+    def _find_maxq_tailwater(self):
+        """
+        Supporting function for utility "maxq". Requires presence of 3 lookup tables.
+        q_from_h: Qspill as function of pool elevation
+        qturbine_from_dh: Maximum turbine discharge as a function of head difference
+        qtw_from_tw: Downstream discharge as function of tailwater elevation.
+        """
+        current_h = self.get_timeseries("H_observed")[0]
+        try:
+            qs_from_h = self.lookup_tables().get("qspill_from_h")
+            q_spill = qs_from_h(current_h)
+            qturbine_from_dh = self.lookup_tables().get("qturbine_from_dh")
+            qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
+        except Exception:
+            print("Failed lookup table lookup")
+            logger.warning(
+                f" At timestep {self.get_current_datetime()}:"
+                f"Utility find_maxq is not able to compute spill from h."
+                f"Not all required lookup tables are found."
+            )
+            raise ValueError from None("find_maxq: Not all lookup tables are present")
+        print(current_h)
+        print(q_spill, qturbine_from_dh(0.1), qtw_from_tw(0.1))
+
+        # def tw_func(q, h_res, q_spill):
+        #     htw_from_upstream = h_res - qturbine_from_dh(q)
+        #     htw_from_downstream = tw_from_qtw(q + q_spill)
+        #     print('test', htw_from_upstream, htw_from_downstream)
+        #     return htw_from_upstream - htw_from_downstream
+
+        def qmax_func(tw_solve, h_res, q_spill):
+            tw = tw_solve[0]
+            q_from_dh = qturbine_from_dh(h_res - tw)
+            q_from_ratingcurve = q_spill + qtw_from_tw(tw)
+            print("test", q_from_dh, q_from_ratingcurve)
+            print([q_from_dh - q_from_ratingcurve])
+            return [float(q_from_dh - q_from_ratingcurve)]
+
+        result = scipy.optimize.fsolve(
+            lambda tw_solve: qmax_func(tw_solve, current_h, q_spill), x0=[0.1]
+        )
+        print(result)
+        return result
