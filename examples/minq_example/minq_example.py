@@ -1,5 +1,4 @@
 """Example illustrating the minq scheme."""
-from datetime import datetime
 from pathlib import Path
 
 from rtctools.util import run_simulation_problem
@@ -15,12 +14,8 @@ class Reservoir(ReservoirModel):
 
     def apply_schemes(self):
         """Apply minq within a given time period."""
-        t = self.get_current_datetime()
-        t_start = datetime(2020, 1, 1)
-        t_end = datetime(2020, 1, 31)
         params = QMinParameters(h_min=0, h_max=40.0, h_target=20, q_flood=0)
-        if t >= t_start and t <= t_end:
-            self.apply_minq(params=params, horizon=t_end)
+        self.apply_minq(params=params)
 
 
 # Create and run the model.

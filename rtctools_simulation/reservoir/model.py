@@ -626,16 +626,12 @@ class ReservoirModel(Model):
         else:
             raise ValueError(f"Outflow shoud be one of {get_args(QOutControlVar)}.")
 
-    def apply_minq(
-        self,
-        params: QMinParameters,
-        horizon: Union[datetime, int, None] = None,
-    ):
+    def apply_minq(self, params: QMinParameters, recalculate: bool = False):
         """
         Determine and use outflow with a minimal peak.
 
-        The outflow is minimized for the given optimization parameters and time horizon.
-        If the horizon is not set, the end time of the simulation will be used.
+        The outflow is minimized for the given optimization parameters.
+        If recalculate is True, the minimzed outflow will be recalculated.
         """
         self._input.outflow.outflow_type = OutflowType.FROM_INPUT
         if self.get_current_time() == self.get_start_time():
@@ -643,42 +639,19 @@ class ReservoirModel(Model):
             # Optimization is not possible, since not all states have been initialized.
             self._input.outflow.from_input = 0
             return
-        times_sec = self._get_optimization_times(horizon)
-        name = f"Q_out_minq_horizon_{times_sec[-1]}"
-        if name not in self.io.get_timeseries_names():
-            self._calculate_qmin(times_sec=times_sec, params=params, name=name)
+        name = "Q_out_minq"
+        if name not in self.io.get_timeseries_names() or recalculate:
+            self._calculate_qmin(params=params, name=name)
         q_out = self.timeseries_at(name, self.get_current_time())
         self._input.outflow.from_input = q_out
 
-    def _get_optimization_times(self, horizon: Union[datetime, int, None] = None) -> List[int]:
-        """Get time stamps (seconds) for optimization given a time horizon."""
-        if horizon is None:
-            horizon = self.get_end_time()
-        elif isinstance(horizon, datetime):
-            t0 = self.io.reference_datetime
-            horizon = self.io.datetime_to_sec(horizon, t0)
-        times = list(self.times())
-        current_time = self.get_current_time()
-        i_current = times.index(current_time)
-        i_start = max(i_current - 1, 0)
-        i_horizon = times.index(horizon)
-        times_sec = times[i_start : i_horizon + 1]
-        if len(times_sec) == 0:
-            raise ValueError("Optimization period contains no times.")
-        return times_sec
-
-    def _calculate_qmin(
-        self,
-        params: QMinParameters,
-        times_sec: list[int],
-        name: str,
-    ):
+    def _calculate_qmin(self, params: QMinParameters, name: str):
         """
         Calculate the optimized outflow for the Q_min scheme.
 
-        Optimize for the given horizon (in seconds relative to start time).
         Store the result in the timeseries with the given name.
         """
+        times_sec = self.times()
         datetimes = [self.io.sec_to_datetime(t, self.io.reference_datetime) for t in times_sec]
         self._input.outflow.outflow_type = OutflowType.FROM_INPUT
         input_timeseries = self._get_optimization_input_timeseries(times_sec)
@@ -691,10 +664,7 @@ class ReservoirModel(Model):
         problem.optimize()
         results = problem.extract_results()
         var = OutputVar.Q_OUT.value
-        values = np.zeros(len(self.times()))
-        i_start = list(self.times()).index(times_sec[0])
-        i_end = list(self.times()).index(times_sec[-1]) + 1
-        values[i_start:i_end] = results[var]
+        values = results[var]
         self.set_timeseries(name, values)
 
     def _get_optimization_input_timeseries(self, times_sec: List[int]) -> Dict[str, list]:
