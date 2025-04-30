@@ -776,7 +776,7 @@ class ReservoirModel(Model):
         Supports 3 different methods
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
-        supported_relations = ["Case1", "Case2", "Case3"]
+        supported_relations = ["Spillway", "Fixed", "Tailwater"]
         if discharge_relation not in supported_relations:
             raise KeyError(
                 f" At timestep {self.get_current_datetime()}:"
@@ -784,12 +784,12 @@ class ReservoirModel(Model):
                 f"is not one of the supported discharge relations. "
                 f"Choose one of {supported_relations}"
             )
-        current_h = self.get_var("H")
+        latest_h = self.get_var("H")
 
-        if discharge_relation == "Case1":
+        if discharge_relation == "Spillway":
             try:
-                q_from_h = self.lookup_tables().get("q_from_h")
-                spill_q = q_from_h(current_h)
+                q_from_h = self.lookup_tables().get("qspill_from_h")
+                spill_q = q_from_h(latest_h)
             except Exception:
                 spill_q = 0
                 logger.warning(
@@ -801,31 +801,31 @@ class ReservoirModel(Model):
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError from None(
                     "find_maxq can not access parameter"
-                    '"Reservoir_Qmax" in rtcParameterConfig.xml'
+                    "'Reservoir_Qmax' in rtcParameterConfig.xml"
                 )
             maxq = spill_q + self.parameters()["Reservoir_Qmax"]
-        if discharge_relation == "Case2":
+        elif discharge_relation == "Fixed":
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError(
                     "find_maxq can not access parameter"
                     '"Reservoir_Qmax" in rtcParameterConfig.xml'
                 )
             maxq = self.parameters()["Reservoir_Qmax"]
-        else:  # Discharge_relation == 'Case3'
-            maxq = self._find_maxq_tailwater()
-        return maxq
+        elif discharge_relation == "Tailwater":
+            maxq = self._find_maxq_tailwater(latest_h)
+        return max(0, maxq)
 
-    def _find_maxq_tailwater(self):
+    def _find_maxq_tailwater(self, latest_h):
         """
         Supporting function for utility "maxq". Requires presence of 3 lookup tables.
         q_from_h: Qspill as function of pool elevation
         qturbine_from_dh: Maximum turbine discharge as a function of head difference
         qtw_from_tw: Downstream discharge as function of tailwater elevation.
         """
-        current_h = self.get_timeseries("H_observed")[0]
+        print("H: ", latest_h)
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
-            q_spill = qs_from_h(current_h)
+            q_spill = qs_from_h(latest_h)
             qturbine_from_dh = self.lookup_tables().get("qturbine_from_dh")
             qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
         except Exception:
@@ -836,25 +836,13 @@ class ReservoirModel(Model):
                 f"Not all required lookup tables are found."
             )
             raise ValueError from None("find_maxq: Not all lookup tables are present")
-        print(current_h)
-        print(q_spill, qturbine_from_dh(0.1), qtw_from_tw(0.1))
-
-        # def tw_func(q, h_res, q_spill):
-        #     htw_from_upstream = h_res - qturbine_from_dh(q)
-        #     htw_from_downstream = tw_from_qtw(q + q_spill)
-        #     print('test', htw_from_upstream, htw_from_downstream)
-        #     return htw_from_upstream - htw_from_downstream
 
         def qmax_func(tw_solve, h_res, q_spill):
-            tw = tw_solve[0]
-            q_from_dh = qturbine_from_dh(h_res - tw)
-            q_from_ratingcurve = q_spill + qtw_from_tw(tw)
-            print("test", q_from_dh, q_from_ratingcurve)
-            print([q_from_dh - q_from_ratingcurve])
-            return [float(q_from_dh - q_from_ratingcurve)]
+            tw = tw_solve[0]  # fsolve passes arrays
+            q_from_res = qturbine_from_dh(h_res - tw) + q_spill  ## Water release needs to equal
+            q_from_ratingcurve = qtw_from_tw(tw)  ## Downstream water flux
+            return [float(q_from_res - q_from_ratingcurve)]  # fsolve wants arrays
 
-        result = scipy.optimize.fsolve(
-            lambda tw_solve: qmax_func(tw_solve, current_h, q_spill), x0=[0.1]
-        )
-        print(result)
-        return result
+        result = scipy.optimize.fsolve(lambda tw: qmax_func(tw, latest_h, q_spill), x0=[0.5])
+        qmax = qtw_from_tw(result)
+        return max(0, qmax)

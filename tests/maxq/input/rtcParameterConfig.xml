@@ -16,7 +16,7 @@
         	<dblValue>10</dblValue>
         </parameter>
         <parameter id="Reservoir_Qmax">
-        	<dblValue>10</dblValue>
+        	<dblValue>0.5</dblValue>
         </parameter>
     </group>
 </parameters>
