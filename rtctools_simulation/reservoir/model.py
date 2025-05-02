@@ -799,7 +799,7 @@ class ReservoirModel(Model):
                 )
 
             if "Reservoir_Qmax" not in self.parameters():
-                raise KeyError from None(
+                raise KeyError(
                     "find_maxq can not access parameter"
                     "'Reservoir_Qmax' in rtcParameterConfig.xml"
                 )
@@ -828,14 +828,14 @@ class ReservoirModel(Model):
             q_spill = qs_from_h(latest_h)
             qturbine_from_dh = self.lookup_tables().get("qturbine_from_dh")
             qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
-        except Exception:
+        except Exception as e:
             print("Failed lookup table lookup")
             logger.warning(
                 f" At timestep {self.get_current_datetime()}:"
                 f"Utility find_maxq is not able to compute spill from h."
                 f"Not all required lookup tables are found."
             )
-            raise ValueError from None("find_maxq: Not all lookup tables are present")
+            raise ValueError("find_maxq: Not all lookup tables are present") from e
 
         def qmax_func(tw_solve, h_res, q_spill):
             tw = tw_solve[0]  # fsolve passes arrays
