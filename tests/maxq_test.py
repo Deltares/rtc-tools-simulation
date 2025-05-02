@@ -38,7 +38,7 @@ case3_outcome = np.array([0, 0.4833, 1.28])
 
 
 def test_maxq():
-    """Test the adjust model. Test for both volume to be correct"""
+    """Test the maxq utility. Test all 3 cases"""
     config = ModelConfig(base_dir=maxq_dir)
     model = MaxQModel(config)
     model.simulate()
