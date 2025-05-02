@@ -16,7 +16,6 @@ class MaxQModel(ReservoirModel):
         self.maxq = np.zeros(shape=(3, 3))
 
     def apply_schemes(self):
-        print(self.get_current_time())
         if self.get_current_time() > 0:
             maxq1 = self.find_maxq("Spillway")
             maxq2 = self.find_maxq("Fixed")
