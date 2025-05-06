@@ -770,7 +770,7 @@ class ReservoirModel(Model):
         )
         self._set_q(target_variable.value, target_value)
 
-    def find_maxq(self, discharge_relation: str):
+    def find_maxq(self, discharge_relation: str, solve_guess: float = np.nan):
         """
         Utility to calculate the theoretical maximum discharge out of the reservoir.
         Supports 3 different methods for 'discharge_relation'
@@ -781,7 +781,7 @@ class ReservoirModel(Model):
         "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh and downstream
         Q/H relation in lookup_tables.
 
-
+        "Tailwater" also can be provided with a solve_guess to optimize performance of the solver.
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
@@ -821,10 +821,12 @@ class ReservoirModel(Model):
                 )
             maxq = self.parameters()["Reservoir_Qmax"]
         elif discharge_relation == "Tailwater":
-            maxq = self._find_maxq_tailwater(latest_h)
+            if np.isnan(solve_guess):
+                solve_guess = latest_h
+            maxq = self._find_maxq_tailwater(latest_h, solve_guess)
         return max(0, maxq)
 
-    def _find_maxq_tailwater(self, latest_h: float, solve_guess: float = 0):
+    def _find_maxq_tailwater(self, latest_h: float, solve_guess: float):
         """
         Supporting function for utility "find_maxq". Requires presence of 3 lookup tables.
         q_from_h: Qspill as function of pool elevation
