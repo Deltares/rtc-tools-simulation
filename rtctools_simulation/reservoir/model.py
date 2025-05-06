@@ -776,12 +776,13 @@ class ReservoirModel(Model):
         Supports 3 different methods for 'discharge_relation'
         All methods require the parameter 'Reservoir_Qmax' and lookup_table 'qspill_from_h'
 
-        "Spillway": maxq based on spillway Q/H only
-        "Fixed": maxq based on spillway Q/H + fixed turbine Qmax
+        "Spillway": maxq based on spillway Q/H + fixed turbine Qmax
+        "Fixed": maxq based on fixed discharge only
         "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh and downstream
         Q/H relation in lookup_tables.
 
-        "Tailwater" also can be provided with a solve_guess to optimize performance of the solver.
+        "Tailwater" also can be provided with a variable "solve_guess" to optimize
+        performance of the solver.
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
@@ -798,15 +799,14 @@ class ReservoirModel(Model):
         if discharge_relation == "Spillway":
             try:
                 q_from_h = self.lookup_tables().get("qspill_from_h")
-                spill_q = q_from_h(latest_h)
-            except Exception:
-                spill_q = 0
+            except Exception as e:
                 logger.warning(
                     f" At timestep {self.get_current_datetime()}:"
                     f"Utility find_maxq is not able to compute spill from h."
-                    f'Lookup table "q_from_h" might be missing'
+                    f"qspill_from_h cannot be found."
                 )
-
+                raise ValueError("find_maxq: Not all lookup tables are present") from e
+            spill_q = q_from_h(latest_h)
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError(
                     "find_maxq can not access parameter"
