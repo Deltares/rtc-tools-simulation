@@ -20,14 +20,10 @@ class MaxQModel(ReservoirModel):
             maxq1 = self.find_maxq("Spillway")
             maxq2 = self.find_maxq("Fixed")
             maxq3 = self.find_maxq("Tailwater")
-            print("Maxq1: ", maxq1)
-            print("Maxq2: ", maxq2)
-            print("Maxq3: ", maxq3)
             timestep_int = int(self.get_current_time() / self.get_time_step())
             self.maxq[timestep_int, 0] = maxq1
             self.maxq[timestep_int, 1] = maxq2
             self.maxq[timestep_int, 2] = maxq3
-            print(self.maxq)
 
 
 case1_outcome = np.array([0, 0.65, 1.4])

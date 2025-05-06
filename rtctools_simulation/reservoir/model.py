@@ -822,7 +822,6 @@ class ReservoirModel(Model):
         qturbine_from_dh: Maximum turbine discharge as a function of head difference
         qtw_from_tw: Downstream discharge as function of tailwater elevation.
         """
-        print("H: ", latest_h)
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
             q_spill = qs_from_h(latest_h)
