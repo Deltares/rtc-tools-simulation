@@ -770,19 +770,25 @@ class ReservoirModel(Model):
         )
         self._set_q(target_variable.value, target_value)
 
-    def find_maxq(self, discharge_relation: str, solve_guess: float = np.nan):
+    def find_maxq(self, discharge_relation: str, solve_guess: Optional[float] = np.nan):
         """
         Utility to calculate the theoretical maximum discharge out of the reservoir.
         Supports 3 different methods for 'discharge_relation'
-        All methods require the parameter 'Reservoir_Qmax' and lookup_table 'qspill_from_h'
 
-        "Spillway": maxq based on spillway Q/H + fixed turbine Qmax
-        "Fixed": maxq based on fixed discharge only
-        "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh and downstream
-        Q/H relation in lookup_tables.
+        :param discharge_relation: str
+            The method used to calculate the maximum possible discharge maxq, options are:
+            "Spillway": maxq based on spillway Q/H + fixed turbine Qmax. Requires 'Reservoir_Qmax'
+            in rtcParameterConfig.xml, as well as 'qspill_from_h' as a lookup_table
+            "Fixed": maxq based on fixed discharge only. Requires 'Reservoir_Qmax'
+            in rtcParameterConfig.xml
+            "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh
+            ('qturbine_from_dh') and downstream Q/H relation ('qtw_from_tw') in lookup_tables,
+            as well as 'qspill_from_h'. See '_find_maxq_tailwater' for further info.
 
-        "Tailwater" also can be provided with a variable "solve_guess" to optimize
-        performance of the solver.
+        :param solve_guess: Optional[float] (default: np.nan)
+            Initial guess for the solver that finds the equilibrium when using the
+             "Tailwater" method. Defaults to current reservoir elevation in the
+              supporting function _find_maxq_tailwater when it is np.nan.
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
@@ -805,7 +811,7 @@ class ReservoirModel(Model):
                     f"Utility find_maxq is not able to compute spill from h."
                     f"qspill_from_h cannot be found."
                 )
-                raise ValueError("find_maxq: Not all lookup tables are present") from e
+                raise ValueError("find_maxq: lookup_table qspill_from_h is not present") from e
             spill_q = q_from_h(latest_h)
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError(
@@ -832,6 +838,13 @@ class ReservoirModel(Model):
         q_from_h: Qspill as function of pool elevation
         qturbine_from_dh: Maximum turbine discharge as a function of head difference
         qtw_from_tw: Downstream discharge as function of tailwater elevation.
+        Parameter solve_guess is used in the case of "Tailwater" to optimize solver performance.
+
+        :param latest_h: float
+            Current reservoir elevation
+
+        :param solve_guess: float
+            Initial guess for solver.
         """
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
