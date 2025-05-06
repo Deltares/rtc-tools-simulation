@@ -824,7 +824,7 @@ class ReservoirModel(Model):
             maxq = self._find_maxq_tailwater(latest_h)
         return max(0, maxq)
 
-    def _find_maxq_tailwater(self, latest_h):
+    def _find_maxq_tailwater(self, latest_h: float, solve_guess: float = 0):
         """
         Supporting function for utility "find_maxq". Requires presence of 3 lookup tables.
         q_from_h: Qspill as function of pool elevation
@@ -833,7 +833,6 @@ class ReservoirModel(Model):
         """
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
-            q_spill = qs_from_h(latest_h)
             qturbine_from_dh = self.lookup_tables().get("qturbine_from_dh")
             qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
         except Exception as e:
@@ -845,12 +844,16 @@ class ReservoirModel(Model):
             )
             raise ValueError("find_maxq: Not all lookup tables are present") from e
 
+        q_spill = qs_from_h(latest_h)
+
         def qmax_func(tw_solve, h_res, q_spill):
             tw = tw_solve[0]  # fsolve passes arrays
-            q_from_res = qturbine_from_dh(h_res - tw) + q_spill  ## Water release needs to equal
-            q_from_ratingcurve = qtw_from_tw(tw)  ## Downstream water flux
-            return [float(q_from_res - q_from_ratingcurve)]  # fsolve wants arrays
+            q_upstream = qturbine_from_dh(h_res - tw) + q_spill  ## Water release needs to equal
+            q_downstream = qtw_from_tw(tw)  ## Downstream water flux
+            return [float(q_upstream - q_downstream)]  # fsolve wants arrays
 
-        result = scipy.optimize.fsolve(lambda tw: qmax_func(tw, latest_h, q_spill), x0=[0.5])
+        result = scipy.optimize.fsolve(
+            lambda tw: qmax_func(tw, latest_h, q_spill), x0=[solve_guess]
+        )
         qmax = qtw_from_tw(result)
         return max(0, qmax)
