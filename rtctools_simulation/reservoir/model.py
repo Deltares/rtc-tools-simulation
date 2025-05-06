@@ -836,7 +836,6 @@ class ReservoirModel(Model):
             qturbine_from_dh = self.lookup_tables().get("qturbine_from_dh")
             qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
         except Exception as e:
-            print("Failed lookup table lookup")
             logger.warning(
                 f" At timestep {self.get_current_datetime()}:"
                 f"Utility find_maxq is not able to compute spill from h."
