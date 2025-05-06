@@ -785,7 +785,7 @@ class ReservoirModel(Model):
         :param solve_guess: Optional[float] (default: np.nan)
             Initial guess for the solver that finds the equilibrium when using the
              "Tailwater" method. Defaults to current reservoir elevation in the
-              supporting function.
+              supporting function _find_maxq_tailwater when it is np.nan.
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
@@ -835,6 +835,7 @@ class ReservoirModel(Model):
         q_from_h: Qspill as function of pool elevation
         qturbine_from_dh: Maximum turbine discharge as a function of head difference
         qtw_from_tw: Downstream discharge as function of tailwater elevation.
+        Parameter solve_guess is used in the case of "Tailwater" to optimize solver performance.
         """
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
