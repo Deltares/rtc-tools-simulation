@@ -24,3 +24,4 @@ Contents:
   single_reservoir/apply_rulecurve_example
   single_reservoir/apply_adjust_example
   single_reservoir/include_rainevap_example
+  single_reservoir/utility_maxq_example

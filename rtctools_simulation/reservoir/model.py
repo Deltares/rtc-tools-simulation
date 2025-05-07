@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional, Union, get_args
 
 import numpy as np
+import scipy
 
 import rtctools_simulation.reservoir.setq_help_functions as setq_functions
 from rtctools_simulation.interpolate import fill_nans_with_interpolation
@@ -237,7 +238,7 @@ class ReservoirModel(Model):
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         This scheme ensures that the spill "Q_spill" is computed from the elevation "H" using a
-        lookuptable "qspill_from_h".
+        lookuptable ``qspill_from_h``.
         """
         self._input.outflow.outflow_type = OutflowType.COMPOSITE
         self._input.outflow.components.do_spill = True
@@ -768,3 +769,107 @@ class ReservoirModel(Model):
             nan_option,
         )
         self._set_q(target_variable.value, target_value)
+
+    def find_maxq(self, discharge_relation: str, solve_guess: Optional[float] = np.nan):
+        """
+        Utility to calculate the theoretical maximum discharge out of the reservoir.
+        Supports 3 different methods for 'discharge_relation'
+
+        :param discharge_relation: str
+            The method used to calculate the maximum possible discharge maxq, options are:
+                - 'Spillway': maxq based on spillway Q/H + fixed Qmax. Requires parameter
+                   'Reservoir_Qmax', as well as lookup_table 'qspill_from_h'.
+                - 'Fixed': maxq based on fixed discharge only. Requires parameter
+                  'Reservoir_Qmax'.
+                - 'Tailwater': maxq is influenced by tailwater. Three lookup tables are required:
+                  ``qspill_from_h`` (spillway lookup table), ``qnotspill_from_dh`` (head vs
+                  (Qout-Qspill) lookup table) and ``qtw_from_tw`` (tailwater elavetion vs discharge
+                  curve). maxq is calculated by determining Qspill based on the simulated elvation,
+                  and then using a solver to determine the intersection of the remaining lookup
+                  tables using the function ``_find_maxq_tailwater``.
+
+        :param solve_guess: Optional[float] (default: np.nan)
+            Initial guess for the solver when using the 'Tailwater' method. Defaults to current
+              reservoir elevation in the supporting function
+              :py:meth:`.ReservoirModel._find_maxq_tailwater` when it is np.nan.
+
+        This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
+        """
+        supported_relations = ["Spillway", "Fixed", "Tailwater"]
+        if discharge_relation not in supported_relations:
+            raise KeyError(
+                f" At timestep {self.get_current_datetime()}:"
+                f'Utility find_maxq has an invalid argument. "{discharge_relation}"'
+                f"is not one of the supported discharge relations. "
+                f"Choose one of {supported_relations}"
+            )
+        latest_h = self.get_var("H")
+
+        if discharge_relation == "Spillway":
+            try:
+                q_from_h = self.lookup_tables().get("qspill_from_h")
+            except Exception as e:
+                logger.warning(
+                    f" At timestep {self.get_current_datetime()}:"
+                    f"Utility find_maxq is not able to compute spill from h."
+                    f"qspill_from_h cannot be found."
+                )
+                raise ValueError("find_maxq: lookup_table qspill_from_h is not present") from e
+            spill_q = q_from_h(latest_h)
+            if "Reservoir_Qmax" not in self.parameters():
+                raise KeyError(
+                    "find_maxq can not access parameter"
+                    "'Reservoir_Qmax' in rtcParameterConfig.xml"
+                )
+            maxq = spill_q + self.parameters()["Reservoir_Qmax"]
+        elif discharge_relation == "Fixed":
+            if "Reservoir_Qmax" not in self.parameters():
+                raise KeyError(
+                    "find_maxq can not access parameter"
+                    '"Reservoir_Qmax" in rtcParameterConfig.xml'
+                )
+            maxq = self.parameters()["Reservoir_Qmax"]
+        elif discharge_relation == "Tailwater":
+            if np.isnan(solve_guess):
+                solve_guess = latest_h
+            maxq = self._find_maxq_tailwater(latest_h, solve_guess)
+        return max(0, maxq)
+
+    def _find_maxq_tailwater(self, latest_h: float, solve_guess: float):
+        """
+        Supporting function for utility ``find_maxq``. Requires presence of 3 lookup tables.
+            - ``qspill_from_h``: Qspill as function of pool elevation
+            - ``qnotspill_from_dh``: Maximum non-spillway discharge as a function of head difference
+            - ``qtw_from_tw``: Downstream discharge as function of tailwater elevation.
+
+        :param latest_h: float
+            Current reservoir elevation
+
+        :param solve_guess: float
+            Initial TW elevation guess for increased solver performance.
+        """
+        try:
+            qs_from_h = self.lookup_tables().get("qspill_from_h")
+            qnotspill_from_dh = self.lookup_tables().get("qnotspill_from_dh")
+            qtw_from_tw = self.lookup_tables().get("qtw_from_tw")
+        except Exception as e:
+            logger.warning(
+                f" At timestep {self.get_current_datetime()}:"
+                f"Utility find_maxq is not able to compute spill from h."
+                f"Not all required lookup tables are found."
+            )
+            raise ValueError("find_maxq: Not all lookup tables are present") from e
+
+        q_spill = qs_from_h(latest_h)
+
+        def qmax_func(tw_solve, h_res, q_spill):
+            tw = tw_solve[0]  # fsolve passes arrays
+            q_upstream = qnotspill_from_dh(h_res - tw) + q_spill  ## Water release needs to equal
+            q_downstream = qtw_from_tw(tw)  ## Downstream water flux
+            return [float(q_upstream - q_downstream)]  # fsolve wants arrays
+
+        result = scipy.optimize.fsolve(
+            lambda tw: qmax_func(tw, latest_h, q_spill), x0=[solve_guess]
+        )
+        qmax = qtw_from_tw(result)
+        return max(0, qmax)
