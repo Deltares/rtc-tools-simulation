@@ -774,14 +774,17 @@ class ReservoirModel(Model):
         """
         Utility to calculate the theoretical maximum discharge out of the reservoir.
         Supports 3 different methods for 'discharge_relation'
-        All methods require the parameter 'Reservoir_Qmax' and lookup_table 'qspill_from_h'
 
         :param discharge_relation: str
             The method used to calculate the maximum possible discharge maxq, options are:
-            "Spillway": maxq based on spillway Q/H + fixed turbine Qmax
-            "Fixed": maxq based on fixed discharge only
-            "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh and
-            downstream Q/H relation in lookup_tables.
+            "Spillway": maxq based on spillway Q/H + fixed turbine Qmax. Requires 'Reservoir_Qmax'
+            in rtcParameterConfig.xml, as well as 'qspill_from_h' as a lookup_table
+            "Fixed": maxq based on fixed discharge only. Requires 'Reservoir_Qmax'
+            in rtcParameterConfig.xml
+            "Tailwater": maxq based on spillway Q/H and Q/dh for turbine. Requires Q/dh
+            ('qturbine_from_dh') and downstream Q/H relation ('qtw_from_tw') in lookup_tables,
+            as well as 'qspill_from_h'. See '_find_maxq_tailwater' for further info.
+
         :param solve_guess: Optional[float] (default: np.nan)
             Initial guess for the solver that finds the equilibrium when using the
              "Tailwater" method. Defaults to current reservoir elevation in the
@@ -836,6 +839,12 @@ class ReservoirModel(Model):
         qturbine_from_dh: Maximum turbine discharge as a function of head difference
         qtw_from_tw: Downstream discharge as function of tailwater elevation.
         Parameter solve_guess is used in the case of "Tailwater" to optimize solver performance.
+
+        :param latest_h: float
+            Current reservoir elevation
+
+        :param solve_guess: float
+            Initial guess for solver.
         """
         try:
             qs_from_h = self.lookup_tables().get("qspill_from_h")
