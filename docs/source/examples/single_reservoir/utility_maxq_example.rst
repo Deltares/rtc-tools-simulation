@@ -79,7 +79,7 @@ The required lookup_tables depend on the option that is chosen. For 'Fixed', non
 For option 'Spillway', the Q/H relationship of the spillway is required to be passed in a lookup_table
 named 'qspill_from_h'. If the option 'Tailwater' is chosen, we also need the Q/H relationship downstream, as well as
 the Q/dh relationship of the turbine. The configurator needs to provide those through lookup_tables
-'qtw_from_tw' and 'qturbine_from_dh' respectively. Lastly, for "Tailwater" a optional variable 'solve_guess' can
+'qtw_from_tw' and 'qnotspill_from_dh' respectively. Lastly, for "Tailwater" a optional variable 'solve_guess' can
 be provided to guide the equilibrium solver in finding the final value. If nothing is passed, it defaults to the
 current reservoir elevation as an initial guess.
 
