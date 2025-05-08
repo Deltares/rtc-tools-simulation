@@ -50,6 +50,8 @@ class ReservoirModel(Model):
         # Model inputs and input controls.
         self._input = Input()
         self._allow_set_var = True
+        self.initial_v = None
+        self.initial_h = None
 
     def _get_lookup_table_equations(self, allow_missing_lookup_tables=True):
         return super()._get_lookup_table_equations(allow_missing_lookup_tables)
@@ -121,14 +123,14 @@ class ReservoirModel(Model):
         v_from_h = self.lookup_tables().get("v_from_h")
         if v_from_h is None:
             raise ValueError("The lookup table v_from_h is not found.")
-        initial_v = float(v_from_h(initial_h))
-        if "V" in timeseries_names and initial_v != self.get_timeseries("V")[0]:
+        self.initial_v = float(v_from_h(initial_h))
+        if "V" in timeseries_names and self.initial_v != self.get_timeseries("V")[0]:
             logger.warning(
                 f"Initial elevation {initial_h} does not match the provided initial volume "
                 f"{self.get_timeseries('V')[0]}. Initial volume will be overwritten."
             )
         volumes = np.full_like(self.times(), np.nan)
-        volumes[0] = initial_v
+        volumes[0] = self.initial_v
         self.set_timeseries("V", volumes)
         return initial_h
 
@@ -557,6 +559,90 @@ class ReservoirModel(Model):
         self.set_timeseries("rule_curve_deviation_" + h_var, deviations)
         if hasattr(self, "_io_output"):
             self.extract_results().update({"rule_curve_deviation_" + h_var: deviations})
+
+    def calculate_single_cumulative_inflow(
+        self,
+        start_time: int = None,
+        end_time: int = None,
+    ):
+        """Calculate the cumulative inflow over a specified time period. The default behaviour
+        is to consider the period up to and including the current timestep.
+
+        :param start_time: The starting timestep index of the period to sum over.
+        :param end_time: The ending timestep index of the period to sum over.
+        :returns: The sum of inflows over the specified time period."""
+        if start_time is None:
+            start_time = int(self.get_start_time())
+        if end_time is None:
+            end_time = int(self.get_current_time())
+        dt = self.get_time_step()
+        if dt is None:
+            times = self.times()
+            dt = times[1] - times[0]
+            logger.debug("We assume a constant timestep size of %s", dt)
+        if start_time < end_time:
+            return sum(self.get_timeseries("Q_in")[start_time : end_time + 1]) * dt
+        elif start_time == end_time:
+            return self.get_timeseries("Q_in")[start_time] * dt
+        else:
+            logger.warning(
+                "In function calculate_single_cumulative_inflow: start_time must be less and or "
+                "equal to end_time"
+            )
+            return None
+
+    def calculate_cumulative_inflows(self):
+        """Calculate the cumulative inflows over the entire simulation period.
+
+        This can be called in ``pre``. Reults are saved to the timeseries
+        ``cumulative_inflows``."""
+        inflows = self.get_timeseries("Q_in")
+        cumulative_inflows = np.zeros_like(inflows)
+        for i in range(len(cumulative_inflows)):
+            cumulative_inflows[i] = self.calculate_single_cumulative_inflow(
+                start_time=0, end_time=i
+            )
+        self.set_timeseries("cumulative_inflows", cumulative_inflows)
+        return cumulative_inflows
+
+    def get_flood_flag(
+        self,
+        q_out_daily_average: float,
+        flood_elevation: float,
+    ):
+        """Preprocessing step which determines and returns a flag for flooding. Can be called during
+        ``pre``.
+
+        Indicative elevations are calculated using inflows (``Q_in``) and averge daily outflows.
+        If any indicative elevation is above the flood elevation, a the flood flag is set to True.
+
+        :param Q_out_daily_average: The average outflow over a 24 hour period (m^3/s).
+        :param flood_elevation: The elevation above which flooding occurs (m).
+        :returns: A boolean flag indicating whether flooding occurs (True) or not (False).
+        """
+        q_in_ts = self.get_timeseries("Q_in")
+        # convert the daily average outflow to a timestep outflow.
+        dt = self.get_time_step()
+        if dt is None:
+            times = self.times()
+            dt = times[1] - times[0]
+            logger.debug("We assume a constant timestep size of %s", dt)
+        q_out = q_out_daily_average
+        # for each timestep calculate the volume of the reservoir given the inflow and outflow
+        volumes = np.zeros_like(q_in_ts)
+        volumes[0] = self.initial_v
+        for i in range(1, len(q_in_ts)):
+            volumes[i] = volumes[i - 1] + (q_in_ts[i] - q_out) * dt
+        # convert volumes to elevations
+        h_from_v = self.lookup_tables().get("h_from_v")
+        if h_from_v is None:
+            raise ValueError("The lookup table h_from_v is not found.")
+        elevations = np.zeros_like(volumes)
+        for i in range(len(volumes)):
+            elevations[i] = h_from_v(volumes[i])
+        # check if any elevation is above the flood elevation
+        flood_flag = any(elevation > flood_elevation for elevation in elevations)
+        return flood_flag
 
     def adjust_rulecurve(
         self,
