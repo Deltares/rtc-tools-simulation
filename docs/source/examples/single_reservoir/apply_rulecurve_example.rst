@@ -103,19 +103,19 @@ it aims to match the rule_curve elevation at each timestep
 
 These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\rtcParameterConfig.xml
+.. literalinclude:: ../../../../examples/rulecurve_example/input/rtcParameterConfig.xml
     :language: xml
     :lines: 12-17
 
 The scheme also requires an additional input timeseries, ``rulecurve``. This data is provided in the ``timeseries_import.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\timeseries_import.xml
+.. literalinclude:: ../../../../examples/rulecurve_example/input/timeseries_import.xml
     :language: xml
     :lines: 1508-1538
 
 The data is mapped to the variable, ``rulecurve`` via the ``rtcDataConfig.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rulecurve_example\\input\\rtcDataConfig.xml
+.. literalinclude:: ../../../../examples/rulecurve_example/input/rtcDataConfig.xml
     :language: xml
     :lines: 5-10
 
@@ -143,4 +143,4 @@ see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interfa
 The results of the simulation run can be seen in the plot below.
 
 .. raw:: html
-    :file: figures\\final_results_rulecurve.html
+    :file: figures/final_results_rulecurve.html
