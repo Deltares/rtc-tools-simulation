@@ -38,6 +38,12 @@ class OutputVar(str, Enum):
     Q_SPILL = "Q_spill"  #: spill (m^3/s)
 
 
+class OptimizationVar(str, Enum):
+    """Variables for reservoir model optimization."""
+
+    Q_OUT_MAX = "Q_out_max"  #: maximum outflow (m^3/s)
+
+
 #: Reservoir outflow control variables.
 QOutControlVar = Literal[
     InputVar.Q_OUT,
@@ -65,3 +71,7 @@ SchemeVar = Literal[
     InputVar.INCLUDE_EVAPORATION,
     InputVar.INCLUDE_RAIN,
 ]
+
+
+#: State variables.
+StateVar = Literal[OutputVar.VOLUME,]

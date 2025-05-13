@@ -4,9 +4,10 @@ import filecmp
 import logging
 import math
 import shutil
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union, get_args
+from typing import Dict, Iterable, List, Optional, Union, get_args
 
 import numpy as np
 import scipy
@@ -24,7 +25,10 @@ from rtctools_simulation.reservoir._variables import (
     InputVar,
     OutputVar,
     QOutControlVar,
+    SchemeVar,
+    StateVar,
 )
+from rtctools_simulation.reservoir.minq import QMinParameters, QMinProblem
 from rtctools_simulation.reservoir.rule_curve import rule_curve_deviation, rule_curve_discharge
 
 DEFAULT_MODEL_DIR = Path(__file__).parent.parent / "modelica" / "reservoir"
@@ -66,7 +70,11 @@ class ReservoirModel(Model):
             model_dir.mkdir()
         config.set_dir("model", model_dir)
         config.set_model("Reservoir")
-        for filename in ["reservoir.mo", "lookup_table_equations.csv"]:
+        for filename in [
+            "reservoir.mo",
+            "reservoir_minq.mo",
+            "lookup_table_equations.csv",
+        ]:
             default_file = DEFAULT_MODEL_DIR / filename
             file = model_dir / filename
             if file.is_file() and filecmp.cmp(default_file, file, shallow=False):
@@ -709,6 +717,103 @@ class ReservoirModel(Model):
             self._input.outflow.components.sluice = value
         else:
             raise ValueError(f"Outflow shoud be one of {get_args(QOutControlVar)}.")
+
+    def apply_minq(
+        self,
+        *,
+        h_target: Union[float, Iterable[float], str],
+        h_min: float = 0,
+        h_max: Optional[float] = None,
+        q_flood: Optional[float] = 0,
+        recalculate: bool = False,
+    ):
+        """
+        Determine and use outflow with a minimal peak.
+
+        The outflow is minimized for the given optimization parameters.
+        If recalculate is True, the minimzed outflow will be recalculated.
+        This is useful if some of the parameters like h_target have changed.
+
+        :param h_target: float, Iterable[float], str.
+            Target elevation. Can be the name of a timeseries.
+        :param h_min: float, optional.
+            Minimum elevation. Default is 0.
+        :param h_max: float, optional.
+            Maximum elevation. Default is no None (no maximum elevation).
+        :param q_flood: float, optional.
+            Flood discharge. When computing the peak outflow,
+            values below the flood discharge are ignored.
+        :param recalculate: bool, optional.
+            If True, the outflow will be recalculated. Default is False.
+        """
+        self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+        if self.get_current_time() == self.get_start_time():
+            # Q_out at the start time will have no affect, so we can set it to zero.
+            # Optimization is not possible, since not all states have been initialized.
+            self._input.outflow.from_input = 0
+            return
+        name = "Q_out_minq"
+        if name not in self.io.get_timeseries_names() or recalculate:
+            if isinstance(h_target, str):
+                h_target = self.get_timeseries(h_target)
+            v_from_h = self.lookup_tables().get("v_from_h")
+            if v_from_h is None:
+                raise ValueError("The lookup table v_from_h is not found.")
+            params = QMinParameters(
+                v_min=v_from_h(h_min),
+                v_max=v_from_h(h_max),
+                v_target=v_from_h(h_target).toarray().flatten(),
+                q_flood=q_flood,
+            )
+            self._calculate_qmin(params=params, name=name)
+        q_out = self.timeseries_at(name, self.get_current_time())
+        self._input.outflow.from_input = q_out
+
+    def _calculate_qmin(self, params: QMinParameters, name: str):
+        """
+        Calculate the optimized outflow for the Q_min scheme.
+
+        Store the result in the timeseries with the given name.
+        """
+        times_sec = self.times()
+        datetimes = [self.io.sec_to_datetime(t, self.io.reference_datetime) for t in times_sec]
+        self._input.outflow.outflow_type = OutflowType.FROM_INPUT
+        input_timeseries = self._get_optimization_input_timeseries(times_sec)
+        config = deepcopy(self._config)
+        config.set_model("ReservoirMinQ")
+        problem = QMinProblem(
+            config=config,
+            datetimes=datetimes,
+            params=params,
+            input_timeseries=input_timeseries,
+        )
+        success = problem.optimize()
+        if not success:
+            raise ValueError("Solving minimal peak outflow did not succeed.")
+        results = problem.extract_results()
+        var = OutputVar.Q_OUT.value
+        values = results[var]
+        self.set_timeseries(name, values)
+
+    def _get_optimization_input_timeseries(self, times_sec: List[int]) -> Dict[str, list]:
+        """Get timeseries to use for optimization."""
+        input_vars = {}
+        for var in get_args(FixedInputVar):
+            values = [self.timeseries_at(var.value, t) for t in times_sec]
+            input_vars[var] = values
+        index_first_time_stamp = list(self.times()).index(times_sec[0])
+        nans = [np.nan for t in times_sec if t >= self.get_current_time()]
+        results = self.extract_results()
+        for var in get_args(StateVar):
+            values = list(results[var.value])[index_first_time_stamp:]
+            input_vars[var] = values + nans
+        modelica_vars = input_to_dict(self._input)
+        for var in get_args(SchemeVar):
+            input_vars[var] = [modelica_vars[var] for _ in times_sec]
+        t0 = self.io.reference_datetime
+        days = [self.io.sec_to_datetime(time, t0).day for time in times_sec]
+        input_vars[InputVar.DAY] = days
+        return input_vars
 
     # Methods for applying schemes / setting input.
     def set_default_input(self):
