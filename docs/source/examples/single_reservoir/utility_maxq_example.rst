@@ -114,4 +114,4 @@ see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interfa
 The results of the simulation run can be seen in the plot below.
 
 .. raw:: html
-    :file: figures\\final_results_maxq.html
+    :file: figures/final_results_maxq.html

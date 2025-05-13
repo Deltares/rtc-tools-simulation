@@ -92,13 +92,13 @@ Input Data Files
 
 This implementation of the :py:meth:`.ReservoirModel.set_q` scheme requires input data for the ``Q_out_target``, supplied via the ``timeseries_import.xml``
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\passflow_example\\input\\timeseries_import.xml
+.. literalinclude:: ../../../../examples/passflow_example/input/timeseries_import.xml
     :language: xml
     :lines: 2004-2034
 
 This additional input data is mapped to the variables, ``Q_out_target`` using the ``rtcDataConfig.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\passflow_example\\input\\rtcDataConfig.xml
+.. literalinclude:: ../../../../examples/passflow_example/input/rtcDataConfig.xml
     :language: xml
     :lines: 69-74
 
@@ -126,4 +126,4 @@ see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interfa
 The results of the simulation run can be seen in the plot below.
 
 .. raw:: html
-    :file: figures\\final_results_passflow.html
+    :file: figures/final_results_passflow.html
