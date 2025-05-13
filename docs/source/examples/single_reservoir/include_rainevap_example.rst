@@ -90,32 +90,35 @@ for other lookup tables, defaults from the generated template files can be used.
 Input Data Files
 ----------------
 
-The :py:meth:`.ReservoirModel.include_rainevap` scheme requires and input parameter, ``max_reservoir_area``. This cane be provided to the
+The :py:meth:`.ReservoirModel.include_rainevap` scheme requires and input parameter, ``max_reservoir_area``. This can be provided to the
 model via the ``rtcParameterConfig.xml`` input file.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\spillway_example\\input\\rtcParameterConfig.xml
+.. literalinclude:: ../../../../examples/rainevap_example/input/rtcParameterConfig.xml
     :language: xml
     :lines: 9-11
 
-The scheme also requires rainfall and evaporation data supplied via the ``timeseries_import.xml``
+The scheme also requires rainfall and evaporation data supplied via the ``timeseries_import.xml``, for evaporation data,
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rainevap_example\\input\\timeseries_import.xml
+.. literalinclude:: ../../../../examples/rainevap_example/input/timeseries_import.xml
     :language: xml
     :lines: 516-536
-.. literalinclude:: ..\\..\\..\\..\\examples\\rainevap_example\\input\\timeseries_import.xml
+
+and rain data.
+
+.. literalinclude:: ../../../../examples/rainevap_example/input/timeseries_import.xml
     :language: xml
     :lines: 1012-1032
 
 This additional input data is mapped to the internal variables, ``mm_rain_per_hour``, and ``mm_evaporation_per_hour`` using the ``rtcDataConfig.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rainevap_example\\input\\rtcDataConfig.xml
+.. literalinclude:: ../../../../examples/rainevap_example/input/rtcDataConfig.xml
     :language: xml
     :lines: 31-42
 
 In this example, the :py:meth:`.ReservoirModel.set_q` has been used to set outflows based on an input parameter
 ``Q_sluice_target``. This parameter is also provided to the model via the ``rtcParameterConfig.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\rainevap_example\\input\\rtcParameterConfig.xml
+.. literalinclude:: ../../../../examples/rainevap_example/input/rtcParameterConfig.xml
     :language: xml
     :lines: 12-14
 
@@ -145,5 +148,5 @@ varies with time as it is dependent on the surface area of the reservoir, even t
 ``Q_out`` is the sum of ``Q_turbine`` and ``Q_sluice``.
 
 .. raw:: html
-    :file: figures\\final_results_rainevap.html
+    :file: figures/final_results_rainevap.html
 

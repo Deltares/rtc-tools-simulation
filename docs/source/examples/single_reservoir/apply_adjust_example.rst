@@ -81,13 +81,13 @@ Input Data Files
 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme requires observed volume data supplied via the ``timeseries_import.xml``
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\adjust_example\\input\\timeseries_import.xml
+.. literalinclude:: ../../../../examples/adjust_example/input/timeseries_import.xml
     :language: xml
     :lines: 20-44
 
 This additional input data is mapped to the internal variable, ``H_observed``, using the ``rtcDataConfig.xml``.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\adjust_example\\input\\rtcDataConfig.xml
+.. literalinclude:: ../../../../examples/adjust_example/input/rtcDataConfig.xml
     :language: xml
     :lines: 17-22
 
@@ -119,4 +119,4 @@ By choosing `Show results from previous run`, results are shown without the :py:
 It can be seen that in this case the simulated volumes differ from observations.
 
 .. raw:: html
-    :file: figures\\final_results_adjust.html
+    :file: figures/final_results_adjust.html

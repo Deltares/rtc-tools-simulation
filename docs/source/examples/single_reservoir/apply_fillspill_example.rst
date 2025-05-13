@@ -99,7 +99,7 @@ The :py:meth:`.ReservoirModel.apply_fillspill` scheme requires the following par
 
 These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.
 
-.. literalinclude:: ..\\..\\..\\..\\examples\\fillspill_example\\input\\rtcParameterConfig.xml
+.. literalinclude:: ../../../../examples/fillspill_example/input/rtcParameterConfig.xml
     :language: xml
     :lines: 12-17
 
@@ -124,4 +124,4 @@ see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interfa
 The results of the simulation run can be seen in the plot below.
 
 .. raw:: html
-    :file: figures\\final_results_fillspill.html
+    :file: figures/final_results_fillspill.html

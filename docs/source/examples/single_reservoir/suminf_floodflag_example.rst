@@ -106,4 +106,4 @@ Within :py:meth:`.ReservoirModel.apply_schemes`, :py:meth:`.ReservoirModel.set_q
 Hence the plots also show the elevation, ``H`` rising above ``flood_elevation``.
 
 .. raw:: html
-    :file: figures\\final_results_suminf_floodflag.html
+    :file: figures/final_results_suminf_floodflag.html
