@@ -1,6 +1,6 @@
 """Module for an optimization problem class to be solved during simulation."""
 import logging
-from typing import Dict, List
+from typing import Dict
 
 import casadi as ca
 from rtctools.optimization.collocated_integrated_optimization_problem import (
@@ -64,42 +64,3 @@ class OptimizationProblem(
 
     def write(self):
         pass
-
-    def variables(self) -> Dict[str, ca.MX]:
-        """Return a list of all the variables."""
-        var_types = [
-            "time",
-            "states",
-            "algebraics",
-            "parameters",
-            "control_inputs",
-            "constant_inputs",
-        ]
-        # TODO: perhaps this should be an rtctools.AliasDict, but this class is private.
-        variables = {}
-        for var_type in var_types:
-            var_syms: list[ca.MX] = self.dae_variables[var_type]
-            variables.update({var_sym.name(): var_sym for var_sym in var_syms})
-        return variables
-
-    def lookup_table_equations(self, allow_missing_lookup_tables=False) -> List[ca.MX]:
-        """Return a list of lookup-table equations."""
-        equations_csv = self._config.get_file("lookup_table_equations.csv", dirs=["model"])
-        if equations_csv is None:
-            logger.debug("No lookup table equations found.")
-            return []
-        lookup_tables = self._ca_lookup_tables
-        variables = self.variables()
-        equations = lut.get_lookup_table_equations_from_csv(
-            file=equations_csv,
-            lookup_tables=lookup_tables,
-            variables=variables,
-            allow_missing_lookup_tables=allow_missing_lookup_tables,
-        )
-        return equations
-
-    @property
-    def dae_residual(self) -> ca.MX:
-        dae_residual = super().dae_residual
-        lookup_table_equations = self.lookup_table_equations()
-        return ca.veccat(dae_residual, *lookup_table_equations)

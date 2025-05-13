@@ -77,9 +77,6 @@ class QMinProblem(OptimizationProblem):
         self.input_timeseries = input_timeseries
         super().__init__(config, **kwargs)
 
-    def lookup_table_equations(self, allow_missing_lookup_tables=True):
-        return []
-
     def pre(self):
         self.io.reference_datetime = self.datetimes[0]
         for var, value in self.input_timeseries.items():
