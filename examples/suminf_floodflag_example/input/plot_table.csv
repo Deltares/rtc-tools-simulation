@@ -1,0 +1,5 @@
+id,y_axis_title,variables_style_1,variables_style_2,variables_with_previous_result,custom_title,specified_in
+1,Discharge (m^3/s),"Q_out, Q_in",,,,python
+1,Cumulative Inflow (m^3),"cumulative_inflows",,,,python
+2,Elevation (m),H,flood_elevation,,,python
+2,Flood Flag,flood_flag,,,,python
