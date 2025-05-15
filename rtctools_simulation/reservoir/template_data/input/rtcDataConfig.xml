@@ -3,13 +3,13 @@
 	<!--IMPORT-->
 	<!--Inputs-->
 	<!--States of model at t0-->
-    <timeSeries id="V">
+    <timeSeries id="H_observed">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
-			<parameterId>V</parameterId>
+			<parameterId>H.obs</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<!--Inflows-->
+	<!--Inflows and other inputs-->
 	<timeSeries id="Q_in">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
@@ -52,12 +52,6 @@
 			<parameterId>rulecurve</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<timeSeries id="H_observed">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>H.obs</parameterId>
-		</PITimeSeries>
-	</timeSeries>
 	<!-- Ouputs -->
     <timeSeries id="Q_out">
 		<PITimeSeries>
@@ -69,6 +63,12 @@
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>Q.spill</parameterId>
+		</PITimeSeries>
+	</timeSeries>
+	<timeSeries id="V">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>V</parameterId>
 		</PITimeSeries>
 	</timeSeries>
     <timeSeries id="H">
