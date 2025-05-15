@@ -101,7 +101,7 @@ These parameters are supplied to the model via the ``rtcParameterConfig.xml`` in
 
 .. literalinclude:: ../../../../examples/fillspill_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 12-17
+    :lines: 6-18
 
 
 Output Data
