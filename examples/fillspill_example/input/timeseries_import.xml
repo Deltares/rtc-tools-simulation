@@ -4,9 +4,9 @@
 	<series>
 		<header>
 			<type>instantaneous</type>
-			<locationId>reservoir</locationId>
 			<moduleInstanceId>reservoir</moduleInstanceId>
-			<parameterId>V</parameterId>
+			<locationId>reservoir</locationId>
+			<parameterId>H.obs</parameterId>
 			<timeStep unit="second" multiplier="3600"/>
 			<startDate date="2022-06-07" time="06:00:00"/>
 			<endDate date="2022-06-27" time="06:00:00"/>
@@ -15,13 +15,13 @@
 			<stationName>Reservoir1</stationName>
 			<units>m3</units>
 		</header>
-		<event date="2022-06-07" time="06:00:00" value="136500000" flag="8"/>
+		<event date="2022-06-07" time="06:00:00" value="1598.32" flag="8"/>
 	</series>
 	<series>
 		<header>
 			<type>instantaneous</type>
-			<locationId>reservoir</locationId>
 			<moduleInstanceId>reservoir</moduleInstanceId>
+			<locationId>reservoir</locationId>
 			<parameterId>Q.inflow.obs</parameterId>
 			<timeStep unit="second" multiplier="3600"/>
 			<startDate date="2022-06-07" time="06:00:00"/>
