@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rtcDataConfig xmlns="http://www.wldelft.nl/fews" xmlns:rtc="http://www.wldelft.nl/fews" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews ../xsd/rtcDataConfig.xsd">
 	<!--IMPORT-->
-	<!--States of model at t0-->
-    <timeSeries id="V">
+	<!--Observations and states of model at t0-->
+    <timeSeries id="H_observed">
         <PITimeSeries>
             <locationId>reservoir</locationId>
-            <parameterId>V</parameterId>
+            <parameterId>H.obs</parameterId>
         </PITimeSeries>
     </timeSeries>
     <!--Inflows-->
