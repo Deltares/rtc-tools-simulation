@@ -3,7 +3,6 @@ model Reservoir
   import SI = Modelica.SIunits;
 
   // Parameters
-  parameter SI.Length H_crest();
   parameter SI.Area max_reservoir_area() = 0;
 
   // Inputs
