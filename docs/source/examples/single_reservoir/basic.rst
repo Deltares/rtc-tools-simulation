@@ -112,7 +112,7 @@ In this example, the :py:meth:`apply_schemes` method starts
 by including rain and rain evaporation by calling ``self.include_rainevap()``.
 Since :py:meth:`apply_schemes` is applied at each time step,
 this means rain and evaporation is included at each time step.
-The method then checks if the elevation ``H`` is higher than the crest elevation ``H_crest``.
+The method then checks if the elevation ``H`` is higher than the crest elevation ``Spillway_H``.
 If this is the case, and the current month is in between April and September,
 the outflow is set by :py:meth:`set_q`.
 Otherwise, the spillway scheme is applied.

@@ -353,6 +353,11 @@ class ReservoirModel(Model):
             "Reservoir_Qmin"] in rtcParameterConfig.xml
 
         """
+        if self.get_current_time() == self.get_start_time():
+            logger.debug(
+                "Skip applying fillspill at initial time, since no previous volume is available."
+            )
+            return
         current_h = self.get_var("H")
         inflow = self.get_var("Q_in")
         parameters = self.parameters()
