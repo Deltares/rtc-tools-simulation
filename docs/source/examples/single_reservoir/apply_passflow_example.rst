@@ -94,13 +94,13 @@ This implementation of the :py:meth:`.ReservoirModel.set_q` scheme requires inpu
 
 .. literalinclude:: ../../../../examples/passflow_example/input/timeseries_import.xml
     :language: xml
-    :lines: 2004-2034
+    :lines: 516-536
 
 This additional input data is mapped to the variables, ``Q_out_target`` using the ``rtcDataConfig.xml``.
 
 .. literalinclude:: ../../../../examples/passflow_example/input/rtcDataConfig.xml
     :language: xml
-    :lines: 69-74
+    :lines: 19-25
 
 .. note::
 
