@@ -105,13 +105,13 @@ These parameters are supplied to the model via the ``rtcParameterConfig.xml`` in
 
 .. literalinclude:: ../../../../examples/rulecurve_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 12-17
+    :lines: 6-11
 
 The scheme also requires an additional input timeseries, ``rulecurve``. This data is provided in the ``timeseries_import.xml``.
 
 .. literalinclude:: ../../../../examples/rulecurve_example/input/timeseries_import.xml
     :language: xml
-    :lines: 1508-1538
+    :lines: 996-1026
 
 The data is mapped to the variable, ``rulecurve`` via the ``rtcDataConfig.xml``.
 
