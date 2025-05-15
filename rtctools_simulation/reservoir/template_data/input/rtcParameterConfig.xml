@@ -6,8 +6,5 @@
         <parameter id="dummy_parameter">
         	<dblValue>1.0</dblValue>
         </parameter>
-        <parameter id="max_reservoir_area">
-        	<dblValue>2.0</dblValue>
-        </parameter>
     </group>
 </parameters>
