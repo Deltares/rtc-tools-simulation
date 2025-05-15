@@ -71,7 +71,6 @@ Parameters
 Parameters have fixed values for times during the simulation run. The model considers the following parameters;
 
 * ``Spillway_H``: The crest level of the reservoir.
-* ``max_reservoir_area``: The maximum area of the reservoir.
 
 Units
 -----

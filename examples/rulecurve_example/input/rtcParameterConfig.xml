@@ -3,9 +3,6 @@
     <group id="RTC_Level_Parameters" name="Level Parameters" readonly="false">
         <locationId>reservoir</locationId>
         <model>single_reservoir</model>
-        <parameter id="max_reservoir_area">
-        	<dblValue>5868679</dblValue>
-        </parameter>
         <parameter id="rule_curve_blend">
         	<dblValue>1</dblValue>
         </parameter>

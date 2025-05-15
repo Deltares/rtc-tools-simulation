@@ -3,7 +3,7 @@
     <group id="RTC_Level_Parameters" name="Level Parameters" readonly="false">
         <locationId>reservoir</locationId>
         <model>single_reservoir</model>
-        <parameter id="max_reservoir_area">
+        <parameter id="dummy_parameter">
         	<dblValue>2.0</dblValue>
         </parameter>
     </group>
