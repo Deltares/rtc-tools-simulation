@@ -10,9 +10,9 @@ This example shows how to use the :py:meth:`.ReservoirModel.apply_adjust` scheme
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``. 
-There are observed volumes for the first portion of timesteps (until 13th of June). At these times, the simulation should
+There are observed elevations for the first portion of timesteps (until 13th of June). At these times, the simulation should
 be adjusted based upon these observed values. Hence the outflow from the reservoir will be corrected to prevent diverging
-water balances between simulation and observation. At times without volume observations, reservoir outflow should be 0.4 m3/s.
+water balances between simulation and observation. At times without elevation observations, reservoir outflow should be 0.4 m3/s.
 
 The :py:meth:`.ReservoirModel.apply_adjust` scheme can be applied to model these operations. 
 
@@ -63,7 +63,7 @@ An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
 The :py:meth:`.ReservoirModel.set_q` scheme is applied to set reservoir outflow to 0.4 m3/s.
-The :py:meth:`.ReservoirModel.apply_adjust` scheme is then applied to correct for volume observations 
+The :py:meth:`.ReservoirModel.apply_adjust` scheme is then applied to correct for elevation observations 
 when they are supplied to the model.
 
 Lookup tables
@@ -79,17 +79,17 @@ Lookup table ``h_from_v`` is also used to convert the observed elevations (``H_o
 Input Data Files
 ----------------
 
-The :py:meth:`.ReservoirModel.apply_adjust` scheme requires observed volume data supplied via the ``timeseries_import.xml``
+The :py:meth:`.ReservoirModel.apply_adjust` scheme requires observed elevation data supplied via the ``timeseries_import.xml``
 
 .. literalinclude:: ../../../../examples/adjust_example/input/timeseries_import.xml
     :language: xml
-    :lines: 20-44
+    :lines: 4-23
 
 This additional input data is mapped to the internal variable, ``H_observed``, using the ``rtcDataConfig.xml``.
 
 .. literalinclude:: ../../../../examples/adjust_example/input/rtcDataConfig.xml
     :language: xml
-    :lines: 17-22
+    :lines: 5-11
 
 .. note::
 
@@ -112,11 +112,11 @@ to plot the model output.
 For more details on how to use this file and visualize results,
 see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
 
-The results of the simulation run can be seen in the plot below. Observed (constant) volumes are provided for the initial
+The results of the simulation run can be seen in the plot below. Observed (constant) elevations are provided for the initial
 time period. 
 
 By choosing `Show results from previous run`, results are shown without the :py:meth:`.ReservoirModel.apply_adjust` scheme.
-It can be seen that in this case the simulated volumes differ from observations.
+It can be seen that in this case the simulated elevations differ from observations.
 
 .. raw:: html
     :file: figures/final_results_adjust.html

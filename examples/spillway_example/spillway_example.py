@@ -17,8 +17,9 @@ class SingleReservoir(ReservoirModel):
 
         # Apply schemes.
         h = self.get_var("H")
-        h_crest = self.get_var("H_crest")
-        if h > h_crest:
+        parameters = self.parameters()
+        spillway_h = parameters["Spillway_H"]
+        if h > spillway_h:
             self.apply_spillway()
             self.set_q(
                 target_variable=InputVar.Q_TURBINE,

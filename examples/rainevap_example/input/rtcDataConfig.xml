@@ -2,25 +2,13 @@
 <rtcDataConfig xmlns="http://www.wldelft.nl/fews" xmlns:rtc="http://www.wldelft.nl/fews" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews ../xsd/rtcDataConfig.xsd">
 	<!--IMPORT-->
 	<!--Inputs-->
-	<timeSeries id="rule_curve">
+	<!--Observations and states of model at t0-->
+    <timeSeries id="H_observed">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
-			<parameterId>rulecurve</parameterId>
+			<parameterId>H.obs</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<!--States of model at t0-->
-	<timeSeries id="Q_turbine">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>Q.turbine</parameterId>
-		</PITimeSeries>
-	</timeSeries>
-    <timeSeries id="V">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>V</parameterId>
-        </PITimeSeries>
-    </timeSeries>
     <!--Inflows-->
     <timeSeries id="Q_in">
         <PITimeSeries>
@@ -54,16 +42,22 @@
             <parameterId>Q.spill</parameterId>
         </PITimeSeries>
     </timeSeries>
+    <timeSeries id="Q_turbine">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.turbine</parameterId>
+		</PITimeSeries>
+	</timeSeries>
     <timeSeries id="H">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>H</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-	<timeSeries id="rule_curve_deviation">
-		<PITimeSeries>
-			<locationId>reservoir</locationId>
-			<parameterId>rulecurve.deviation</parameterId>
-		</PITimeSeries>
-	</timeSeries>
+    <timeSeries id="V">
+        <PITimeSeries>
+            <locationId>reservoir</locationId>
+            <parameterId>V</parameterId>
+        </PITimeSeries>
+    </timeSeries>
 </rtcDataConfig>

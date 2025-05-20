@@ -2,10 +2,10 @@
 <rtcDataConfig xmlns="http://www.wldelft.nl/fews" xmlns:rtc="http://www.wldelft.nl/fews" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wldelft.nl/fews ../xsd/rtcDataConfig.xsd">
 	<!--IMPORT-->
 	<!--States of model at t0-->
-    <timeSeries id="V">
+    <timeSeries id="H_observed">
         <PITimeSeries>
             <locationId>reservoir</locationId>
-            <parameterId>V</parameterId>
+            <parameterId>H.obs</parameterId>
         </PITimeSeries>
     </timeSeries>
     <!--Inflows-->
@@ -29,4 +29,10 @@
 			<parameterId>H</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+    <timeSeries id="V">
+        <PITimeSeries>
+            <locationId>reservoir</locationId>
+            <parameterId>V</parameterId>
+        </PITimeSeries>
+    </timeSeries>
 </rtcDataConfig>

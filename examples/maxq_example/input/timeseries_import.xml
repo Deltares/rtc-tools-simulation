@@ -19,94 +19,38 @@
       <event date="2020-01-01" time="00:00:01" value="2" flag="8"/>
       <event date="2020-01-01" time="00:00:02" value="3" flag="8"/>
     </series>
-    <series>
-        <header>
-          <type>instantaneous</type>
-          <moduleInstanceId>reservoir</moduleInstanceId>
-          <locationId>reservoir</locationId>
-          <parameterId>Q.turbine</parameterId>
-          <timeStep unit="second" multiplier="1"/>
-          <startDate date="2020-01-01" time="00:00:00"/>
-          <endDate date="2020-01-01" time="00:00:02"/>
-          <forecastDate date="2020-01-01" time="00:00:00"/>
-          <missVal>-999.0</missVal>
-          <stationName>Reservoir1</stationName>
-          <units>m3/s</units>
-      </header>
-        <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
-        <event date="2020-01-01" time="00:00:01" value="0.5" flag="8"/>
-        <event date="2020-01-01" time="00:00:02" value="0.5" flag="8"/>
-      </series>
-      <series>
-          <header>
-            <type>instantaneous</type>
-            <moduleInstanceId>reservoir</moduleInstanceId>
-            <locationId>reservoir</locationId>
-            <parameterId>evaporation</parameterId>
-            <timeStep unit="second" multiplier="1"/>
-            <startDate date="2020-01-01" time="00:00:00"/>
-            <endDate date="2020-01-01" time="00:00:02"/>
-            <forecastDate date="2020-01-01" time="00:00:00"/>
-            <missVal>-999.0</missVal>
-            <stationName>Reservoir1</stationName>
-            <units>mm/hour</units>
-          </header>
-            <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
-            <event date="2020-01-01" time="00:00:01" value="0.0" flag="8"/>
-            <event date="2020-01-01" time="00:00:02" value="1000.0" flag="8"/>
-        </series>
-        <series>
-            <header>
-              <type>instantaneous</type>
-              <moduleInstanceId>reservoir</moduleInstanceId>
-              <locationId>reservoir</locationId>
-              <parameterId>rain</parameterId>
-              <timeStep unit="second" multiplier="1"/>
-              <startDate date="2020-01-01" time="00:00:00"/>
-              <endDate date="2020-01-01" time="00:00:02"/>
-              <forecastDate date="2020-01-01" time="00:00:00"/>
-              <missVal>-999.0</missVal>
-              <stationName>Reservoir1</stationName>
-              <units>mm/hour</units>
-            </header>
-              <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
-              <event date="2020-01-01" time="00:00:01" value="5.0" flag="8"/>
-              <event date="2020-01-01" time="00:00:02" value="0.0" flag="8"/>
-          </series>
-        <series>
-            <header>
-              <type>instantaneous</type>
-              <moduleInstanceId>rule_curve</moduleInstanceId>
-              <locationId>reservoir</locationId>
-              <parameterId>rulecurve</parameterId>
-              <timeStep unit="second" multiplier="1"/>
-              <startDate date="2020-01-01" time="00:00:00"/>
-              <endDate date="2020-01-01" time="00:00:02"/>
-              <forecastDate date="2020-01-01" time="00:00:00"/>
-              <missVal>-999.0</missVal>
-              <stationName>Reservoir1</stationName>
-              <units>mm/hour</units>
-            </header>
-              <event date="2020-01-01" time="00:00:00" value="0.9" flag="8"/>
-              <event date="2020-01-01" time="00:00:01" value="0.9" flag="8"/>
-              <event date="2020-01-01" time="00:00:02" value="0.9" flag="8"/>
-          </series>
-          <series>
-            <header>
-              <type>instantaneous</type>
-              <moduleInstanceId>rule_curve</moduleInstanceId>
-              <locationId>reservoir</locationId>
-              <parameterId>H.obs</parameterId>
-              <timeStep unit="second" multiplier="1"/>
-              <startDate date="2020-01-01" time="00:00:00"/>
-              <endDate date="2020-01-01" time="00:00:02"/>
-              <forecastDate date="2020-01-01" time="00:00:00"/>
-              <missVal>-999.0</missVal>
-              <stationName>Reservoir1</stationName>
-              <units>mm/hour</units>
-            </header>
-              <event date="2020-01-01" time="00:00:00" value="1.15" flag="8"/>
-              <event date="2020-01-01" time="00:00:01" value="1.0" flag="8"/>
-              <event date="2020-01-01" time="00:00:02" value="0.9" flag="8"/>
-          </series>
+  <series>
+    <header>
+      <type>instantaneous</type>
+      <moduleInstanceId>reservoir</moduleInstanceId>
+      <locationId>reservoir</locationId>
+      <parameterId>Q.turbine</parameterId>
+      <timeStep unit="second" multiplier="1"/>
+      <startDate date="2020-01-01" time="00:00:00"/>
+      <endDate date="2020-01-01" time="00:00:00"/>
+      <forecastDate date="2020-01-01" time="00:00:00"/>
+      <missVal>-999.0</missVal>
+      <stationName>Reservoir1</stationName>
+      <units>m3/s</units>
+  </header>
+    <event date="2020-01-01" time="00:00:00" value="0.0" flag="8"/>
+  </series>
+  <series>
+    <header>
+      <type>instantaneous</type>
+      <moduleInstanceId>rule_curve</moduleInstanceId>
+      <locationId>reservoir</locationId>
+      <parameterId>H.obs</parameterId>
+      <timeStep unit="second" multiplier="1"/>
+      <startDate date="2020-01-01" time="00:00:00"/>
+      <endDate date="2020-01-01" time="00:00:02"/>
+      <forecastDate date="2020-01-01" time="00:00:00"/>
+      <missVal>-999.0</missVal>
+      <stationName>Reservoir1</stationName>
+      <units>mm/hour</units>
+    </header>
+      <event date="2020-01-01" time="00:00:00" value="1.15" flag="8"/>
+      <event date="2020-01-01" time="00:00:01" value="1.0" flag="8"/>
+      <event date="2020-01-01" time="00:00:02" value="0.9" flag="8"/>
+  </series>
 </TimeSeries>

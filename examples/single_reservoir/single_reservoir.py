@@ -19,9 +19,10 @@ class SingleReservoir(ReservoirModel):
         datetime = self.get_current_datetime()
         # Apply schemes.
         h = self.get_var("H")
-        h_crest = self.get_var("H_crest")
+        parameters = self.parameters()
+        spillway_h = parameters["Spillway_H"]
         self.include_rainevap()
-        if h > h_crest:
+        if h > spillway_h:
             april = 4
             september = 9
             if april <= datetime.month <= september:

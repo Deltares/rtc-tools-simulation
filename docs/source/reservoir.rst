@@ -16,4 +16,6 @@ Contents:
   :maxdepth: 0
 
   reservoir/api
+  reservoir/initial_conditions
+  reservoir/template_generation
   reservoir/single_reservoir_model

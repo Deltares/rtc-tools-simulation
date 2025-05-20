@@ -72,7 +72,7 @@ given upper bounds on the elevation (``h_min``, ``h_max``)
 and a target elevation (``h_target``).
 It will then use this optimized outflow to set the outflow of the simulation.
 The upper and lower bounds for the elevation are set in this example to 0 and 40, respectively,
-and the target elevation is set to the timeseries "rule_curve".
+and the target elevation is set to the timeseries ``rule_curve``.
 This timeseries is given via the ``timeseries_import.xml`` file.
 
 
@@ -88,7 +88,7 @@ This model uses the standard lookup tables ``h_from_v``.
 Input Data Files
 ----------------
 
-The "rule_curve" timeseries is supplied to the model via the ``timeseries_import.xml`` input file.
+The ``rule_curve`` timeseries is supplied to the model via the ``timeseries_import.xml`` input file.
 
 .. note::
 
