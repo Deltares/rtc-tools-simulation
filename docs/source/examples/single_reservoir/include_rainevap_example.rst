@@ -95,7 +95,7 @@ model via the ``rtcParameterConfig.xml`` input file.
 
 .. literalinclude:: ../../../../examples/rainevap_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 9-11
+    :lines: 6-8
 
 The scheme also requires rainfall and evaporation data supplied via the ``timeseries_import.xml``, for evaporation data,
 
@@ -113,14 +113,14 @@ This additional input data is mapped to the internal variables, ``mm_rain_per_ho
 
 .. literalinclude:: ../../../../examples/rainevap_example/input/rtcDataConfig.xml
     :language: xml
-    :lines: 31-42
+    :lines: 19-30
 
 In this example, the :py:meth:`.ReservoirModel.set_q` has been used to set outflows based on an input parameter
 ``Q_sluice_target``. This parameter is also provided to the model via the ``rtcParameterConfig.xml``.
 
 .. literalinclude:: ../../../../examples/rainevap_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 12-14
+    :lines: 9-11
 
 .. note::
 

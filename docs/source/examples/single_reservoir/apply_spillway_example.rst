@@ -114,7 +114,7 @@ For other lookup tables, defaults from the generated template files can be used.
 Input Data Files
 ----------------
 
-The crest level is supplied to the model via the ``rtcParameterConfig.xml`` input file.
+The spillway crest level ``Spillway_H `` is supplied to the model via the ``rtcParameterConfig.xml`` input file.
 
 .. literalinclude:: ../../../../examples/spillway_example/input/rtcParameterConfig.xml
     :language: xml

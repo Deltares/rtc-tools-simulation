@@ -1,9 +1,9 @@
 .. _examples-single-reservoir-maxqexample:
 
-``maxq`` utility Example
+``maxq`` Utility Example
 ========================
 
-This example shows how to use the :py:meth:`.ReservoirModel.maxq` utility when modelling a single reservoir model.
+This example shows how to use the :py:meth:`.ReservoirModel.find_maxq` utility when modelling a single reservoir model.
 
 .. note::
 
@@ -12,9 +12,9 @@ This example shows how to use the :py:meth:`.ReservoirModel.maxq` utility when m
 We consider a reservoir with a single inflow, ``Q_in``, and both spillway and turbine discharges.
 The reservoir outflow is determined based upon the reservoir elevation, ``H``, at each timestep.
 The utility aims to compute the maximum possible release based on the current reservoir elevation.
-It can consider 3 different options, a fixed maximum discharge ('Fixed'), a fixed maximum discharge plus
-Q/H spillway relation ('Spillway') and a option where the downstream tailwater discharge relation is taken
-into account ('Tailwater').
+It can consider 3 different options, a fixed maximum discharge (``Fixed``), a fixed maximum discharge plus
+Q/H spillway relation (``Spillway``) and a option where the downstream tailwater discharge relation is taken
+into account (``Tailwater``).
 
 Main Model (python) File
 ------------------------
@@ -59,29 +59,32 @@ The first argument ``self`` is the :py:class:`.SingleReservoir` object itself.
 Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
 ``self`` can call any of the :py:class:`.ReservoirModel` methods, such as
 :py:meth:`.ReservoirModel.get_var` and
-:py:meth:`.ReservoirModel.maxq`.
+:py:meth:`.ReservoirModel.find_maxq`.
 An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
 In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
 by collecting the current model timestep, since the utility only works for timesteps after the first.
-The :py:meth:`.maxq` utility is then applied to compute the hypothetical maximum release using the 3 different cases.
+The :py:meth:`.ReservoirModel.find_maxq` utility is then applied to compute the hypothetical maximum release using the 3 different cases.
 
 Lookup tables
 -------------
 
-This model uses a variety of lookup tables, which are all defined in the file ''lookup_tables.csv''
+This model uses a variety of lookup tables, which are all defined in the file ``lookup_tables.csv``.
 
 .. literalinclude:: ../../../../examples/maxq_example/lookup_tables/lookup_tables.csv
   :language: python
 
-The required lookup_tables depend on the option that is chosen. For 'Fixed', none are required.
-For option 'Spillway', the Q/H relationship of the spillway is required to be passed in a lookup_table
-named 'qspill_from_h'. If the option 'Tailwater' is chosen, we also need the Q/H relationship downstream, as well as
-the Q/dh relationship of the turbine. The configurator needs to provide those through lookup_tables
-'qtw_from_tw' and 'qnotspill_from_dh' respectively. Lastly, for "Tailwater" a optional variable 'solve_guess' can
-be provided to guide the equilibrium solver in finding the final value. If nothing is passed, it defaults to the
-current reservoir elevation as an initial guess.
+The required lookup_tables depend on the option that is chosen.
+
+* For ``Fixed``, none are required.
+* For ``Spillway``, the Q/H relationship of the spillway is required to be passed in a lookup_table 
+  named ``qspill_from_h``.
+* For option ``Tailwater``, we also need the Q/H relationship downstream, as well as
+  the Q/dh relationship of the turbine. The configurator needs to provide those through lookup_tables
+  ``qtw_from_tw`` and ``qnotspill_from_dh`` respectively. Lastly, for ``Tailwater`` a optional variable ``solve_guess`` can
+  be provided to guide the equilibrium solver in finding the final value. If nothing is passed, it defaults to the
+  current reservoir elevation as an initial guess.
 
 .. note::
 

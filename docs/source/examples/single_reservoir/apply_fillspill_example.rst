@@ -11,13 +11,13 @@ It will aim to satisfy a certain target elevation, fill if below it, and spill i
       For details about the full model file structure please see :ref:`examples-single-reservoir-basic`.
 
 We consider a reservoir with a single inflow, ``Q_in``, and an outflow ``Q_out``. ``Q_out`` is comprised of two components,
-a turbine, ``Q_turbine``, and a spillway, ''Q_spill''.
-The scheme requires the presence of several parameters in the file 'input/rtcParameterConfig.xml'.
+a turbine, ``Q_turbine``, and a spillway, ``Q_spill``.
+The scheme requires the presence of several parameters in the file ``input/rtcParameterConfig.xml``.
 
-"Reservoir_Htarget": Elevation that the scheme tries to satisfy at minimum.
-"Spillway_H": elevation above which the spillway will be activated according to the Q/H relationship.
-"Reservoir_Qmax": Maximum turbine discharge
-"Reservoir_Qmin": Minimum turbine discharge demand, for example based on energy demand or downstream water demand
+* ``Reservoir_Htarget``: Elevation that the scheme tries to satisfy at minimum.
+* ``Spillway_H``: elevation above which the spillway will be activated according to the Q/H relationship.
+* ``Reservoir_Qmax``: Maximum turbine discharge
+* ``Reservoir_Qmin``: Minimum turbine discharge demand, for example based on energy demand or downstream water demand
 
 Main Model (python) File
 ------------------------
@@ -92,16 +92,17 @@ Input Data Files
 ----------------
 
 The :py:meth:`.ReservoirModel.apply_fillspill` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file.
-"Reservoir_Htarget": Elevation that the scheme tries to satisfy at minimum.
-"Spillway_H": elevation above which the spillway will be activated according to the Q/H relationship.
-"Reservoir_Qmax": Maximum turbine discharge
-"Reservoir_Qmin": Minimum turbine discharge demand, for example based on energy demand or downstream water demand
+
+* ``Reservoir_Htarget``: Elevation that the scheme tries to satisfy at minimum.
+* ``Spillway_H``: elevation above which the spillway will be activated according to the Q/H relationship.
+* ``Reservoir_Qmax``: Maximum turbine discharge
+* ``Reservoir_Qmin``: Minimum turbine discharge demand, for example based on energy demand or downstream water demand
 
 These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.
 
 .. literalinclude:: ../../../../examples/fillspill_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 12-17
+    :lines: 6-18
 
 
 Output Data

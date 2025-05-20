@@ -9,18 +9,12 @@
 		</PITimeSeries>
 	</timeSeries>
 	<!--States of model at t0-->
-	<timeSeries id="Q_turbine">
+    <timeSeries id="H_observed">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
-			<parameterId>Q.turbine</parameterId>
+			<parameterId>H.obs</parameterId>
 		</PITimeSeries>
 	</timeSeries>
-    <timeSeries id="V">
-        <PITimeSeries>
-            <locationId>reservoir</locationId>
-            <parameterId>V</parameterId>
-        </PITimeSeries>
-    </timeSeries>
     <!--Inflows-->
     <timeSeries id="Q_in">
         <PITimeSeries>
@@ -54,12 +48,24 @@
             <parameterId>Q.spill</parameterId>
         </PITimeSeries>
     </timeSeries>
+    <timeSeries id="Q_turbine">
+		<PITimeSeries>
+			<locationId>reservoir</locationId>
+			<parameterId>Q.turbine</parameterId>
+		</PITimeSeries>
+	</timeSeries>
     <timeSeries id="H">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
 			<parameterId>H</parameterId>
 		</PITimeSeries>
 	</timeSeries>
+    <timeSeries id="V">
+        <PITimeSeries>
+            <locationId>reservoir</locationId>
+            <parameterId>V</parameterId>
+        </PITimeSeries>
+    </timeSeries>
 	<timeSeries id="rule_curve_deviation">
 		<PITimeSeries>
 			<locationId>reservoir</locationId>
