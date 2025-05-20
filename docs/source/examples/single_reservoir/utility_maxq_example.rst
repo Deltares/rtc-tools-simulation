@@ -3,7 +3,7 @@
 ``maxq`` Utility Example
 ========================
 
-This example shows how to use the :py:meth:`.ReservoirModel.maxq` utility when modelling a single reservoir model.
+This example shows how to use the :py:meth:`.ReservoirModel.find_maxq` utility when modelling a single reservoir model.
 
 .. note::
 
@@ -59,13 +59,13 @@ The first argument ``self`` is the :py:class:`.SingleReservoir` object itself.
 Since :py:class:`.SingleReservoir` inherits from :py:class:`.ReservoirModel`,
 ``self`` can call any of the :py:class:`.ReservoirModel` methods, such as
 :py:meth:`.ReservoirModel.get_var` and
-:py:meth:`.ReservoirModel.maxq`.
+:py:meth:`.ReservoirModel.find_maxq`.
 An overview of all available :py:class:`.ReservoirModel` methods
 can be found in :ref:`reservoir-api`.
 
 In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
 by collecting the current model timestep, since the utility only works for timesteps after the first.
-The :py:meth:`.maxq` utility is then applied to compute the hypothetical maximum release using the 3 different cases.
+The :py:meth:`.ReservoirModel.find_maxq` utility is then applied to compute the hypothetical maximum release using the 3 different cases.
 
 Lookup tables
 -------------
