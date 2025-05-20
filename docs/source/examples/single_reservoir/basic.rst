@@ -144,7 +144,7 @@ It consists of the following columns.
 
 * `name`: name of the lookup_table.
   The default reservoir model uses the lookup tables
-  `h_from_v`, `area_from_v`, and `qspill_from_h`.
+  ``h_from_v``, ``area_from_v``, and ``qspill_from_h``.
 
 * `data`: data file used to create the lookup table.
   This should a csv file where all fields are seperated by a ``,``.
@@ -155,7 +155,7 @@ It consists of the following columns.
 * `var_out`: output variable for creating the lookup table.
   This should be one of the columns in the data file.
 
-A data file, such as `v_h.csv`, looks as follows.
+A data file, such as ``v_h.csv``, looks as follows.
 
 .. csv-table:: <base_dir>/lookup_tables/v_h.csv
   :header-rows: 1
@@ -169,10 +169,10 @@ A data file, such as `v_h.csv`, looks as follows.
 
 When setting up the model, the model object will look for the following lookup tables:
 
-* h_from_v
-* area_from_v
-* qout_from_v
-* qspill_from_h
+* ``h_from_v``
+* ``area_from_v``
+* ``qout_from_v``
+* ``qspill_from_h``
 
 It is therefore important to use these same names in the `lookup_tables.csv` file.
 
