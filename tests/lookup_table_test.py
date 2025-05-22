@@ -72,6 +72,19 @@ def test_get_lookup_tables_from_csv():
     numpy.testing.assert_almost_equal(qout_from_day_h(2, 1.5), 0.375)
 
 
+def test_get_lookup_tables_bounds_from_csv():
+    """Test getting a dict of lookup tables bounds described by a csv file."""
+    bounds = lut.get_lookup_tables_bounds_from_csv(DATA_DIR / "lookup_tables.csv")
+    v_min = bounds["h_from_v"]["v"][0]
+    v_max = bounds["h_from_v"]["v"][1]
+    h_min = bounds["h_from_v"]["h"][0]
+    h_max = bounds["h_from_v"]["h"][1]
+    numpy.testing.assert_almost_equal(v_min, 0.0)
+    numpy.testing.assert_almost_equal(v_max, 2.0)
+    numpy.testing.assert_almost_equal(h_min, 0.0)
+    numpy.testing.assert_almost_equal(h_max, 1.5)
+
+
 @pytest.mark.parametrize(
     "var_in,var_out,values_in,value_out",
     [
