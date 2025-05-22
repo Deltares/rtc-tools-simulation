@@ -72,6 +72,14 @@ Lookup tables
 This model uses only the standard lookup table ``h_from_v``, for other lookup tables, defaults from the generated template files can be used. 
 Lookup table ``h_from_v`` is also used to convert the observed elevations (``H_observed``) into observed volumes.
 
+This model also contains extraction of minimum and maximum values from the provided lookup tables. This is done by using the function 
+:py:meth:`.get_lookup_tables_bounds_from_csv` (see :ref:`look-up-tables`). This function returns a dictionary which for each lookup table, stores the min 
+and max values for each variable. In this example we add some of these to the logger. This results in the following messages:
+
+  *INFO Volumes in the lookup table 'h_from_v' are in the range [0, 180636966]*
+
+  *INFO Elevations in the lookup table 'v_from_h' are in the range [1542.306754, 1606.315533]*
+
 .. note::
 
       For further details about the lookup tables please see :ref:`examples-single-reservoir-basic`.

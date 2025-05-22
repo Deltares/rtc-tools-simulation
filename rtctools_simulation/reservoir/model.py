@@ -350,7 +350,7 @@ class ReservoirModel(Model):
         characteristics of maximum discharge of the dam facilities or operational rules
         (e.g. maximum generator discharge, maximum sluice discharge).
         Requires preconfigured parameters for ["Spillway_H", "Reservoir_Htarget", "Reservoir_Qmax",
-            "Reservoir_Qmin"] in rtcParameterConfig.xml
+        "Reservoir_Qmin"] in rtcParameterConfig.xml
 
         """
         if self.get_current_time() == self.get_start_time():
@@ -673,7 +673,7 @@ class ReservoirModel(Model):
         :param h_var: The name of the elevation timeseries to adjust the rulecurve.
         :param application_time: Optional. Time at which to start applying the correction.
         :param extrapolate_trend_linear: Bool. Option to extrapolate a trend in the
-        deviations to the rulecurve.
+          deviations to the rulecurve.
 
         The function overwrites the required timeseries of 'rule_curve', and should be
         called in self.apply_schemes()
@@ -972,22 +972,23 @@ class ReservoirModel(Model):
         Supports 3 different methods for 'discharge_relation'
 
         :param discharge_relation: str
-            The method used to calculate the maximum possible discharge maxq, options are:
+            The method used to calculate the maximum possible discharge maxq, options are
+
                 - 'Spillway': maxq based on spillway Q/H + fixed Qmax. Requires parameter
-                   'Reservoir_Qmax', as well as lookup_table 'qspill_from_h'.
+                  'Reservoir_Qmax', as well as lookup_table 'qspill_from_h'.
                 - 'Fixed': maxq based on fixed discharge only. Requires parameter
                   'Reservoir_Qmax'.
                 - 'Tailwater': maxq is influenced by tailwater. Three lookup tables are required:
                   ``qspill_from_h`` (spillway lookup table), ``qnotspill_from_dh`` (head vs
-                  (Qout-Qspill) lookup table) and ``qtw_from_tw`` (tailwater elavetion vs discharge
+                  (Qout-Qspill) lookup table) and ``qtw_from_tw`` (tailwater elevation vs discharge
                   curve). maxq is calculated by determining Qspill based on the simulated elvation,
                   and then using a solver to determine the intersection of the remaining lookup
                   tables using the function ``_find_maxq_tailwater``.
 
         :param solve_guess: Optional[float] (default: np.nan)
             Initial guess for the solver when using the 'Tailwater' method. Defaults to current
-              reservoir elevation in the supporting function
-              :py:meth:`.ReservoirModel._find_maxq_tailwater` when it is np.nan.
+            reservoir elevation in the supporting function
+            :py:meth:`.ReservoirModel._find_maxq_tailwater` when it is np.nan.
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """

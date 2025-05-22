@@ -12,10 +12,16 @@ Available schemes include:
 * :py:meth:`.ReservoirModel.apply_passflow`
 * :py:meth:`.ReservoirModel.apply_poolq`
 * :py:meth:`.ReservoirModel.apply_rulecurve`
+* :py:meth:`.ReservoirModel.adjust_rulecurve`
 * :py:meth:`.ReservoirModel.apply_adjust`
 * :py:meth:`.ReservoirModel.include_rain`
 * :py:meth:`.ReservoirModel.include_evaporation`
 * :py:meth:`.ReservoirModel.include_rainevap`
+* :py:meth:`.ReservoirModel.apply_fillspill`
+* :py:meth:`.ReservoirModel.apply_minq`
+* :py:meth:`.ReservoirModel.calculate_cumulative_inflows`
+* :py:meth:`.ReservoirModel.find_maxq`
+* :py:meth:`.ReservoirModel.get_flood_flag`
 * :py:meth:`.ReservoirModel.set_q`
 
 An overview of all schemes is given below.
