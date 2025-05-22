@@ -60,21 +60,19 @@ def _reshape_flattened_array(
     return flat_array
 
 
-def get_lookup_table_from_csv(
-    name: str,
+def get_lookup_table_data_from_csv(
     file: Path,
     var_in: Union[str, list[str]],
     var_out: str,
-) -> ca.Function:
+):
     """
-    Get a lookup table from a csv file.
+    Get lookup table data from a csv file. The lookup table is reduced if inputs are constant.
 
-    :param name: name of the lookup table
     :param file: CSV file containing data points for different variables.
     :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
     :param var_out: Output variable of the lookup table. Should be one of the CSV file columns.
 
-    :return: lookup table in the form of a Casadi function.
+    :return: The coordinates and values from the reduced lookup table
     """
     data_csv = Path(file)
     if not data_csv.is_file():
@@ -101,6 +99,78 @@ def get_lookup_table_from_csv(
     var_out_values = _reshape_flattened_array(
         var_out_values, shape=shape, initial_ordering="C", new_ordering="F"
     )
+    return var_in_coordinates, var_out_values, vars_in, reduced_vars_in
+
+
+def get_lookup_table_bounds_from_csv(
+    file: Path, var_in: Union[str, list[str]], var_out: str
+) -> Dict:
+    """
+    Get the bounds from a lookup table csv.
+
+    :param file: CSV file containing data points for different variables.
+    :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
+    :param var_out: Output variable of the lookup table. Should be one of the CSV file columns.
+
+    :return: a dictionary containing the min and max values for each input and output variable
+        in the lookup table.
+    """
+    var_in_coordinates, var_out_values, _, reduced_vars_in = get_lookup_table_data_from_csv(
+        file, var_in, var_out
+    )
+    bounds = {}
+    for idx, var in enumerate(reduced_vars_in):
+        lb = min(var_in_coordinates[idx])
+        ub = max(var_in_coordinates[idx])
+        bounds[var] = [lb, ub]
+    lb = min(var_out_values)
+    ub = max(var_out_values)
+    bounds[var_out] = [lb, ub]
+    return bounds
+
+
+def get_lookup_tables_bounds_from_csv(
+    file: Path,
+    data_dir: Path = None,
+) -> Dict:
+    """
+    Get a dict of lookup tables bounds described in a csv file.
+
+    :param file: CSV File that describes lookup tables.
+        The column names correspond to the parameters of :func:`get_lookup_table_from_csv`.
+        In case of multiple input variables, they should be separated by a whitespace.
+    :param data_dir: Directory that contains the interpolation data for the lookup tables.
+        By default, the directory of the csv file is used.
+
+    :return: dict of lookup table bounds.
+    """
+    bounds = extract_from_multiple_csv(
+        file=file,
+        data_dir=data_dir,
+        extraction_type="lookup_tables_bounds",
+    )
+    return bounds
+
+
+def get_lookup_table_from_csv(
+    name: str,
+    file: Path,
+    var_in: Union[str, list[str]],
+    var_out: str,
+) -> ca.Function:
+    """
+    Get a lookup table from a csv file.
+
+    :param name: name of the lookup table
+    :param file: CSV file containing data points for different variables.
+    :param var_in: Input variable(s) of the lookup table. Should be one of the CSV file columns.
+    :param var_out: Output variable of the lookup table. Should be one of the CSV file columns.
+
+    :return: lookup table in the form of a Casadi function.
+    """
+    var_in_coordinates, var_out_values, vars_in, reduced_vars_in = get_lookup_table_data_from_csv(
+        file, var_in, var_out
+    )
     interpolant = ca.interpolant(name, "linear", var_in_coordinates, var_out_values)
     var_in_symbols: list[ca.MX] = [ca.MX.sym(var) for var in vars_in]
     reduced_var_in_symbols = [var for var in var_in_symbols if var.name() in reduced_vars_in]
@@ -124,7 +194,35 @@ def get_lookup_tables_from_csv(
 
     :return: dict of lookup tables.
     """
-    lookup_tables = {}
+    lookup_tables = extract_from_multiple_csv(
+        file=file,
+        data_dir=data_dir,
+        extraction_type="lookup_tables",
+    )
+    return lookup_tables
+
+
+def extract_from_multiple_csv(
+    file: Path,
+    data_dir: Path = None,
+    extraction_type="lookup_tables",
+) -> Dict:
+    """
+    Extract a dictionary of information from lookup tables.
+
+    :param file: CSV File that describes lookup tables.
+        The column names correspond to the parameters of :func:`get_lookup_table_from_csv`.
+        In case of multiple input variables, they should be separated by a whitespace.
+    :param data_dir: Directory that contains the interpolation data for the lookup tables.
+        By default, the directory of the csv file is used.
+    :param extraction_type: str (default: "lookup_tables")
+        Data to be extracted from lookup tables. Options are "lookup_tables" or
+        "lookup_tables_bounds"
+
+    :return: dict of lookup tables.
+
+    """
+    extraction_dict = {}
     lookup_tables_csv = Path(file)
     if not lookup_tables_csv.is_file():
         raise FileNotFoundError(f"File {lookup_tables_csv} not found.")
@@ -141,13 +239,26 @@ def get_lookup_tables_from_csv(
         var_in: str = lookup_table_df["var_in"]
         var_in = var_in.split(" ")
         var_in = [var for var in var_in if var != ""]
-        lookup_tables[name] = get_lookup_table_from_csv(
-            name=name,
-            file=data_csv,
-            var_in=var_in,
-            var_out=lookup_table_df["var_out"],
-        )
-    return lookup_tables
+        if extraction_type == "lookup_tables":
+            extraction_dict[name] = get_lookup_table_from_csv(
+                name=name,
+                file=data_csv,
+                var_in=var_in,
+                var_out=lookup_table_df["var_out"],
+            )
+        elif extraction_type == "lookup_tables_bounds":
+            extraction_dict[name] = get_lookup_table_bounds_from_csv(
+                file=data_csv,
+                var_in=var_in,
+                var_out=lookup_table_df["var_out"],
+            )
+        else:
+            raise ValueError(
+                f"extraction_type {extraction_type} not supported "
+                'choose from ["lookup_tables", "lookup_tables_bounds"].'
+            )
+
+    return extraction_dict
 
 
 def get_empty_lookup_table(name: str, var_in: Union[str, list[str]], var_out: str) -> ca.Function:
