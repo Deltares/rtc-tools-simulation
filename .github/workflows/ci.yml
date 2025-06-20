@@ -19,20 +19,22 @@ jobs:
         - name: Run pre-commit
           run: pre-commit run --all-files --show-diff-on-failure
 
-  test:
+test:
     name: Run Tests (pytest)
     runs-on: ubuntu-latest
-    needs: [style]
-    container: python:3.9
     steps:
-      - uses: actions/checkout@v3
-      - name: Upgrade pip & install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -e .
-          pip install pytest
-      - name: Run pytest
-        run: pytest tests
+        - uses: actions/checkout@v3
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.9
+        - name: Upgrade pip and install project
+          run: |
+            pip install --upgrade pip
+            pip install -e .
+            pip install pytest
+        - name: Run pytest
+          run: pytest tests
 
   deploy:
     name: Deploy to PyPI with Poetry
