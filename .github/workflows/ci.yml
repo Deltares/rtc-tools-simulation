@@ -19,7 +19,7 @@ jobs:
         - name: Run pre-commit
           run: pre-commit run --all-files --show-diff-on-failure
 
-test:
+  test:
     name: Run Tests (pytest)
     runs-on: ubuntu-latest
     steps:
