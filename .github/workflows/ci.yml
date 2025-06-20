@@ -8,19 +8,21 @@ jobs:
   style:
     name: Style Check (pre-commit)
     runs-on: ubuntu-latest
-    container: python:3.9
     steps:
-      - uses: actions/checkout@v3
-      - name: Install git (for pre-commit)
-        run: apt update && apt install -y --no-install-recommends git
-      - name: Install pre-commit
-        run: pip install pre-commit
-      - name: Run pre-commit
-        run: pre-commit run --all-files --show-diff-on-failure
+        - uses: actions/checkout@v3
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.9
+        - name: Install pre-commit
+          run: pip install pre-commit
+        - name: Run pre-commit
+          run: pre-commit run --all-files --show-diff-on-failure
 
   test:
     name: Run Tests (pytest)
     runs-on: ubuntu-latest
+    needs: [style]
     container: python:3.9
     steps:
       - uses: actions/checkout@v3
