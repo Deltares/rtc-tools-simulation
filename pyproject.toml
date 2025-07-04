@@ -14,7 +14,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.9"
-casadi = "3.6.*"
+casadi = ">=3.6.3,<=3.7,!=3.6.6"
 Jinja2 = "*"
 numpy = "*"
 pandas = "*"
