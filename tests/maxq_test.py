@@ -13,17 +13,19 @@ class MaxQModel(ReservoirModel):
 
     def pre(self, **kwargs):
         super().pre()
-        self.maxq = np.zeros(shape=(3, 3))
+        self.maxq = np.zeros(shape=(3, 4))
 
     def apply_schemes(self):
         if self.get_current_time() > 0:
             maxq1 = self.find_maxq("Spillway")
             maxq2 = self.find_maxq("Fixed")
             maxq3 = self.find_maxq("Tailwater")
+            maxq4 = self.find_maxq("Elevation_Qmax_LUT")
             timestep_int = int(self.get_current_time() / self.get_time_step())
             self.maxq[timestep_int, 0] = maxq1
             self.maxq[timestep_int, 1] = maxq2
             self.maxq[timestep_int, 2] = maxq3
+            self.maxq[timestep_int, 3] = maxq4
 
 
 case1_outcome = np.array([0, 0.65, 1.4])
@@ -31,6 +33,8 @@ case1_outcome = np.array([0, 0.65, 1.4])
 case2_outcome = np.array([0, 0.5, 0.5])
 
 case3_outcome = np.array([0, 0.4833, 1.28])
+
+case4_outcome = np.array([0, 0.38333333, 0.63333333])
 
 
 def test_maxq():
@@ -42,3 +46,4 @@ def test_maxq():
     np.testing.assert_array_almost_equal(case1_outcome, sim_maxq[:, 0], decimal=3)
     np.testing.assert_array_almost_equal(case2_outcome, sim_maxq[:, 1], decimal=3)
     np.testing.assert_array_almost_equal(case3_outcome, sim_maxq[:, 2], decimal=3)
+    np.testing.assert_array_almost_equal(case4_outcome, sim_maxq[:, 3], decimal=3)

@@ -969,11 +969,13 @@ class ReservoirModel(Model):
     def find_maxq(self, discharge_relation: str, solve_guess: Optional[float] = np.nan):
         """
         Utility to calculate the theoretical maximum discharge out of the reservoir.
-        Supports 3 different methods for 'discharge_relation'
+        Supports four different methods for 'discharge_relation'.
 
         :param discharge_relation: str
             The method used to calculate the maximum possible discharge maxq, options are
 
+                - 'Elevation_Qmax_LUT': maxq based on a lookup table describing maximum discharge
+                  as a function of elevation. Requires lookup table ``qmax_from_h``.
                 - 'Spillway': maxq based on spillway Q/H + fixed Qmax. Requires parameter
                   'Reservoir_Qmax', as well as lookup_table 'qspill_from_h'.
                 - 'Fixed': maxq based on fixed discharge only. Requires parameter
@@ -992,7 +994,7 @@ class ReservoirModel(Model):
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
-        supported_relations = ["Spillway", "Fixed", "Tailwater"]
+        supported_relations = ["Spillway", "Fixed", "Tailwater", "Elevation_Qmax_LUT"]
         if discharge_relation not in supported_relations:
             raise KeyError(
                 f" At timestep {self.get_current_datetime()}:"
@@ -1009,7 +1011,7 @@ class ReservoirModel(Model):
                 logger.warning(
                     f" At timestep {self.get_current_datetime()}:"
                     f"Utility find_maxq is not able to compute spill from h."
-                    f"qspill_from_h cannot be found."
+                    f"as lookup table qspill_from_h cannot be found."
                 )
                 raise ValueError("find_maxq: lookup_table qspill_from_h is not present") from e
             spill_q = q_from_h(latest_h)
@@ -1030,6 +1032,17 @@ class ReservoirModel(Model):
             if np.isnan(solve_guess):
                 solve_guess = latest_h
             maxq = self._find_maxq_tailwater(latest_h, solve_guess)
+        elif discharge_relation == "Elevation_Qmax_LUT":
+            try:
+                qmax_from_h = self.lookup_tables().get("qmax_from_h")
+            except Exception as e:
+                logger.warning(
+                    f" At timestep {self.get_current_datetime()}:"
+                    f"Utility find_maxq is not able to compute spill from h."
+                    f"as lookup table qmax_from_h cannot be found."
+                )
+                raise ValueError("find_maxq: lookup_table qmax_from_h is not present") from e
+            maxq = qmax_from_h(latest_h)
         return max(0, maxq)
 
     def _find_maxq_tailwater(self, latest_h: float, solve_guess: float):
