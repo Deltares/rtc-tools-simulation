@@ -176,11 +176,12 @@ class ReservoirModel(Model):
                     f"Setting these values to {default_value}."
                 )
                 continue
-            logger.info(
-                f"{var} contains NaNs in the input file. "
-                f"Setting these values using linear interpolation."
-            )
-            timeseries = fill_nans_with_interpolation(self.times(), timeseries)
+            if any(np.isnan(timeseries)):
+                logger.info(
+                    f"{var} contains NaNs in the input file. "
+                    f"Setting these values using linear interpolation."
+                )
+                timeseries = fill_nans_with_interpolation(self.times(), timeseries)
             self.set_timeseries(var, timeseries)
 
     # Helper functions for getting/setting the time/date/variables.
