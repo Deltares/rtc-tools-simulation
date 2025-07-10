@@ -12,7 +12,7 @@ class Reservoir(ReservoirModel):
     """Class for demonstrating the minq scheme."""
 
     def apply_schemes(self):
-        """Apply minq within a given time period."""
+        """Apply minq at each simulated timestep."""
         self.apply_minq(h_min=0, h_max=40.0, h_target="rule_curve")
 
 
