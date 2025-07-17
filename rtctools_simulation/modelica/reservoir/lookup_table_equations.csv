@@ -1,6 +1,6 @@
 lookup_table,var_in,var_out
 h_from_v,V,H
-h_from_v,V_observed,H_observed
+v_from_h,H_observed,V_observed
 area_from_v,V,Area
 qout_from_v,day V,Q_out_from_lookup_table
 qspill_from_h,H,Q_spill_from_lookup_table
