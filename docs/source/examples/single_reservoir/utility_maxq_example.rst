@@ -12,9 +12,9 @@ This example shows how to use the :py:meth:`.ReservoirModel.find_maxq` utility w
 We consider a reservoir with a single inflow, ``Q_in``, and both spillway and turbine discharges.
 The reservoir outflow is determined based upon the reservoir elevation, ``H``, at each timestep.
 The utility aims to compute the maximum possible release based on the current reservoir elevation.
-It can consider 3 different options, a fixed maximum discharge (``Fixed``), a fixed maximum discharge plus
-Q/H spillway relation (``Spillway``) and a option where the downstream tailwater discharge relation is taken
-into account (``Tailwater``).
+It supports 4 different options, an elevation-maxq lookup table(``Elevation_Qmax_LUT``), a fixed
+maximum discharge (``Fixed``), a fixed maximum discharge plus Q/H spillway relation (``Spillway``)
+and a option where the downstream tailwater discharge relation is taken into account (``Tailwater``).
 
 Main Model (python) File
 ------------------------
@@ -65,7 +65,8 @@ can be found in :ref:`reservoir-api`.
 
 In this example, the :py:meth:`.ReservoirModel.apply_schemes` method starts
 by collecting the current model timestep, since the utility only works for timesteps after the first.
-The :py:meth:`.ReservoirModel.find_maxq` utility is then applied to compute the hypothetical maximum release using the 3 different cases.
+The :py:meth:`.ReservoirModel.find_maxq` utility is then applied to compute the hypothetical maximum
+release using the four different cases.
 
 Lookup tables
 -------------
@@ -77,6 +78,9 @@ This model uses a variety of lookup tables, which are all defined in the file ``
 
 The required lookup_tables depend on the option that is chosen.
 
+* For option ``Elevation_Qmax_LUT``, a lookup table named ``qmax_from_h`` is required.
+  This table should contain the maximum discharge for each elevation, which is used to compute the maximum release.
+  The table should have two columns: ``H`` (elevation) and ``Qmax`` (maximum discharge).
 * For ``Fixed``, none are required.
 * For ``Spillway``, the Q/H relationship of the spillway is required to be passed in a lookup_table 
   named ``qspill_from_h``.

@@ -176,11 +176,12 @@ class ReservoirModel(Model):
                     f"Setting these values to {default_value}."
                 )
                 continue
-            logger.info(
-                f"{var} contains NaNs in the input file. "
-                f"Setting these values using linear interpolation."
-            )
-            timeseries = fill_nans_with_interpolation(self.times(), timeseries)
+            if any(np.isnan(timeseries)):
+                logger.info(
+                    f"{var} contains NaNs in the input file. "
+                    f"Setting these values using linear interpolation."
+                )
+                timeseries = fill_nans_with_interpolation(self.times(), timeseries)
             self.set_timeseries(var, timeseries)
 
     # Helper functions for getting/setting the time/date/variables.
@@ -359,7 +360,6 @@ class ReservoirModel(Model):
             )
             return
         current_h = self.get_var("H")
-        inflow = self.get_var("Q_in")
         parameters = self.parameters()
         required_parameters = {
             "Spillway_H",
@@ -375,36 +375,41 @@ class ReservoirModel(Model):
             )
 
         ## If stage exceeds hmax, apply spill and release as much as possible
+        q_out_forh_target = self._get_q_out_for_h_target(parameters["Reservoir_Htarget"])
         if current_h > parameters["Spillway_H"]:
             self.apply_spillway()
-            self.set_q(
-                target_variable="Q_turbine",
-                input_type="parameter",
-                input_data=parameters["Reservoir_Qmax"],
-            )
-        elif current_h >= parameters["Reservoir_Htarget"]:
-            if inflow > parameters["Reservoir_Qmax"]:  ## discharge qlim, excess is added to storage
-                self.set_q(
-                    target_variable="Q_turbine",
-                    input_type="parameter",
-                    input_data=parameters["Reservoir_Qmax"],
+            try:
+                qspill_from_h = self.lookup_tables().get("qspill_from_h")
+            except Exception as e:
+                logger.warning(
+                    f" At timestep {self.get_current_datetime()}:"
+                    f"Utility find_maxq is not able to compute spill from h."
+                    f"as lookup table qspill_from_h cannot be found."
                 )
-            elif (
-                inflow <= parameters["Reservoir_Qmax"]
-            ):  ## If inflow between qmin and qlim, pass it directly through the system
-                self.apply_passflow()
-        elif current_h < parameters["Reservoir_Htarget"]:  ## Use storage to supply minimum outflow
-            self.set_q(
-                target_variable="Q_turbine",
-                input_type="parameter",
-                input_data=parameters["Reservoir_Qmin"],
+                raise ValueError("find_maxq: lookup_table qspill_from_h is not present") from e
+            q_spill = float(qspill_from_h(current_h))
+            calc_q = max(
+                0,
+                parameters["Reservoir_Qmin"] - q_spill,
+                min(q_out_forh_target - q_spill, parameters["Reservoir_Qmax"]),
             )
+        elif current_h == parameters["Reservoir_Htarget"]:
+            self.apply_passflow()
+            return
         else:
-            logger.warning(
-                f"apply_fillspill : At model time {self.get_current_datetime()} "
-                f"apply_fillspill was called but conditions of H_sim with value '{current_h}'"
-                f" was such that no subscheme was applied and nothing has changed."
+            calc_q = max(
+                parameters["Reservoir_Qmin"], min(parameters["Reservoir_Qmax"], q_out_forh_target)
             )
+        if np.isnan(calc_q):
+            raise ValueError(
+                f"At model time {self.get_current_datetime()} "
+                f"apply_fillspill was called but the calculated value for Q_turbine is NaN."
+            )
+        self.set_q(
+            target_variable=InputVar.Q_TURBINE,
+            input_type="parameter",
+            input_data=float(calc_q),
+        )
 
     def include_rain(self):
         """Scheme to  include the effect of rainfall on the reservoir volume.
@@ -969,11 +974,13 @@ class ReservoirModel(Model):
     def find_maxq(self, discharge_relation: str, solve_guess: Optional[float] = np.nan):
         """
         Utility to calculate the theoretical maximum discharge out of the reservoir.
-        Supports 3 different methods for 'discharge_relation'
+        Supports four different methods for 'discharge_relation'.
 
         :param discharge_relation: str
             The method used to calculate the maximum possible discharge maxq, options are
 
+                - 'Elevation_Qmax_LUT': maxq based on a lookup table describing maximum discharge
+                  as a function of elevation. Requires lookup table ``qmax_from_h``.
                 - 'Spillway': maxq based on spillway Q/H + fixed Qmax. Requires parameter
                   'Reservoir_Qmax', as well as lookup_table 'qspill_from_h'.
                 - 'Fixed': maxq based on fixed discharge only. Requires parameter
@@ -992,7 +999,7 @@ class ReservoirModel(Model):
 
         This utility can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
         """
-        supported_relations = ["Spillway", "Fixed", "Tailwater"]
+        supported_relations = ["Spillway", "Fixed", "Tailwater", "Elevation_Qmax_LUT"]
         if discharge_relation not in supported_relations:
             raise KeyError(
                 f" At timestep {self.get_current_datetime()}:"
@@ -1009,7 +1016,7 @@ class ReservoirModel(Model):
                 logger.warning(
                     f" At timestep {self.get_current_datetime()}:"
                     f"Utility find_maxq is not able to compute spill from h."
-                    f"qspill_from_h cannot be found."
+                    f"as lookup table qspill_from_h cannot be found."
                 )
                 raise ValueError("find_maxq: lookup_table qspill_from_h is not present") from e
             spill_q = q_from_h(latest_h)
@@ -1030,6 +1037,17 @@ class ReservoirModel(Model):
             if np.isnan(solve_guess):
                 solve_guess = latest_h
             maxq = self._find_maxq_tailwater(latest_h, solve_guess)
+        elif discharge_relation == "Elevation_Qmax_LUT":
+            try:
+                qmax_from_h = self.lookup_tables().get("qmax_from_h")
+            except Exception as e:
+                logger.warning(
+                    f" At timestep {self.get_current_datetime()}:"
+                    f"Utility find_maxq is not able to compute spill from h."
+                    f"as lookup table qmax_from_h cannot be found."
+                )
+                raise ValueError("find_maxq: lookup_table qmax_from_h is not present") from e
+            maxq = qmax_from_h(latest_h)
         return max(0, maxq)
 
     def _find_maxq_tailwater(self, latest_h: float, solve_guess: float):
