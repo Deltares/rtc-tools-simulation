@@ -735,6 +735,7 @@ class ReservoirModel(Model):
         h_min: float = 0,
         h_max: Optional[float] = None,
         q_flood: Optional[float] = 0,
+        q_max: Optional[float] = np.inf,
         recalculate: bool = False,
     ):
         """
@@ -743,6 +744,10 @@ class ReservoirModel(Model):
         The outflow is minimized for the given optimization parameters.
         If recalculate is True, the minimzed outflow will be recalculated.
         This is useful if some of the parameters like h_target have changed.
+
+        The model strikes a balance between minimizing outflow and meeting the
+        target elevation. Weights can be provided to adjust this balance. By default
+        both are given the same weight. It is recommened that both weights sum to 1.
 
         :param h_target: float, Iterable[float], str.
             Target elevation. Can be the name of a timeseries.
@@ -753,6 +758,14 @@ class ReservoirModel(Model):
         :param q_flood: float, optional.
             Flood discharge. When computing the peak outflow,
             values below the flood discharge are ignored.
+        :param q_max: float, optional.
+            Maximum discharge. Default is infinity (no maximum discharge).
+            It is recommended to supply this parameter when using h_target to
+            prevent unrealistically high outflows. This parameter can for
+            example be set to ``rule_curve_q_max``
+            (used in :py:meth:`.ReservoirModel.apply_rulecurve`).
+        :param minq_weight: float, optional.
+
         :param recalculate: bool, optional.
             If True, the outflow will be recalculated. Default is False.
         """
@@ -774,6 +787,7 @@ class ReservoirModel(Model):
                 v_max=v_from_h(h_max),
                 v_target=v_from_h(h_target).toarray().flatten(),
                 q_flood=q_flood,
+                q_max=q_max,
             )
             self._calculate_qmin(params=params, name=name)
         q_out = self.timeseries_at(name, self.get_current_time())
@@ -803,6 +817,13 @@ class ReservoirModel(Model):
         results = problem.extract_results()
         var = OutputVar.Q_OUT.value
         values = results[var]
+        # ensure values are all non-negative
+        if min(values) < 0:
+            logger.info(
+                f"minq scheme calculated minimum q of {min(values)}, "
+                "processing for non-negative flows"
+            )
+            values = [x if x >= 0 else 0 for x in values]
         self.set_timeseries(name, values)
 
     def _get_optimization_input_timeseries(self, times_sec: List[int]) -> Dict[str, list]:

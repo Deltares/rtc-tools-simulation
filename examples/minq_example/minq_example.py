@@ -13,7 +13,11 @@ class Reservoir(ReservoirModel):
 
     def apply_schemes(self):
         """Apply minq at each simulated timestep."""
-        self.apply_minq(h_min=0, h_max=40.0, h_target="rule_curve")
+        self.apply_minq(
+            h_min=0,
+            h_max=40.0,
+            h_target="rule_curve",
+        )
 
 
 # Create and run the model.

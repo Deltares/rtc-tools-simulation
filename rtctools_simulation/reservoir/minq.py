@@ -21,6 +21,9 @@ class QMinParameters(pydantic.BaseModel):
     v_max: Optional[pydantic.NonNegativeFloat] = None
     v_target: Union[pydantic.NonNegativeFloat, List[pydantic.NonNegativeFloat]]
     q_flood: pydantic.NonNegativeFloat = 0
+    q_max: Optional[pydantic.NonNegativeFloat] = np.inf
+    minq_weight: Optional[pydantic.NonNegativeFloat] = 0.5
+    target_weight: Optional[pydantic.NonNegativeFloat] = 0.5
 
 
 class VolumeBounds(Goal):
@@ -43,6 +46,9 @@ class MinimizeQOutMax(Goal):
 
     priority = 2
 
+    def __init__(self, q_nominal, w):
+        self.weight = q_nominal * w
+
     def function(self, optimization_problem, ensemble_member):
         return optimization_problem.state(OptimizationVar.Q_OUT_MAX.value)
 
@@ -50,12 +56,13 @@ class MinimizeQOutMax(Goal):
 class TargetVolume(Goal):
     """Goal for a target volume."""
 
-    priority = 3
+    priority = 2
 
-    def __init__(self, v_target: Union[float, List[float]], v_min, v_max):
+    def __init__(self, v_target: Union[float, List[float]], v_min, v_max, v_nominal, w):
         self.target_max = v_target
         self.target_min = v_target
         self.function_range = [v_min - abs(v_min) - 1, 2 * v_max]
+        self.weight = v_nominal * w
 
     def function(self, optimization_problem: OptimizationProblem, ensemble_member):
         return optimization_problem.state(OutputVar.VOLUME.value)
@@ -82,6 +89,8 @@ class QMinProblem(OptimizationProblem):
         for var, value in self.input_timeseries.items():
             self.io.set_timeseries(var.value, self.datetimes, np.array(value))
         super().pre()
+        self.v_nominal = (self.params.v_max - self.params.v_min) / 2
+        self.q_nominal = np.mean(self.get_timeseries(InputVar.Q_IN).values)
 
     def times(self, variable=None):
         return self.io.datetime_to_sec(self.datetimes, self.datetimes[0])
@@ -95,9 +104,13 @@ class QMinProblem(OptimizationProblem):
         return [
             *super().path_goals(),
             VolumeBounds(self.params.v_min, self.params.v_max),
-            MinimizeQOutMax(),
+            MinimizeQOutMax(self.q_nominal, self.params.minq_weight),
             TargetVolume(
-                v_target=self.params.v_target, v_max=self.params.v_max, v_min=self.params.v_min
+                v_target=self.params.v_target,
+                v_max=self.params.v_max,
+                v_min=self.params.v_min,
+                v_nominal=self.v_nominal,
+                w=self.params.target_weight,
             ),
         ]
 
@@ -112,6 +125,6 @@ class QMinProblem(OptimizationProblem):
     def bounds(self):
         return {
             **super().bounds(),
-            OutputVar.Q_OUT.value: (0, np.inf),
+            OutputVar.Q_OUT.value: (0, self.params.q_max),
             OptimizationVar.Q_OUT_MAX.value: (self.params.q_flood, np.inf),
         }
