@@ -736,6 +736,8 @@ class ReservoirModel(Model):
         h_max: Optional[float] = None,
         q_flood: Optional[float] = 0,
         q_max: Optional[float] = np.inf,
+        minq_weight: float = 0.5,
+        target_weight: float = 0.5,
         recalculate: bool = False,
     ):
         """
@@ -788,6 +790,8 @@ class ReservoirModel(Model):
                 v_target=v_from_h(h_target).toarray().flatten(),
                 q_flood=q_flood,
                 q_max=q_max,
+                minq_weight=minq_weight,
+                target_weight=target_weight,
             )
             self._calculate_qmin(params=params, name=name)
         q_out = self.timeseries_at(name, self.get_current_time())
