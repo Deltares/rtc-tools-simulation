@@ -22,8 +22,8 @@ class QMinParameters(pydantic.BaseModel):
     v_target: Union[pydantic.NonNegativeFloat, List[pydantic.NonNegativeFloat]]
     q_flood: pydantic.NonNegativeFloat = 0
     q_max: Optional[pydantic.NonNegativeFloat] = np.inf
-    minq_weight: Optional[pydantic.NonNegativeFloat] = 0.5
-    target_weight: Optional[pydantic.NonNegativeFloat] = 0.5
+    minimize_peak_q_weight: Optional[pydantic.NonNegativeFloat] = 0.5
+    h_target_weight: Optional[pydantic.NonNegativeFloat] = 0.5
 
 
 class VolumeBounds(Goal):
@@ -104,13 +104,13 @@ class QMinProblem(OptimizationProblem):
         return [
             *super().path_goals(),
             VolumeBounds(self.params.v_min, self.params.v_max),
-            MinimizeQOutMax(self.q_nominal, self.params.minq_weight),
+            MinimizeQOutMax(self.q_nominal, self.params.minimize_peak_q_weight),
             TargetVolume(
                 v_target=self.params.v_target,
                 v_max=self.params.v_max,
                 v_min=self.params.v_min,
                 v_nominal=self.v_nominal,
-                w=self.params.target_weight,
+                w=self.params.h_target_weight,
             ),
         ]
 

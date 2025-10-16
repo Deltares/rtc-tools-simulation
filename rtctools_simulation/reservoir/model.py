@@ -736,8 +736,8 @@ class ReservoirModel(Model):
         h_max: Optional[float] = None,
         q_flood: Optional[float] = 0,
         q_max: Optional[float] = np.inf,
-        minq_weight: float = 0.5,
-        target_weight: float = 0.5,
+        minimize_peak_q_weight: float = 0.5,
+        h_target_weight: float = 0.5,
         recalculate: bool = False,
     ):
         """
@@ -766,8 +766,18 @@ class ReservoirModel(Model):
             prevent unrealistically high outflows. This parameter can for
             example be set to ``rule_curve_q_max``
             (used in :py:meth:`.ReservoirModel.apply_rulecurve`).
-        :param minq_weight: float, optional.
-
+        :param minimize_peak_q_weight: float, optional.
+            Weight for minimizing peak outflow. Default is 0.5.
+            Can be adjusted to give more or less importance to minimizing peak outflow.
+            A higher value gives more importance to minimizing peak outflow.
+            It is recommended that both weights sum to 1 - otherwise variable scaling
+            will be affected.
+        :param h_target_weight: float, optional.
+            Weight for meeting the target elevation. Default is 0.5.
+            Can be adjusted to give more or less importance to meeting the target elevation.
+            A higher value gives more importance to meeting the target elevation.
+            It is recommended that both weights sum to 1 - otherwise variable scaling
+            will be affected.
         :param recalculate: bool, optional.
             If True, the outflow will be recalculated. Default is False.
         """
@@ -790,8 +800,8 @@ class ReservoirModel(Model):
                 v_target=v_from_h(h_target).toarray().flatten(),
                 q_flood=q_flood,
                 q_max=q_max,
-                minq_weight=minq_weight,
-                target_weight=target_weight,
+                minimize_peak_q_weight=minimize_peak_q_weight,
+                h_target_weight=h_target_weight,
             )
             self._calculate_qmin(params=params, name=name)
         q_out = self.timeseries_at(name, self.get_current_time())
