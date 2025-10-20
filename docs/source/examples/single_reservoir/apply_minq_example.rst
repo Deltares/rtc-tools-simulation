@@ -115,3 +115,17 @@ The results of the simulation run can be seen in the plot below.
 
 .. raw:: html
     :file: figures//final_results_minq.html
+
+Note that in this case, the peak outflow is still high as the solution balances minimizing peak outflow with meeting the rulecurve.
+If we adjust the weights in the `apply_minq` call, we can achieve a lower peak outflow.
+Let ``minimize_peak_q_weight=0.9999`` and ``h_target_weight=0.0001``, then we obtain the following results.
+
+.. raw:: html
+    :file: figures//final_results_minq_adjust_weights.html
+
+This shows that by adjusting the weights, we can prioritize minimizing peak outflow over following the rule curve.
+
+.. note::
+
+      The choice of weights depends on the specific application and desired outcomes.
+      It is recommended to use the default weights unless there is a clear rationale for adjusting them.
