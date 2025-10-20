@@ -89,8 +89,8 @@ class QMinProblem(OptimizationProblem):
         for var, value in self.input_timeseries.items():
             self.io.set_timeseries(var.value, self.datetimes, np.array(value))
         super().pre()
-        self.v_nominal = (self.params.v_max - self.params.v_min) / 2
-        self.q_nominal = np.mean(self.get_timeseries(InputVar.Q_IN).values)
+        self.v_nominal = max(1, (self.params.v_max - self.params.v_min) / 2)
+        self.q_nominal = max(1, np.mean(self.get_timeseries(InputVar.Q_IN).values))
 
     def times(self, variable=None):
         return self.io.datetime_to_sec(self.datetimes, self.datetimes[0])
