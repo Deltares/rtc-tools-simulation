@@ -393,10 +393,12 @@ class ReservoirModel(Model):
                 parameters["Reservoir_Qmin"] - q_spill,
                 min(q_out_forh_target - q_spill, parameters["Reservoir_Qmax"]),
             )
-        elif current_h == parameters["Reservoir_Htarget"]:
-            self.apply_passflow()
-            return
         else:
+            # NOTE: In this case we do not consider spill, as h < Spillway_H
+            # The passflow case is also handled here, we do not apply the
+            # existing passflow scheme as that scheme sets Q_out directly.
+            # For consistency we handle it here and set Q_turbine.
+            # In this way we also consider min and max discharges.
             calc_q = max(
                 parameters["Reservoir_Qmin"], min(parameters["Reservoir_Qmax"], q_out_forh_target)
             )
