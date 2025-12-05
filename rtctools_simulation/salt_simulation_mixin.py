@@ -11,6 +11,25 @@ logger = logging.getLogger("rtctools")
 
 
 def area_coef(storage_areas, number):
+    """
+    Compute the area coefficient for a given storage index.
+
+    The coefficient is defined as the sum of ratios of the selected storage
+    area to all storage areas:
+        coef = Σ(storage_areas[number] / storage_areas[i])
+
+    Parameters
+    ----------
+    storage_areas : list[float]
+        List of cross-sectional areas for all storages.
+    number : int
+        Index of the target storage in `storage_areas`.
+
+    Returns
+    -------
+    float
+        The summed area coefficient.
+    """
     coef = 0.0
     for idx in range(len(storage_areas)):
         coef += storage_areas[number] / storage_areas[idx]
@@ -18,6 +37,24 @@ def area_coef(storage_areas, number):
 
 
 def set_mid_q_wl_closing(self, net_q_storages, net_q_system):
+    """
+    Set middle discharges for water-level closing.
+
+    Middle discharges are computed by balancing the lateral forcings and
+    system-level net discharge under the water-level closing assumption.
+    Negative downstream discharge values trigger debug logging.
+
+    Parameters
+    ----------
+    net_q_storages : ndarray
+        Net discharge contributions for each active storage.
+    net_q_system : float
+        Total net discharge for the entire system.
+
+    Notes
+    -----
+    This function updates internal model variables using `set_var()`.
+    """
     storage_areas = [self.parameters()[x + ".A"] for x in self.active_storage_names]
     minimum_allowed_negative_q = -0.001
     for idx, storage_name in enumerate(self.active_storage_names):
@@ -48,6 +85,25 @@ def set_mid_q_wl_closing(self, net_q_storages, net_q_system):
 
 
 def set_mid_q_q_closing(self, net_q_storages, net_q_system):
+    """
+    Set middle discharges for discharge-closing logic.
+
+    Uses purely discharge-based relationships (no water-level coupling).
+    Sets advective forcing at downstream end and adjusts intermediate
+    middle discharges accordingly.
+
+    Parameters
+    ----------
+    net_q_storages : ndarray
+        Net discharge contributions for each active storage.
+    net_q_system : float
+        Total net discharge for the entire system.
+
+    Raises
+    ------
+    Exception
+        If a negative downstream discharge is detected.
+    """
     minimum_allowed_negative_q = -0.001
     for idx, storage_name in enumerate(self.active_storage_names):
         if idx == 0:
@@ -81,6 +137,16 @@ def set_mid_q_q_closing(self, net_q_storages, net_q_system):
 
 
 def add_equations_middle_q_m(self):
+    """
+    Add algebraic equations linking dispersive discharges to the middle discharge.
+
+    For each connector, three equations are added:
+    - Upstream mass balance
+    - Downstream discharge balance
+    - Upstream discharge balance
+
+    The resulting equations are appended to `self.equation_list`.
+    """
     variables = self.get_variables()
 
     for name in self.connector_names:
@@ -104,6 +170,16 @@ def add_equations_middle_q_m(self):
 
 
 def add_equations_forcings(self):
+    """
+    Add forcing-related algebraic equations.
+
+    This includes equations linking:
+    - QForcing[*] variables to qforcing_* variables,
+    - MForcing[*] variables to mforcing_* variables,
+    - multiplicative MForcing[2] and MForcing[4] relations.
+
+    Equations are appended to `self.equation_list`.
+    """
     variables = self.get_variables()
 
     for idx, name in enumerate(self.active_storage_names):
@@ -163,6 +239,16 @@ def add_equations_forcings(self):
 
 
 def add_equations_zsf(self):
+    """
+    Add ZSF-related algebraic equations for upstream and downstream storages.
+
+    Only storages at the first or last index get ZSF forcing equations.
+    These include:
+    - QForcing[3] for ZSF discharge
+    - MForcing[3] for ZSF mass flux
+
+    Appends equations to `self.equation_list`.
+    """
     variables = self.get_variables()
 
     for idx, name in enumerate(self.active_storage_names):
@@ -185,6 +271,25 @@ def add_equations_zsf(self):
 
 
 def axis_settings(axis, title, ylabel=None, empty_plot=False):
+    """
+    Apply standard axis formatting for plots.
+
+    Parameters
+    ----------
+    axis : matplotlib.axes.Axes
+        Axis to configure.
+    title : str
+        Title of the plot.
+    ylabel : str, optional
+        Label for the y-axis.
+    empty_plot : bool, optional
+        If True, do not add a legend.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The formatted axis.
+    """
     ymin, ymax = axis.get_ylim()
     axis.set_ylim(ymin - 0.1, ymax + 0.1)
     if not empty_plot:
@@ -197,6 +302,18 @@ def axis_settings(axis, title, ylabel=None, empty_plot=False):
 
 
 def create_plot1(self, axarr, results, color_list):
+    """
+    Plot concentrations for all storages and boundary conditions.
+
+    Parameters
+    ----------
+    axarr : list[Axes]
+        Subplot axes array.
+    results : dict
+        Simulation result time series.
+    color_list : list[str]
+        Colors used for different storages.
+    """
     times = self.times() / 3600
     # Plot 1
     if self.upstream_open_boundary:
@@ -230,6 +347,11 @@ def create_plot1(self, axarr, results, color_list):
 
 
 def create_plot2(self, axarr, results, color_list):
+    """
+    Plot water levels for all storages, including upstream/downstream boundaries.
+
+    Parameters are identical to `create_plot1`.
+    """
     times = self.times() / 3600
 
     # Plot 2
@@ -269,6 +391,9 @@ def create_plot2(self, axarr, results, color_list):
 
 
 def create_plot3(self, axarr, results, color_list):
+    """
+    Plot dispersive transport discharges for all connectors.
+    """
     times = self.times() / 3600
 
     # Plot 3
@@ -296,6 +421,9 @@ def create_plot3(self, axarr, results, color_list):
 
 
 def create_plot4(self, axarr, results, color_list):
+    """
+    Plot total (dispersive + advective) mass flux for each connector.
+    """
     times = self.times() / 3600
     # Plot 4
     # Todo: the timeseires is referred as a given name, it does not find it with the . name
@@ -325,6 +453,11 @@ def create_plot4(self, axarr, results, color_list):
 
 
 def create_plot5(self, axarr, results, color_list, min_q_plot_threshold):
+    """
+    Plot advective transport discharges for connectors and storage inflow/outflow.
+
+    Only includes signals above `min_q_plot_threshold`.
+    """
     times = self.times() / 3600
     # Plot 5
     for idx, connector_name in enumerate(self.connector_names):
@@ -376,10 +509,11 @@ def create_plot5(self, axarr, results, color_list, min_q_plot_threshold):
 
 
 def create_plot6(self, axarr, results, color_list, min_q_plot_threshold):
+    """
+    Plot extra inflow signals determined from qforcing inputs/outputs.
+    """
     times = self.times() / 3600
 
-    # Plot 6
-    # Todo: this can only take values outside the mixin...
     empty_plot = True
     for idx, storage_name in enumerate(self.active_storage_names):
         if (
@@ -414,6 +548,9 @@ def create_plot6(self, axarr, results, color_list, min_q_plot_threshold):
 
 
 def create_plot7(self, axarr, results, color_list, min_q_plot_threshold):
+    """
+    Plot additional mass-forcing signals for each storage.
+    """
     times = self.times() / 3600
 
     # Plot 7
@@ -448,10 +585,11 @@ def create_plot7(self, axarr, results, color_list, min_q_plot_threshold):
 
 
 def create_plot8(self, axarr, results, color_list):
+    """
+    Plot ZSF and flushing discharges for upstream and downstream storages.
+    """
     times = self.times() / 3600
 
-    # Plot 7
-    # Todo: maybe here the names are not too generic
     axarr[7].plot(
         times,
         results[self.active_storage_names[0] + "_qforcing_ZSF"],
@@ -480,10 +618,11 @@ def create_plot8(self, axarr, results, color_list):
 
 
 def create_plot9(self, axarr, results, color_list):
+    """
+    Plot ZSF and flushing mass flux for upstream and downstream storages.
+    """
     times = self.times() / 3600
 
-    # Plot 8
-    # Todo: maybe here the names are not too generic
     axarr[8].plot(
         times,
         results[self.active_storage_names[0] + "_mforcing_ZSF"],
@@ -520,9 +659,11 @@ def create_plot9(self, axarr, results, color_list):
 
 
 def create_plot10(self, axarr, results, color_list):
+    """
+    Plot upstream and downstream discharge boundary time series.
+    """
     times = self.times() / 3600
 
-    # Plot 8
     axarr[9].plot(
         times,
         self.io.get_timeseries("upstream_discharge")[1],
@@ -551,9 +692,11 @@ def create_plot10(self, axarr, results, color_list):
 
 
 def create_plot11(self, axarr, results, color_list):
+    """
+    Plot upstream and downstream ZSF head time series.
+    """
     times = self.times() / 3600
 
-    # Plot 10
     axarr[10].plot(
         times,
         self.io.get_timeseries("head_sea_upstream_zsf")[1],
@@ -581,6 +724,9 @@ def create_plot11(self, axarr, results, color_list):
 
 
 def create_plot12(self, axarr, results, color_list):
+    """
+    Plot upstream and downstream ZSF salinity time series.
+    """
     times = self.times() / 3600
 
     # Plot 10
