@@ -672,7 +672,7 @@ class SaltSimulationMixin:
 
         if self.water_level_closing:
             set_mid_q_wl_closing(self, net_q_storages, net_q_system)
-        else:
+        elif self.discharge_closing:
             set_mid_q_q_closing(self, net_q_storages, net_q_system)
 
         super().update(dt)
