@@ -13,4 +13,4 @@ Contents:
   :maxdepth: 1
 
   examples/single_reservoir
-
+  examples/salt

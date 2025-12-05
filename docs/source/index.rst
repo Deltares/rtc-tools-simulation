@@ -19,6 +19,7 @@ Contents
   example_models
   lookup_table
   reservoir
+  modelling_salt
 
 
 Indices and tables
