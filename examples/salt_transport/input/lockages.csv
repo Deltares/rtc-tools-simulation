@@ -1,0 +1,4 @@
+time,routine,ship_volume_lake_to_sea,ship_volume_sea_to_lake,t_flushing,t_level,t_open_lake,t_open_sea
+120,3,,,,300,,
+420,4,,1884.2,,,,420
+840,1,,,,240,,
