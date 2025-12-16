@@ -12,7 +12,7 @@ ZTM solves both the advection and dispersion equations. First, the discharge flu
  
 Assumptions: 
 
-* Concentrations cannot be exactly identical; an `\epsilon` tolerance determines how close they may be.
+* Concentrations cannot be exactly identical; an ``\epsilon`` tolerance determines how close they may be.
 * The model has been tested with multiple boxes, but splitting one exchange into two (a Y-shaped branching) has not yet been tested.
 * The model has been tested only with discharge in a single direction. Although flow reversal is possible, it has not yet been tested.
 
