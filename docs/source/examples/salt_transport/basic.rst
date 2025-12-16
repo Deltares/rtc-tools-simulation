@@ -17,8 +17,8 @@ all the three boxes stays constant. An initial concentration of the boxes can be
 
 Running the model
 -----------------
-The model can be run by running the `example_three_boxes_ZSF.py` file. After the run 
-the message shuld be `Process finished with exit code 0` and the output folder should contain
+The model can be run by running the ``example_three_boxes_ZSF.py`` file. After the run 
+the message should be ``Process finished with exit code 0`` and the output folder should contain
 the files listed in the file tree abovel.
 
 Inspecting the results
