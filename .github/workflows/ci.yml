@@ -33,6 +33,7 @@ jobs:
             pip install --upgrade pip
             pip install -e .
             pip install pytest
+            pip install pyzsf
         - name: Run pytest
           run: pytest tests
 

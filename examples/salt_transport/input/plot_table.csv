@@ -1,0 +1,6 @@
+﻿id,y_axis_title,variables_style_1,variables_style_2,variables_with_previous_result,custom_title,specified_in
+1,Q,storage1.V,,,Volume,python
+1,H,storage1.H,,,Head Q,python
+1,C,storage1.C,,,Concentration,python
+1,Q,storage1_qforcing_ZSF,,,Discharge,python
+1,M,storage1_mforcing_ZSF,,,Mass flux,python
