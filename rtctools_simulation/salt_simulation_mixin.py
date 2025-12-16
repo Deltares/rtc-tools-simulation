@@ -350,7 +350,8 @@ def create_plot2(self, axarr, results, color_list):
     """
     Plot water levels for all storages, including upstream/downstream boundaries.
 
-    Parameters are identical to `create_plot1`.
+    Parameters are identical to ``create_plot1``.
+
     """
     times = self.times() / 3600
 
