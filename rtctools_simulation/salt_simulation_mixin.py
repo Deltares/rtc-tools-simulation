@@ -1,7 +1,6 @@
 import logging
-
-# from symbol import parameters
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -71,7 +70,6 @@ def set_mid_q_wl_closing(self, net_q_storages, net_q_system):
                 logger.debug(
                     "{} has negative downstream discharge, check the laterals.".format(storage_name)
                 )
-                # raise Exception
             if self.upstream_open_boundary:
                 connector_name = self.connector_names[idx + 1]
             else:
@@ -301,7 +299,7 @@ def axis_settings(axis, title, ylabel=None, empty_plot=False):
     return axis
 
 
-def create_plot1(self, axarr, results, color_list):
+def plot_concentrations(self, axarr, results, color_list):
     """
     Plot concentrations for all storages and boundary conditions.
 
@@ -346,11 +344,11 @@ def create_plot1(self, axarr, results, color_list):
     axis_settings(axarr[0], "Concentrations")
 
 
-def create_plot2(self, axarr, results, color_list):
+def plot_water_levels(self, axarr, results, color_list):
     """
     Plot water levels for all storages, including upstream/downstream boundaries.
 
-    Parameters are identical to ``create_plot1``.
+    Parameters are identical to ``plot_concentrations``.
 
     """
     times = self.times() / 3600
@@ -391,7 +389,7 @@ def create_plot2(self, axarr, results, color_list):
     axis_settings(axarr[1], "Water levels", ylabel="Water level\n[m]")
 
 
-def create_plot3(self, axarr, results, color_list):
+def plot_dispersive_transport(self, axarr, results, color_list):
     """
     Plot dispersive transport discharges for all connectors.
     """
@@ -407,9 +405,6 @@ def create_plot3(self, axarr, results, color_list):
                 linewidth=2,
                 color="b",
             )
-        # elif self.downstream_open_boundary and idx==len(self.connector_names)-1:
-        #    axarr[2].plot(times, results[connector_name + '.flux_q1_s1'],
-        #                  label='q_uit_' + connector_name, linewidth=2, color=color_list[idx])
         else:
             axarr[2].plot(
                 times,
@@ -421,13 +416,12 @@ def create_plot3(self, axarr, results, color_list):
     axis_settings(axarr[2], "Dispersive transport discharge", ylabel="Discharge\n[m3/s]")
 
 
-def create_plot4(self, axarr, results, color_list):
+def plot_dispersive_advective_flux(self, axarr, results, color_list):
     """
     Plot total (dispersive + advective) mass flux for each connector.
     """
     times = self.times() / 3600
-    # Plot 4
-    # Todo: the timeseires is referred as a given name, it does not find it with the . name
+
     for idx, connector_name in enumerate(self.connector_names):
         if self.upstream_open_boundary and idx == 0:
             axarr[3].plot(
@@ -453,7 +447,7 @@ def create_plot4(self, axarr, results, color_list):
     )
 
 
-def create_plot5(self, axarr, results, color_list, min_q_plot_threshold):
+def plot_advective_discharge(self, axarr, results, color_list, min_q_plot_threshold):
     """
     Plot advective transport discharges for connectors and storage inflow/outflow.
 
@@ -509,7 +503,7 @@ def create_plot5(self, axarr, results, color_list, min_q_plot_threshold):
     )
 
 
-def create_plot6(self, axarr, results, color_list, min_q_plot_threshold):
+def plot_inflows(self, axarr, results, color_list, min_q_plot_threshold):
     """
     Plot extra inflow signals determined from qforcing inputs/outputs.
     """
@@ -548,7 +542,7 @@ def create_plot6(self, axarr, results, color_list, min_q_plot_threshold):
     axis_settings(axarr[5], "Extra inflow", ylabel="Discharge\n[m3/s]", empty_plot=empty_plot)
 
 
-def create_plot7(self, axarr, results, color_list, min_q_plot_threshold):
+def plot_lateral_flux(self, axarr, results, color_list, min_q_plot_threshold):
     """
     Plot additional mass-forcing signals for each storage.
     """
@@ -580,12 +574,11 @@ def create_plot7(self, axarr, results, color_list, min_q_plot_threshold):
                 color=color_list[idx],
             )
             empty_plot = False
-        # plt.yticks(np.arange(-100, 100, 50))
 
     axis_settings(axarr[6], "Extra flux", ylabel="mass flux\n[kg/s]", empty_plot=empty_plot)
 
 
-def create_plot8(self, axarr, results, color_list):
+def plot_lateral_flow(self, axarr, results, color_list):
     """
     Plot ZSF and flushing discharges for upstream and downstream storages.
     """
@@ -618,7 +611,7 @@ def create_plot8(self, axarr, results, color_list):
     axis_settings(axarr[7], "ZSF and flushing discharge", ylabel="Discharge\n[m3/s]")
 
 
-def create_plot9(self, axarr, results, color_list):
+def plot_zsf_flux(self, axarr, results, color_list):
     """
     Plot ZSF and flushing mass flux for upstream and downstream storages.
     """
@@ -659,7 +652,7 @@ def create_plot9(self, axarr, results, color_list):
     )
 
 
-def create_plot10(self, axarr, results, color_list):
+def plot_bnd_flow(self, axarr, results, color_list):
     """
     Plot upstream and downstream discharge boundary time series.
     """
@@ -692,7 +685,7 @@ def create_plot10(self, axarr, results, color_list):
     )
 
 
-def create_plot11(self, axarr, results, color_list):
+def plot_zsf_head(self, axarr, results, color_list):
     """
     Plot upstream and downstream ZSF head time series.
     """
@@ -724,7 +717,7 @@ def create_plot11(self, axarr, results, color_list):
     )
 
 
-def create_plot12(self, axarr, results, color_list):
+def plot_zsf_concentration(self, axarr, results, color_list):
     """
     Plot upstream and downstream ZSF salinity time series.
     """
@@ -787,7 +780,7 @@ class SaltSimulationMixin:
 
         """
         input_database = pd.read_csv(
-            self._input_folder + "/timeseries_import.csv", parse_dates=True, index_col=[0]
+            Path(self._input_folder) / "timeseries_import.csv", parse_dates=True, index_col=[0]
         )
         input_database.to_csv(
             self._input_folder + "/timeseries_import.csv", date_format="%Y-%m-%d %H:%M:%S"
@@ -883,18 +876,18 @@ class SaltSimulationMixin:
         plt.subplots_adjust(left=0.1, bottom=0.1, top=0.95, wspace=0.4, hspace=0.85)
         times = self.times() / 3600
 
-        create_plot1(self, axarr, results, color_list)
-        create_plot2(self, axarr, results, color_list)
-        create_plot3(self, axarr, results, color_list)
-        create_plot4(self, axarr, results, color_list)
-        create_plot5(self, axarr, results, color_list, min_q_plot_threshold)
-        create_plot6(self, axarr, results, color_list, min_q_plot_threshold)
-        create_plot7(self, axarr, results, color_list, min_q_plot_threshold)
-        create_plot8(self, axarr, results, color_list)
-        create_plot9(self, axarr, results, color_list)
-        create_plot10(self, axarr, results, color_list)
-        create_plot11(self, axarr, results, color_list)
-        create_plot12(self, axarr, results, color_list)
+        plot_concentrations(self, axarr, results, color_list)
+        plot_water_levels(self, axarr, results, color_list)
+        plot_dispersive_transport(self, axarr, results, color_list)
+        plot_dispersive_advective_flux(self, axarr, results, color_list)
+        plot_advective_discharge(self, axarr, results, color_list, min_q_plot_threshold)
+        plot_inflows(self, axarr, results, color_list, min_q_plot_threshold)
+        plot_lateral_flux(self, axarr, results, color_list, min_q_plot_threshold)
+        plot_lateral_flow(self, axarr, results, color_list)
+        plot_zsf_flux(self, axarr, results, color_list)
+        plot_bnd_flow(self, axarr, results, color_list)
+        plot_zsf_head(self, axarr, results, color_list)
+        plot_zsf_concentration(self, axarr, results, color_list)
 
         axarr[-1].set_xlabel("Time [h]")
         f.autofmt_xdate()
@@ -917,5 +910,3 @@ class SaltSimulationMixin:
             pad_inches=0.1,
             dpi=300,
         )
-
-        pd.read_csv("..\\output\\timeseries_export.csv")

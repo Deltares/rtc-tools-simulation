@@ -11,12 +11,86 @@ from rtctools_interface.simulation.plot_mixin import PlotMixin
 
 from rtctools_simulation.salt_simulation_mixin import SaltSimulationMixin
 
-logger = logging.getLogger("rtctools")
-
 
 def zsf_routines(
     self, routine, t_level, t_open_lake, t_flushing, t_open_sea, salinity_lake, parameters
 ):
+    """
+    Execute a ZSF (sluice / salt–fresh water lock) operational routine.
+
+    This method selects and executes one of several predefined operational
+    phases for a hydraulic lock or sluice system, based on the provided
+    ``routine`` identifier. Each routine corresponds to a specific physical
+    operation such as leveling, opening doors, or flushing.
+
+    After execution, the resulting discharge and salt flux are converted
+    to net inflow and net salt flux values.
+
+    Parameters
+    ----------
+    self : object
+        Instance containing the ZSF model object ``self.z`` and result
+        attributes ``netto_q_in`` and ``netto_flux``.
+    routine : int
+        Identifier of the operational routine to execute:
+
+        - ``1``  : Leveling towards the fresh-water side
+        - ``2``  : Doors open on the fresh-water side
+        - ``3``  : Leveling towards the salt-water side
+        - ``4``  : Doors open on the salt-water side
+        - ``-2`` : Flushing with doors closed (fresh side)
+        - ``-4`` : Flushing with doors closed (salt side)
+
+    t_level : float
+        Duration of the leveling phase [s].
+        Must be positive when a leveling routine is selected.
+    t_open_lake : float
+        Duration for which the doors on the fresh-water (lake) side
+        are open [s].
+    t_flushing : float
+        Duration of the flushing operation with doors closed [s].
+    t_open_sea : float
+        Duration for which the doors on the salt-water (sea) side
+        are open [s].
+    salinity_lake : float
+        Salinity of the lake (fresh-water side) [PSU or equivalent].
+    parameters : dict
+        Dictionary containing additional parameters required by the
+        ZSF model phase methods (e.g. discharge coefficients, areas,
+        head differences).
+
+    Returns
+    -------
+    results : dict
+        Results returned by the executed ZSF phase method. The contents
+        depend on the selected routine but typically include discharge,
+        transported salt mass, and updated internal state variables.
+
+    Side Effects
+    ------------
+    - Updates ``self.z.state`` during the execution of the routine.
+    - Updates ``self.netto_q_in`` and ``self.netto_flux`` based on the
+      returned results.
+    - Prints intermediate states and diagnostic information to stdout.
+
+    Raises
+    ------
+    AssertionError
+        If a leveling routine is selected with a non-positive ``t_level``.
+    Exception
+        If an unknown routine identifier is provided.
+
+    Notes
+    -----
+    The routine logic maps directly to ZSF phase methods:
+
+    - ``step_phase_1`` : Leveling to fresh-water side
+    - ``step_phase_2`` : Doors open on fresh-water side
+    - ``step_phase_3`` : Leveling to salt-water side
+    - ``step_phase_4`` : Doors open on salt-water side
+    - ``step_flush_doors_closed`` : Flushing with doors closed
+    """
+
     level_to_fresh_side = 1
     door_open_on_fresh_side = 2
     leveling_to_salt_side = 3
@@ -31,7 +105,6 @@ def zsf_routines(
         print("Phase 1")
         print(self.z.state)
         print(results)
-        pass
     elif routine == door_open_on_fresh_side:
         results = self.z.step_phase_2(t_open_lake, **parameters)
     elif routine == leveling_to_salt_side:
@@ -54,8 +127,6 @@ def zsf_routines(
 
 
 def use_zsf_usptream_phase_wise(self, time_step):
-    # netto_q_in = 0.0
-    # netto_flux = 0.0
     if (
         int(self.get_current_time()) == int(self.start_lockage_time)
         and self.locking_index < self.number_of_operations
@@ -71,7 +142,6 @@ def use_zsf_usptream_phase_wise(self, time_step):
         t_flushing = parameters.pop("t_flushing")
         duration = np.nansum([t_open_lake, t_open_sea, t_level, t_flushing])
 
-        # duration = self.df_time[self.locking_index]
         self.end_lockage_time = self.start_lockage_time + duration
         # To ZSF
 
@@ -92,18 +162,12 @@ def use_zsf_usptream_phase_wise(self, time_step):
         parameters["head_lake"] = 10.0
 
         routine = int(parameters.pop("routine"))
-        """
-        t_open_lake = parameters.pop("t_open_lake")
-        t_open_sea = parameters.pop("t_open_sea")
-        t_level = parameters.pop("t_level")
-        t_flushing = parameters.pop("t_flushing")
-        """
 
         results = zsf_routines(
             self, routine, t_level, t_open_lake, t_flushing, t_open_sea, salinity_lake, parameters
         )
 
-        logger.debug("ZSF results: {}".format(results))
+        print("ZSF results: {}".format(results))
 
         self.locking_index += 1
         # Here we calculate the next lockage time
@@ -256,7 +320,6 @@ def call_zsf(
         **mitigation_parameters,
         **operational_parameters,
     }
-    # nighttime_parameters = {**daytime_parameters, "num_cycles": 10}
     results = pyzsf.zsf_calc_steady(**daytime_parameters)
 
     discharge_from_lake = results["discharge_from_lake"]
@@ -294,7 +357,6 @@ class ExampleThreeBoxesZSF(PlotMixin, SaltSimulationMixin, CSVMixin, SimulationP
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # TMP: for pictures
         self.__output_folder = kwargs["output_folder"]
 
     def initialize(self):
@@ -377,9 +439,6 @@ class ExampleThreeBoxesZSF(PlotMixin, SaltSimulationMixin, CSVMixin, SimulationP
             self.ZSF_Q[1] = netto_q_in_down
 
         super().update(dt)
-
-    def post(self):
-        super().post()
 
 
 # Run
