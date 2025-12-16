@@ -81,8 +81,8 @@ def use_zsf_usptream_phase_wise(self, time_step):
             int(time_step)
         ]
 
-        print("Salinity sea: {}".format(salinity_sea_upstream_zsf))
-        print("Salinity lake: {}".format(salinity_lake))
+        print(f"Salinity sea: {salinity_sea_upstream_zsf}")
+        print(f"Salinity lake: {salinity_lake}")
 
         parameters = self.lockages[self.locking_index]
 
