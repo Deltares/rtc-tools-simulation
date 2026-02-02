@@ -1,5 +1,6 @@
 import copy
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -380,7 +381,7 @@ class ExampleThreeBoxesZSF(PlotMixin, SaltSimulationMixin, CSVMixin, SimulationP
         super().pre()
 
         if self.use_zsf_upstream_phase_wise or self.use_zsf_downstream_phase_wise:
-            df_lockages = pd.read_csv(self._input_folder + r"\lockages.csv", index_col=0)
+            df_lockages = pd.read_csv(Path(self._input_folder) / "lockages.csv", index_col=0)
             self.df_time = df_lockages.index
             self.lockages = list(df_lockages.to_dict("records"))
             self.start_lockage_time = self.df_time[0]
