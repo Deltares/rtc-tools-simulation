@@ -1,6 +1,7 @@
 """Module for a reservoir model."""
 
 import filecmp
+import inspect
 import logging
 import math
 import shutil
@@ -456,7 +457,12 @@ class ReservoirModel(Model):
         self._input.rain_evap.include_rain = True
         self._input.rain_evap.include_evaporation = True
 
-    def apply_rulecurve(self, outflow: QOutControlVar = InputVar.Q_TURBINE, ignore_inflows=False):
+    def apply_rulecurve(
+        self,
+        outflow: QOutControlVar = InputVar.Q_TURBINE,
+        ignore_inflows: bool = False,
+        enforce_qmin: bool = False,
+    ):
         """Scheme to set the outflow of the reservoir in order to reach a rulecurve.
 
         This scheme can be applied inside :py:meth:`.ReservoirModel.apply_schemes`.
@@ -467,8 +473,6 @@ class ReservoirModel(Model):
               (m^3/timestep)
             - ``rule_curve_blend``:  Number of timesteps over which to bring the pool back to the
               scheduled elevation.
-            - ''ignore_inflows'' : Whether to ignore the inflow, and solely use
-              current volume difference. Defaults to False
 
         The user must also provide a timeseries with the name ``rule_curve``. This contains the
         water level target for each timestep.
@@ -476,6 +480,16 @@ class ReservoirModel(Model):
         :param outflow: :py:type:`~rtctools_simulation.reservoir._variables.QOutControlVar`
             (default: :py:type:`~rtctools_simulation.reservoir._variables.InputVar.Q_TURBINE`)
             outflow variable that is modified to reach the rulecurve.
+        :param ignore_inflows: bool (default: False)
+            Whether to ignore the inflow, and solely use current volume difference.
+        :param enforce_qmin: bool (default: False)
+            When True, enforces a minimum discharge floor on the computed rule curve
+            discharge. The floor is the feasible minimum outflow as computed by
+            :py:meth:`.get_feasible_qmin`, which combines policy-based and physical
+            constraints. Requires ``Reservoir_Qmin`` in the parameter config (raises
+            ValueError if missing). Optional parameters ``Reservoir_Hdead`` and
+            ``Reservoir_Hbuffer`` control the linear reduction behavior near dead storage.
+            See :py:meth:`.get_feasible_qmin` for details.
         """
         if self.get_current_time() == self.get_start_time():
             logger.debug(
@@ -521,8 +535,153 @@ class ReservoirModel(Model):
         discharge_per_second = discharge / self.get_time_step()
         if not ignore_inflows:
             discharge_per_second += self.timeseries_at("Q_in", self.get_current_time())
-        self._set_q(outflow, max(0, float(discharge_per_second)))
-        logger.debug(f"Rule curve function has set {outflow} to {discharge_per_second} m^3/s")
+        rulecurve_discharge = max(0, float(discharge_per_second))
+        if enforce_qmin:
+            q_min = self.get_feasible_qmin()
+            if rulecurve_discharge < q_min:
+                logger.debug(
+                    f"Rule curve discharge {rulecurve_discharge:.4f} m³/s "
+                    f"< feasible Qmin {q_min:.4f} m³/s. Enforcing Qmin."
+                )
+                rulecurve_discharge = q_min
+        self._set_q(outflow, rulecurve_discharge)
+        logger.debug(f"Rule curve function has set {outflow} to {rulecurve_discharge} m^3/s")
+
+    def get_feasible_qmin(self) -> float:
+        """Calculate feasible minimum outflow based on current reservoir state.
+
+        Combines two constraints:
+
+        1. **Policy constraint**: Qmin reduces linearly between ``Reservoir_Hbuffer``
+           and ``Reservoir_Hdead``.
+           Override :py:meth:`._get_policy_qmin` for custom reduction schemes.
+        2. **Physical constraint**: Cannot release more than available above dead storage.
+           Based on mass balance.
+
+        Returns the lesser of policy and physical limits, guaranteeing feasibility.
+
+        Required parameters in ``rtcParameterConfig.xml``:
+
+        - ``Reservoir_Qmin``: Full minimum outflow (m³/s) when above ``Reservoir_Hbuffer``
+
+        Optional parameters:
+
+        - ``Reservoir_Hdead``: Dead storage elevation (m). Default: 0.
+        - ``Reservoir_Hbuffer``: Elevation where Qmin reduction begins (m).
+          Must be >= ``Reservoir_Hdead``. Default: ``Reservoir_Hdead``.
+
+        :returns: Feasible minimum outflow (m³/s), guaranteed achievable.
+        :rtype: float
+
+        Example usage::
+
+            # Preferred: use enforce_qmin in apply_rulecurve
+            def apply_schemes(self):
+                self.apply_rulecurve(enforce_qmin=True)
+
+            # Advanced: standalone usage for custom logic
+            def apply_schemes(self):
+                self.apply_rulecurve()
+                q_min = self.get_feasible_qmin()
+                # ... custom logic with q_min ...
+        """
+        params = self.parameters()
+
+        # Validate Reservoir_Qmin is configured and non-negative
+        if "Reservoir_Qmin" not in params:
+            caller_name = inspect.currentframe().f_back.f_code.co_name
+            raise ValueError(
+                f"Reservoir_Qmin (used in {caller_name}) is not configured. "
+                "Please set it in rtcParameterConfig.xml"
+            )
+
+        q_min_value = params.get("Reservoir_Qmin")
+        if q_min_value < 0:
+            caller_name = inspect.currentframe().f_back.f_code.co_name
+            raise ValueError(
+                f"Reservoir_Qmin (used in {caller_name}) must be non-negative, "
+                f"got {q_min_value}"
+            )
+
+        h_dead = params.get("Reservoir_Hdead", 0)
+        h_buffer = params.get("Reservoir_Hbuffer", h_dead)
+
+        if h_buffer < h_dead:
+            raise ValueError(
+                f"Reservoir_Hbuffer ({h_buffer}) must be >= Reservoir_Hdead ({h_dead}). "
+                "Reservoir_Hbuffer defines the elevation where Qmin reduction begins."
+            )
+
+        q_min_policy = self._get_policy_qmin()
+        q_max_physical = self._get_physical_max_release()
+        return min(q_min_policy, q_max_physical)
+
+    def _get_policy_qmin(self) -> float:
+        """Calculate policy-based minimum outflow with linear reduction near dead storage.
+
+        Override this method in subclasses to implement custom Qmin reduction policies
+        (e.g., discrete tiers, forecast-based triggers, regulatory rules).
+
+        Default behavior:
+
+        - Above ``Reservoir_Hbuffer``: full ``Reservoir_Qmin`` applies
+        - At ``Reservoir_Hdead``: Qmin = 0
+        - Between: linear interpolation
+
+        :returns: Policy-based minimum outflow (m³/s).
+        :rtype: float
+        """
+        h_current = self.get_var("H")
+        params = self.parameters()
+
+        h_dead = params.get("Reservoir_Hdead", 0)
+        h_buffer = params.get("Reservoir_Hbuffer", h_dead)
+        q_min_full = params.get("Reservoir_Qmin", 0)
+
+        if q_min_full == 0:
+            return 0.0
+
+        if h_current <= h_dead:
+            return 0.0
+
+        if h_buffer == h_dead:
+            # No buffer zone - step behavior: full Qmin above dead storage
+            return float(q_min_full)
+
+        if h_current < h_buffer:
+            # Linear reduction as reservoir depletes
+            fraction = (h_current - h_dead) / (h_buffer - h_dead)
+            return fraction * q_min_full
+
+        return float(q_min_full)
+
+    def _get_physical_max_release(self) -> float:
+        """Calculate maximum physically possible release this timestep.
+
+        Based on mass balance: cannot deplete below dead storage.
+
+        :returns: Maximum physically achievable outflow (m³/s).
+        :rtype: float
+        """
+        v_current = self.get_var("V")
+        params = self.parameters()
+        h_dead = params.get("Reservoir_Hdead", 0)
+
+        v_from_h = self.lookup_tables().get("v_from_h")
+        if v_from_h is None:
+            logger.warning(
+                "Lookup table 'v_from_h' not found. Physical max release constraint "
+                "disabled (returning +inf)."
+            )
+            return float("inf")
+
+        v_dead = v_from_h(h_dead)
+        q_in = self.timeseries_at("Q_in", self.get_current_time())
+        dt = self.get_time_step()
+
+        # Available volume above dead storage, plus inflow during timestep
+        q_max = (v_current - v_dead) / dt + q_in
+        return max(0.0, float(q_max))
 
     def calculate_rule_curve_deviation(
         self,
@@ -1059,15 +1218,13 @@ class ReservoirModel(Model):
             spill_q = q_from_h(latest_h)
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError(
-                    "find_maxq can not access parameter"
-                    "'Reservoir_Qmax' in rtcParameterConfig.xml"
+                    "find_maxq can not access parameter 'Reservoir_Qmax' in rtcParameterConfig.xml"
                 )
             maxq = spill_q + self.parameters()["Reservoir_Qmax"]
         elif discharge_relation == "Fixed":
             if "Reservoir_Qmax" not in self.parameters():
                 raise KeyError(
-                    "find_maxq can not access parameter"
-                    '"Reservoir_Qmax" in rtcParameterConfig.xml'
+                    'find_maxq can not access parameter "Reservoir_Qmax" in rtcParameterConfig.xml'
                 )
             maxq = self.parameters()["Reservoir_Qmax"]
         elif discharge_relation == "Tailwater":
