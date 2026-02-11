@@ -74,6 +74,29 @@ the original rule curve is adjusted. In this case, we take the latest known devi
 after the end of ``H_observed``. There is also functionality to provide an application time, average deviations over a
 moving window, or extrapolate the deviations linearly after the application time.
 
+Qmin Enforcement
+~~~~~~~~~~~~~~~~
+
+The :py:meth:`.ReservoirModel.apply_rulecurve` method supports minimum discharge (Qmin) enforcement
+via the ``enforce_qmin`` parameter:
+
+.. literalinclude:: ../../../../examples/rulecurve_example/rulecurve_example.py
+  :language: python
+  :pyobject: SingleReservoirWithQmin
+
+When ``enforce_qmin=True``, the method uses :py:meth:`.ReservoirModel.get_feasible_qmin` internally
+to compute a feasible minimum outflow as the minimum of two constraints:
+
+1. **Policy constraint**: Qmin reduces linearly between ``Reservoir_Hbuffer`` and ``Reservoir_Hdead``
+2. **Physical constraint**: Cannot release more than available above dead storage
+
+If the rule curve discharge is below the feasible Qmin, the discharge is raised to the feasible Qmin.
+This ensures that Qmin enforcement doesn't attempt to release more water than physically available,
+which could occur when the reservoir level is near dead storage.
+
+The ``SingleReservoirWithQmin`` class in ``examples/rulecurve_example/rulecurve_example.py`` demonstrates this usage.
+For detailed test scenarios covering linear reduction and physical constraints, see ``tests/feasible_qmin_test.py``.
+
 
 Lookup tables
 -------------
@@ -95,17 +118,26 @@ For other lookup tables, defaults from the generated template files can be used.
 Input Data Files
 ----------------
 
-The :py:meth:`.ReservoirModel.apply_rulecurve` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file.
-``Reservoir_Qmax``, upper limiting discharge while blending pool elevation (m³/s), and
-``rule_curve_blend``, the factor by which to reduce the current reservoir volume difference that will be mapped to the discharge this timestep.
-``rule_curve_blend`` > 1 will cause the elevation to converge to the rule curve over time, but not match it. In this case (blend = 1)
-it aims to match the rule_curve elevation at each timestep
+The :py:meth:`.ReservoirModel.apply_rulecurve` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file:
 
-These parameters are supplied to the model via the ``rtcParameterConfig.xml`` input file.
+* ``Reservoir_Qmax``: Upper limiting discharge while blending pool elevation (m³/s)
+* ``rule_curve_blend``: Number of timesteps over which to converge the reservoir elevation to the rule curve target. The discharge is computed as ``Q = (V_current - V_target) / rule_curve_blend``. A value of 1 aims to match the rule curve elevation at each timestep, while values > 1 cause gradual convergence.
+
+When using ``enforce_qmin=True``, the following additional parameters must be configured in ``rtcParameterConfig.xml``:
+
+* ``Reservoir_Qmin`` (**required**): Full minimum outflow (m³/s) when reservoir is above ``Reservoir_Hbuffer``.
+  A ``ValueError`` is raised if this parameter is missing.
+* ``Reservoir_Hdead`` (*optional*, default: 0): Dead storage elevation (m). Qmin is zero at or below this level.
+* ``Reservoir_Hbuffer`` (*optional*, default: ``Reservoir_Hdead``): Elevation (m) where Qmin reduction begins.
+  Must be >= ``Reservoir_Hdead``.
+  When ``Reservoir_Hbuffer`` equals ``Reservoir_Hdead`` (the default), there is no gradual reduction - full Qmin applies
+  above ``Reservoir_Hdead`` and drops to zero at or below it.
+
+An example showing all parameters for enforce_qmin usage:
 
 .. literalinclude:: ../../../../examples/rulecurve_example/input/rtcParameterConfig.xml
     :language: xml
-    :lines: 6-11
+    :lines: 6-20
 
 The scheme also requires an additional input timeseries, ``rulecurve``. This data is provided in the ``timeseries_import.xml``.
 

@@ -22,6 +22,7 @@ Available schemes include:
 * :py:meth:`.ReservoirModel.calculate_cumulative_inflows`
 * :py:meth:`.ReservoirModel.find_maxq`
 * :py:meth:`.ReservoirModel.get_flood_flag`
+* :py:meth:`.ReservoirModel.get_feasible_qmin`
 * :py:meth:`.ReservoirModel.set_q`
 
 An overview of all schemes is given below.
