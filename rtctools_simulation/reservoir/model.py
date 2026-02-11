@@ -82,7 +82,7 @@ class ReservoirModel(Model):
                 continue
             shutil.copy2(default_file, file)
 
-    # Methods for preprocsesing.
+    # Methods for preprocessing.
     def pre(self, *args, **kwargs):
         """
         This method can be overwritten to perform any pre-processing before the simulation begins.
@@ -469,8 +469,8 @@ class ReservoirModel(Model):
         This scheme uses the lookup table ``v_from_h`` and requires the following parameters
         from the ``rtcParameterConfig.xml`` file.
 
-            - ``rule_curve_q_max``: Upper limiting discharge while blending pool elevation
-              (m^3/timestep)
+            - ``Reservoir_Qmax``: Upper limiting discharge while blending pool elevation
+              (m³/s)
             - ``rule_curve_blend``:  Number of timesteps over which to bring the pool back to the
               scheduled elevation.
 
@@ -854,7 +854,7 @@ class ReservoirModel(Model):
                 )
             except AttributeError as err:
                 raise AttributeError(
-                    "Application time is not provided for 'adjust_rulecuve'"
+                    "Application time is not provided for 'adjust_rulecurve'"
                     " and no missing observations can be found to find a "
                     "starting point. Configuration of the application time "
                     "is required."
@@ -925,7 +925,7 @@ class ReservoirModel(Model):
             Maximum discharge. Default is infinity (no maximum discharge).
             It is recommended to supply this parameter when using h_target to
             prevent unrealistically high outflows. This parameter can for
-            example be set to ``rule_curve_q_max``
+            example be set to ``Reservoir_Qmax``
             (used in :py:meth:`.ReservoirModel.apply_rulecurve`).
         :param minimize_peak_q_weight: float, optional.
             Weight for minimizing peak outflow. Default is 0.5.
