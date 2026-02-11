@@ -96,7 +96,7 @@ Input Data Files
 ----------------
 
 The :py:meth:`.ReservoirModel.apply_rulecurve` scheme requires the following parameters from the ``rtcParameterConfig.xml`` file.
-``Reservoir_Qmax``, upper limiting discharge while blending pool elevation (m^3), and
+``Reservoir_Qmax``, upper limiting discharge while blending pool elevation (m³/s), and
 ``rule_curve_blend``, the factor by which to reduce the current reservoir volume difference that will be mapped to the discharge this timestep.
 ``rule_curve_blend`` > 1 will cause the elevation to converge to the rule curve over time, but not match it. In this case (blend = 1)
 it aims to match the rule_curve elevation at each timestep
