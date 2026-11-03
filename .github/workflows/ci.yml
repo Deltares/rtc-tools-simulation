@@ -7,7 +7,7 @@ on:
 jobs:
   style:
     name: Style Check (pre-commit)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
         - uses: actions/checkout@v3
         - name: Set up Python
@@ -21,7 +21,7 @@ jobs:
 
   test:
     name: Run Tests (pytest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
         - uses: actions/checkout@v3
         - name: Set up Python
@@ -39,7 +39,7 @@ jobs:
 
   deploy:
     name: Deploy to PyPI with Poetry
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [test, style]
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
