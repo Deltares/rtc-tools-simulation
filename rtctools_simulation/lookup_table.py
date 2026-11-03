@@ -55,7 +55,7 @@ def _reshape_flattened_array(
     The ordering parameters can have the same values as the numpy.reshape order parameter.
     """
     np_array = np.array(array)
-    reshaped_array = np.reshape(np_array, newshape=shape, order=initial_ordering)
+    reshaped_array = np.reshape(np_array, shape, order=initial_ordering)
     flat_array = np.ravel(reshaped_array, order=new_ordering)
     return flat_array
 
