@@ -116,7 +116,7 @@ There is a `plot_table.csv` in the input folder.
 This is used by the rtc-tools-interfaces module (automatically installed with this package)
 to plot the model output, including the theoretical maximum discharges for each method.
 For more details on how to use this file and visualize results,
-see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+see `RTC-Tools-Interface <https://github.com/Deltares/rtc-tools-interface>`_.
 
 The results of the simulation run can be seen in the plot below.
 
