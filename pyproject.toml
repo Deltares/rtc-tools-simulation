@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Extension for building models used for simulation in rtc-tools."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 dependencies=[
 "casadi >=3.6.3,<=3.7,!=3.6.6",
@@ -27,7 +27,8 @@ rtc-tools-reservoir-template = "rtctools_simulation.cli.reservoir:create_reservo
 
 [dependency-groups]
 dev = [
-"pytest >=8.2.0,<9",
+"pytest >=8.2.0",
+"pyzsf",
 "fonttools >=4.60.2"
 ]
 docs = [

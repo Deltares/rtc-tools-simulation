@@ -10,32 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v3
-        - name: Set up Python
-          uses: actions/setup-python@v4
+        - name: Set up uv
+          uses: astral-sh/setup-uv@v6
           with:
-            python-version: 3.9
-        - name: Install pre-commit
-          run: pip install pre-commit
+            python-version: "3.11"
         - name: Run pre-commit
-          run: pre-commit run --all-files --show-diff-on-failure
+          run: uvx pre-commit run --all-files --show-diff-on-failure
 
   test:
     name: Run Tests (pytest)
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v3
-        - name: Set up Python
-          uses: actions/setup-python@v4
+        - name: Set up uv
+          uses: astral-sh/setup-uv@v6
           with:
-            python-version: 3.9
-        - name: Upgrade pip and install project
-          run: |
-            pip install --upgrade pip
-            pip install -e .
-            pip install pytest
-            pip install pyzsf
+            python-version: "3.11"
+        - name: Install project and dev dependencies
+          run: uv sync --locked
         - name: Run pytest
-          run: pytest tests
+          run: uv run pytest tests
 
   deploy:
     name: Deploy to PyPI
@@ -46,16 +40,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.9
-      - name: Install build tools
-        run: pip install build twine
+          python-version: "3.11"
       - name: Build
-        run: python -m build
+        run: uv build
       - name: Publish to PyPI
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload dist/*
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish
