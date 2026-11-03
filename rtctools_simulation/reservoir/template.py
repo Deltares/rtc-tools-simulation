@@ -1,6 +1,6 @@
 """Module for creating a template for a reservoir model."""
 import logging
-from distutils.dir_util import copy_tree
+import shutil
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
@@ -42,7 +42,7 @@ def create_reservoir_dir(dir: Path, reservoir_name: str, allow_overwrite: bool =
             " Use the -f option to overwrite an existing directory."
         )
     dir.mkdir(parents=True, exist_ok=True)
-    copy_tree(str(SOURCE_DIR), str(dir))
+    shutil.copytree(SOURCE_DIR, dir, dirs_exist_ok=True)
     template_file = dir / "reservoir.txt"
     render_reservoir_file(template_file, reservoir_name=reservoir_name)
     template_file.unlink()
