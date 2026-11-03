@@ -141,7 +141,7 @@ You can optionally include a `plot_table.csv` in the input folder.
 This is used by the rtc-tools-interfaces module (automatically installed with this package)
 to plot the model output.
 For more details on how to use this file and visualize results,
-see `RTC-Tools-Interface <https://gitlab.com/rtc-tools-project/rtc-tools-interface>`_.
+see `RTC-Tools-Interface <https://github.com/Deltares/rtc-tools-interface>`_.
 
 The results of the simulation run can be seen in the plot below. It can be seen that ``Q_evap``
 varies with time as it is dependent on the surface area of the reservoir, even though the evaporation per unit area is constant.
