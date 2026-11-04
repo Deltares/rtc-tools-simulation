@@ -32,7 +32,7 @@ def _get_coordinates_from_grid(grid: list[list[float]]) -> list[list[float]]:
     reduced_coordinates = [_remove_duplicates_from_list(co) for co in grid]
     grid_to_check = np.meshgrid(*reduced_coordinates, indexing="ij")
     coordinates_to_check = [np.array(co).flatten() for co in grid_to_check]
-    for co, co_to_check in zip(coordinates, coordinates_to_check):
+    for co, co_to_check in zip(coordinates, coordinates_to_check, strict=False):
         if co.shape == co_to_check.shape and np.allclose(co, co_to_check):
             continue
         message = (
@@ -55,7 +55,7 @@ def _reshape_flattened_array(
     The ordering parameters can have the same values as the numpy.reshape order parameter.
     """
     np_array = np.array(array)
-    reshaped_array = np.reshape(np_array, newshape=shape, order=initial_ordering)
+    reshaped_array = np.reshape(np_array, shape, order=initial_ordering)
     flat_array = np.ravel(reshaped_array, order=new_ordering)
     return flat_array
 
@@ -91,7 +91,9 @@ def get_lookup_table_data_from_csv(
         )
         raise GridCoordinatesNotFoundError(message) from error
     reduced_vars_in = [
-        var for var, coordinates in zip(vars_in, var_in_coordinates) if len(coordinates) > 1
+        var
+        for var, coordinates in zip(vars_in, var_in_coordinates, strict=False)
+        if len(coordinates) > 1
     ]
     var_in_coordinates = [coords for coords in var_in_coordinates if len(coords) > 1]
     shape = [len(co) for co in var_in_coordinates]

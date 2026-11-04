@@ -9,33 +9,29 @@ jobs:
     name: Style Check (pre-commit)
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v3
-        - name: Set up Python
-          uses: actions/setup-python@v4
+        - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        - name: Set up uv
+          uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
           with:
-            python-version: 3.9
-        - name: Install pre-commit
-          run: pip install pre-commit
+            python-version: "3.11"
+            version: "0.13.5"
         - name: Run pre-commit
-          run: pre-commit run --all-files --show-diff-on-failure
+          run: uvx pre-commit run --all-files --show-diff-on-failure
 
   test:
     name: Run Tests (pytest)
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v3
-        - name: Set up Python
-          uses: actions/setup-python@v4
+        - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        - name: Set up uv
+          uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
           with:
-            python-version: 3.9
-        - name: Upgrade pip and install project
-          run: |
-            pip install --upgrade pip
-            pip install -e .
-            pip install pytest
-            pip install pyzsf
+            python-version: "3.11"
+            version: "0.13.5"
+        - name: Install project and dev dependencies
+          run: uv sync --locked
         - name: Run pytest
-          run: pytest tests
+          run: uv run pytest tests
 
   deploy:
     name: Deploy to PyPI
@@ -43,19 +39,18 @@ jobs:
     needs: [test, style]
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
         with:
-          python-version: 3.9
-      - name: Install build tools
-        run: pip install build twine
+          python-version: "3.11"
+          version: "0.13.5"
+          enable-cache: false
       - name: Build
-        run: python -m build
+        run: uv build
       - name: Publish to PyPI
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload dist/*
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish
