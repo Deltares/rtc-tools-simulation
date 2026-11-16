@@ -24,28 +24,6 @@ With pip (version 25.1 or newer), use `pip install -e . --group docs` and `sphin
 
 The built HTML pages will be in `docs/build/html/`.
 
-## Development
-
-Python 3.11 or newer is required. Install the project with its development dependencies and run the tests from the repository root, with either [uv](https://docs.astral.sh/uv/) or plain pip.
-
-With uv:
-
-```bash
-uv sync
-uv run pytest tests
-```
-
-`uv.lock` pins the dependency versions; refresh it with `uv lock --upgrade`.
-
-With pip (version 25.1 or newer, for `--group`), in a virtual environment:
-
-```bash
-pip install -e . --group dev
-pytest tests
-```
-
-Plain pip resolves the newest dependency versions that `pyproject.toml` allows and ignores `uv.lock`.
-
 ## Developer guidelines
 
-Developer guidelines can be found [here](https://gitlab.com/rtc-tools-project/rtc-tools-simulation/-/blob/main/CONTRIBUTING.md)
+Instructions for setting up a development environment with uv and running the tests can be found [here](https://gitlab.com/rtc-tools-project/rtc-tools-simulation/-/blob/main/CONTRIBUTING.md)
