@@ -20,8 +20,10 @@ uv sync --group docs
 uv run sphinx-build -b html docs/source docs/build/html
 ```
 
+With pip (version 25.1 or newer), use `pip install -e . --group docs` and `sphinx-build -b html docs/source docs/build/html` instead.
+
 The built HTML pages will be in `docs/build/html/`.
 
 ## Developer guidelines
 
-Developer guidelines can be found [here](https://gitlab.com/rtc-tools-project/rtc-tools-simulation/-/blob/main/CONTRIBUTING.md)
+Instructions for setting up a development environment with uv and running the tests can be found [here](https://gitlab.com/rtc-tools-project/rtc-tools-simulation/-/blob/main/CONTRIBUTING.md)

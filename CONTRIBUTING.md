@@ -1,26 +1,46 @@
 # Developer Guidelines
 
-## Editable Installation
+## Setting up a Development Environment
 
-Make sure to have at least pip 21.3 installed.
-Go to the root directory of this project (directory that contains pyproject.toml).
-Run `pip install -e . --config-settings editable_mode=compat`.
+You will need Python 3.11 or higher, Git, and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+Clone the full repository (the version is taken from git tags) and install it from source:
+
+```bash
+git clone https://github.com/Deltares/rtc-tools-simulation.git
+cd rtc-tools-simulation
+uv sync
+```
+
+This installs the package along with the development dependencies, using the versions pinned in `uv.lock`.
+Refresh the pinned versions with `uv lock --upgrade`.
+
+Alternatively, with pip 25.1 or newer, in a virtual environment:
+
+```bash
+pip install -e . --group dev
+```
+
+Plain pip ignores `uv.lock` and resolves the newest versions that `pyproject.toml` allows.
 
 ## Pre-commit Checks
 
-To check the code quality and formatting,
-we suggest to use pre-commit.
-Install pre-commit by running `pip install pre-commit`.
-To setup pre-commit, run `pre-commit install` (only needs to be done once).
-Code quality and formatting will then be automatically checked during a commit.
+To check code quality and formatting, we suggest using pre-commit.
+Run this once to set up the hook:
 
-To run the pre-commit check outside of a commit,
-run `pre-commit run --all-files --show-diff-on-failure`
-from the root directory.
+```bash
+uvx pre-commit install
+```
+
+To run the checks manually:
+
+```bash
+uvx pre-commit run --all-files --show-diff-on-failure
+```
 
 ## Test Suite
 
-Make sure that the test suite succeeds before merging a branch into main.
-To run the test suite locally,
-make sure pytest is installed (`pip install pytest`)
-and run `pytest tests` from the project root directory.
+Make sure that the test suite succeeds before merging a branch into main:
+
+```bash
+uv run pytest tests
+```
