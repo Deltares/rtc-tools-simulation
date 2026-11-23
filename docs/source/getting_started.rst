@@ -6,7 +6,7 @@ Getting Started
 Installation
 ============
 
-Python 3.9 is recommended for running RTC-Tools.
+Python 3.11 or newer is required for running RTC-Tools.
 
 For most users, the easiest way to install RTC-Tools
 is using the `pip <https://pip.pypa.io/>`_ package manager.
